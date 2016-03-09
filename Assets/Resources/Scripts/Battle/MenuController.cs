@@ -1,0 +1,341 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
+
+public class MenuController : MonoBehaviour
+{
+
+    public GameObject[] robots;//生成するロボ
+    List<Button> br;
+    public GameObject[] panels;//生成するパネル
+    List<Button> bp;
+    int generateNo;
+    bool isRobot;
+    bool isOnMenu;
+    bool gameStop;
+    int panelDire = 0;//パネルの向き、基本値は0
+    GameObject g;
+    List<GameObject> setDire;
+    public KernelController kerCon, kerConEnemy;
+    public Sprite loseImage, winImage;
+    Vector2 setPos;
+    public Text tabText;
+
+    // Use this for initialization
+    void Start()
+    {
+        //各コマンド初期化
+        Transform commandList = transform.FindChild("CommandList");
+        GameObject bt;
+        EventTrigger trigger;
+        EventTrigger.Entry entryDown, entryDrag, entryEndDrag;
+        br = new List<Button>();//ロボコマンド初期化
+        for (int i = 0; i < robots.GetLength(0); i++)
+        {
+            bt = (GameObject)Instantiate(Resources.Load("Prefabs/RoboButton"),
+                transform.position, transform.rotation);//新たなロボボタン 
+            br.Add(bt.GetComponent<Button>());
+            br[i].transform.SetParent(commandList, true);
+            br[i].transform.localPosition = new Vector2(-500 + 250 * (i % 5), 0);
+            br[i].transform.localScale = Vector3.one;
+            int SIZE = 32;
+            Texture2D image = new Texture2D(SIZE, SIZE);
+            RobotController r = robots[i].GetComponent<RobotController>();
+            Color[] c = robots[i].GetComponent<SpriteRenderer>().sprite.texture.
+                GetPixels(SIZE * (1 + (r.im_num % 4) * 3),
+                SIZE * (7 - 4 * (r.im_num / 4) - r.Direction),
+                SIZE, SIZE);
+            image.SetPixels(0, 0, SIZE, SIZE, c);
+            image.Apply();
+            br[i].GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, SIZE, SIZE),
+                new Vector2(0.5f, 0.5f), SIZE);
+            br[i].transform.FindChild("Text").gameObject.SetActive(false);
+            //br[i].onClick.AddListener(() => SetNumber(i, true, 0));
+            trigger = br[i].GetComponent<EventTrigger>();
+            entryDown = new EventTrigger.Entry();
+            entryDown.eventID = EventTriggerType.PointerDown;
+            int genNo = i;
+            entryDown.callback.AddListener((x) => SetNumber(genNo, true, 0));
+            trigger.triggers.Add(entryDown);
+            /*entryDrag = new EventTrigger.Entry();
+            entryDrag.eventID = EventTriggerType.Drag;
+            entryDrag.callback.AddListener((x) => SetPosition());
+            trigger.triggers.Add(entryDrag);*/
+        }
+        bp = new List<Button>();//パネルコマンド初期化
+        int panelCount = 0;
+        for (int i = 0; i < panels.GetLength(0); i++)
+        {
+            int generateCount = 1;
+            if (panels[i].GetComponent<PanelController>().turnable)//回転可能ならば、その分だけボタンを生成
+            {
+                generateCount = 4;
+            }
+            for (int j = 0; j < generateCount; j++)
+            {
+                bt = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"),
+                    transform.position, Quaternion.Euler(0, 0, 90 * j));//新たなパネルボタン
+                bp.Add(bt.GetComponent<Button>());
+                bp[panelCount].transform.SetParent(commandList, true);
+                bp[panelCount].transform.localPosition = new Vector2(-500 + 250 * (panelCount % 5), 0);
+                bp[panelCount].transform.localScale = Vector3.one;
+                bp[panelCount].GetComponent<Image>().sprite = panels[i].GetComponent<SpriteRenderer>().sprite;
+                bp[panelCount].transform.FindChild("Text").gameObject.SetActive(false);
+                //bp[panelCount].onClick.AddListener(() => SetNumber(i, false, j));
+                trigger = bp[panelCount].GetComponent<EventTrigger>();
+                entryDown = new EventTrigger.Entry();
+                entryDown.eventID = EventTriggerType.PointerDown;
+                int genNo = i, dire = j;
+                entryDown.callback.AddListener((x) => SetNumber(genNo, false, dire));
+                trigger.triggers.Add(entryDown);
+                entryDrag = new EventTrigger.Entry();
+                entryDrag.eventID = EventTriggerType.Drag;
+                entryDrag.callback.AddListener((x) => SetPosition());
+                trigger.triggers.Add(entryDrag);
+                entryEndDrag = new EventTrigger.Entry();
+                entryEndDrag.eventID = EventTriggerType.EndDrag;
+                entryEndDrag.callback.AddListener((x) => Generate());
+                trigger.triggers.Add(entryEndDrag);
+                panelCount++;
+            }
+        }
+        g = GameObject.Find("ObjectExpectation");
+        setDire = new List<GameObject>();
+        setDire.Add(GameObject.Find("SetDirection"));
+        for (int i = 0; i < 4; i++)//各方向の矢印を設定
+        {
+            if (0 < i)
+            {
+                setDire.Add((GameObject)Instantiate(setDire[0],
+                        setDire[0].transform.position, Quaternion.Euler(0, 0, 90 * i)));
+            }
+            setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
+            trigger = setDire[i].GetComponent<EventTrigger>();
+            if (0 < i)
+            {
+                trigger.triggers.RemoveAt(0);
+            }
+            entryDown = new EventTrigger.Entry();
+            entryDown.eventID = EventTriggerType.PointerDown;
+            int dire = i;
+            entryDown.callback.AddListener((x) => Generate(dire));
+            trigger.triggers.Add(entryDown);
+        }
+        ChangeTab();
+        OnMenu();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (kerCon == null || kerConEnemy == null)
+        {
+            transform.FindChild("EndMessage").GetComponent<Image>().enabled = true;
+            if (kerCon == null)
+            {
+                transform.FindChild("EndMessage").GetComponent<Image>().sprite = loseImage;
+            }
+            else
+            {
+                transform.FindChild("EndMessage").GetComponent<Image>().sprite = winImage;
+            }
+            if (!gameStop)
+            {
+                TimeHandle();
+                isOnMenu = true;
+                OnMenu();
+            }
+        }
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.GetKey(KeyCode.Home) || Input.GetKey(KeyCode.Escape))
+            {
+                Application.Quit();
+                return;
+            }
+        }
+    }
+
+
+    //ロボ・パネルの種類と生成する番号をセット
+    public void SetNumber(int generateNo, bool isRobot, int panelDire)
+    {
+        Debug.Log(generateNo);
+        this.generateNo = generateNo;
+        this.isRobot = isRobot;
+        foreach (Transform child in transform)
+        {
+            /*if (child.tag == "UI_Object_Set" || child.tag == "UI_Regular")
+            {
+                child.gameObject.SetActive(true);
+                if (child.name == "SelectObject")
+                {*/
+            Sprite s;
+            if (isRobot)
+            {
+                s = br[generateNo].GetComponent<Image>().sprite;
+                setPos = GameObject.Find("kernel").transform.position;
+                g.transform.position = setPos;
+                g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
+                for (int i = 0; i < setDire.Count; i++)
+                {
+                    setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+                    setDire[i].GetComponent<EventTrigger>().enabled = true;
+                    setDire[i].transform.position = setPos;
+                }
+                panelDire = 0;
+            }
+            else
+            {
+                s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
+                g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
+                g.transform.position = Vector2.zero;
+                SetPosition();
+            }
+            g.GetComponent<SpriteRenderer>().sprite = s;
+            //child.GetComponent<Image>().sprite = s;
+            /*}
+        }
+        else
+        {
+            child.gameObject.SetActive(false);
+        }*/
+            g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
+        }
+        this.panelDire = panelDire;
+    }
+
+    public void SetPosition()
+    {
+        Vector3 touch_pos = Input.mousePosition;
+        Vector2 t_pos = Camera.main.ScreenToWorldPoint(touch_pos);
+        t_pos.x = Mathf.Round(t_pos.x);
+        t_pos.y = Mathf.Round(t_pos.y + 1.5f);
+        g.transform.position = t_pos;
+        setPos = t_pos;
+    }
+
+    public void Generate(int setDire=-1)
+    {
+        Debug.Log("Ok" + generateNo);
+        if (isRobot)
+        {
+            kerCon.Generate(generateNo, setDire, !gameStop);
+        }
+        else
+        {
+            GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
+            ob.GetComponent<PanelController>().direction = panelDire;
+            GameObject ef = (GameObject)Instantiate(Resources.Load("Prefabs/effect_p"), Vector2.zero, transform.rotation);
+            ef.name = "effect";
+            ef.transform.position = ob.transform.position;
+            ef.transform.SetParent(ob.transform);
+        }
+    }
+
+    public void ChangeTab()
+    {
+        foreach (Transform child in transform.FindChild("CommandList"))
+        {
+            if (isRobot)
+            {
+                if (child.tag == "UI_Menu_Robo")
+                {
+                    child.gameObject.SetActive(false);
+                }
+                else if (child.tag == "UI_Menu_Pan")
+                {
+                    child.gameObject.SetActive(true);
+                }
+                for (int i = 0; i < setDire.Count; i++)
+                {
+                    setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
+                    setDire[i].GetComponent<EventTrigger>().enabled = false;
+                }
+            }
+            else
+            {
+                if (child.tag == "UI_Menu_Robo")
+                {
+                    child.gameObject.SetActive(true);
+                }
+                else if (child.tag == "UI_Menu_Pan")
+                {
+                    child.gameObject.SetActive(false);
+                }
+            }
+        }
+        isRobot = !isRobot;
+        g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
+        tabText.text=isRobot ? "Robot" : "Panel";
+    }
+
+    void SetPause(bool pause = false)
+    {
+        GameObject[] gk = GameObject.FindGameObjectsWithTag("Kernel");
+        foreach (GameObject gs in gk)
+        {
+            gs.GetComponent<KernelController>().enabled = pause;
+        }
+        GameObject[] gr = GameObject.FindGameObjectsWithTag("Robot");
+        foreach (GameObject gs in gr)
+        {
+            if (gs.GetComponent<RobotController>() != null)
+            {
+                gs.GetComponent<RobotController>().enabled = pause;
+            }
+        }
+        GameObject gt = GameObject.Find("Territory");
+        gt.GetComponent<TerritoryController>().enabled = pause;
+    }
+
+    public void OnMenu()
+    {
+        g.GetComponent<SpriteRenderer>().sprite = null;
+        for (int i = 0; i < setDire.Count; i++)
+        {
+            setDire[i].GetComponent<EventTrigger>().enabled = false;
+            setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
+        }
+        isOnMenu = !isOnMenu;
+        foreach (Transform child in transform)
+        {
+            if (child.name == "CommandList")
+            {
+                child.gameObject.SetActive(isOnMenu);
+            }
+            else if(child.name == "MenuSwitch")
+            {
+                child.FindChild("Text").GetComponent<Text>().text = isOnMenu ? "OFF" : "ON";
+            }
+        }
+    }
+
+    public void TimeHandle()
+    {
+        SetPause(gameStop);
+        gameStop = !gameStop;
+        Text t = transform.FindChild("TimeSwitch").FindChild("Text").GetComponent<Text>();
+        if (gameStop)
+        {
+            t.text = "▼";
+            t.transform.eulerAngles = new Vector3(0, 0, 90);
+        }
+        else
+        {
+            t.text = "||";
+            t.transform.eulerAngles = Vector3.zero;
+        }
+    }
+
+    public void ReturnTitle()
+    {
+        if (transform.FindChild("EndMessage").GetComponent<Image>().enabled)
+        {
+            SceneManager.LoadScene("title");
+        }
+    }
+}
