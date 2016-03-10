@@ -10,9 +10,12 @@ public class ScreenManager : MonoBehaviour {
         set { obj = value; }
     }
     public int mapSizeX, mapSizeY;
+    const int cameraSizeX = 16;
+    const int cameraSizeY = 9;
     Vector2 keyDownPos;//押下座標格納
     Vector2 velocity;
     Vector2 accel;
+    bool cameraIsFixing;//カメラ固定状態
                        // Use this for initialization
     void Start()
     {
@@ -43,11 +46,11 @@ public class ScreenManager : MonoBehaviour {
         }
         else if (Input.GetMouseButton(0))//カメラスクロール
         {
-            velocity = keyDownPos / 32 - (Vector2)Input.mousePosition / 32;
+            velocity = keyDownPos / 160 - (Vector2)Input.mousePosition / 160;
             accel = velocity / (-10);
             transform.position = (Vector2)transform.position + velocity;
             transform.position += new Vector3(0, 0, -10);
-            LimitScroll(mapSizeX,mapSizeX);
+            LimitScroll(mapSizeX,mapSizeY);
             keyDownPos = Input.mousePosition;
             Debug.Log(Input.mousePosition);
         }
@@ -55,7 +58,7 @@ public class ScreenManager : MonoBehaviour {
         {
             transform.position = (Vector2)transform.position + velocity;
             transform.position += new Vector3(0, 0, -10);
-            LimitScroll(mapSizeX, mapSizeX);
+            LimitScroll(mapSizeX, mapSizeY);
             velocity += accel;
         }
     }
@@ -64,29 +67,34 @@ public class ScreenManager : MonoBehaviour {
     {
         float correctionX = -0.5f;
         float speed = 0.1f;
-        if(transform.position.x<correctionX-sizeX/2)
+        float marginX = 1;
+        float marginY = 1;
+        float rangeX = (sizeX - cameraSizeX) / 2 + marginX;
+        float rangeY = (sizeY - cameraSizeY) / 2 + marginY;
+        float correctionDown = 2;
+        if (transform.position.x < correctionX - rangeX)
         {
-            transform.position = new Vector3(correctionX - sizeX / 2, transform.position.y, -10);
+            transform.position = new Vector3(correctionX - rangeX, transform.position.y, -10);
             velocity.x = speed;
-            accel.x = velocity.x / (-10);
+            accel = velocity / (-10);
         }
-        if (transform.position.x > correctionX + sizeX / 2)
+        if (transform.position.x > correctionX + rangeX)
         {
-            transform.position = new Vector3(correctionX + sizeX / 2, transform.position.y, -10);
+            transform.position = new Vector3(correctionX + rangeX, transform.position.y, -10);
             velocity.x = -speed;
-            accel.x = velocity.x / (-10);
+            accel = velocity / (-10);
         }
-        if (transform.position.y <  - sizeY / 2)
+        if (transform.position.y <  - (rangeY+correctionDown))
         {
-            transform.position = new Vector3(transform.position.x, -sizeY / 2, -10);
+            transform.position = new Vector3(transform.position.x, -(rangeY + correctionDown), -10);
             velocity.y = speed;
-            accel.y = velocity.y / (-10);
+            accel = velocity / (-10);
         }
-        if (transform.position.y > sizeY / 2)
+        if (transform.position.y > rangeY)
         {
-            transform.position = new Vector3(transform.position.x, sizeY / 2, -10);
+            transform.position = new Vector3(transform.position.x, rangeY, -10);
             velocity.y = -speed;
-            accel.y = velocity.y / (-10);
+            accel = velocity / (-10);
         }
     }
 }

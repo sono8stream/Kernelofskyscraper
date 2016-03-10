@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 19684e58f7bd7ec4d9885b8086992ad3
-timeCreated: 1449824017
+timeCreated: 1457597280
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -19,7 +19,7 @@ TextureImporter:
   bumpmap:
     convertToNormalMap: 0
     externalNormalMap: 0
-    heightScale: .25
+    heightScale: 0.25
     normalMapFilter: 0
   isReadable: 0
   grayScaleToAlpha: 0
@@ -44,7 +44,7 @@ TextureImporter:
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
-  spritePivot: {x: .5, y: .5}
+  spritePivot: {x: 0.5, y: 0.5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spritePixelsToUnits: 31
   alphaIsTransparency: 1
@@ -59,9 +59,14 @@ TextureImporter:
         y: 0
         width: 250
         height: 313
-      alignment: 4
-      pivot: {x: 0, y: .5}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -125, y: 156.5}
+        - {x: -125, y: -156.5}
+        - {x: 125, y: -156.5}
+        - {x: 125, y: 156.5}
     - name: bk_1
       rect:
         serializedVersion: 2
@@ -69,9 +74,15 @@ TextureImporter:
         y: 0
         width: 250
         height: 313
-      alignment: 4
-      pivot: {x: 0, y: .5}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -125, y: 156.5}
+        - {x: -125, y: -156.5}
+        - {x: 125, y: -156.5}
+        - {x: 125, y: 156.5}
+    outline: []
   spritePackingTag: 
   userData: 
   assetBundleName: 

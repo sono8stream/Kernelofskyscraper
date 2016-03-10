@@ -17,7 +17,7 @@ public class MenuController : MonoBehaviour
     bool isOnMenu;
     bool gameStop;
     int panelDire = 0;//パネルの向き、基本値は0
-    GameObject g;
+    GameObject g;//オブジェの配置予想
     List<GameObject> setDire;
     public KernelController kerCon, kerConEnemy;
     public Sprite loseImage, winImage;
@@ -58,7 +58,7 @@ public class MenuController : MonoBehaviour
             entryDown = new EventTrigger.Entry();
             entryDown.eventID = EventTriggerType.PointerDown;
             int genNo = i;
-            entryDown.callback.AddListener((x) => SetNumber(genNo, true, 0));
+            entryDown.callback.AddListener((x) => SetNumber(genNo, true, 0, 0));
             trigger.triggers.Add(entryDown);
             /*entryDrag = new EventTrigger.Entry();
             entryDrag.eventID = EventTriggerType.Drag;
@@ -88,17 +88,17 @@ public class MenuController : MonoBehaviour
                 trigger = bp[panelCount].GetComponent<EventTrigger>();
                 entryDown = new EventTrigger.Entry();
                 entryDown.eventID = EventTriggerType.PointerDown;
-                int genNo = i, dire = j;
-                entryDown.callback.AddListener((x) => SetNumber(genNo, false, dire));
+                int genNo = i, dire = j,panelNo=panelCount;
+                entryDown.callback.AddListener((x) => SetNumber(genNo, false, dire, panelNo));
                 trigger.triggers.Add(entryDown);
-                entryDrag = new EventTrigger.Entry();
+                /*entryDrag = new EventTrigger.Entry();
                 entryDrag.eventID = EventTriggerType.Drag;
                 entryDrag.callback.AddListener((x) => SetPosition());
                 trigger.triggers.Add(entryDrag);
                 entryEndDrag = new EventTrigger.Entry();
                 entryEndDrag.eventID = EventTriggerType.EndDrag;
                 entryEndDrag.callback.AddListener((x) => Generate());
-                trigger.triggers.Add(entryEndDrag);
+                trigger.triggers.Add(entryEndDrag);*/
                 panelCount++;
             }
         }
@@ -161,7 +161,7 @@ public class MenuController : MonoBehaviour
 
 
     //ロボ・パネルの種類と生成する番号をセット
-    public void SetNumber(int generateNo, bool isRobot, int panelDire)
+    public void SetNumber(int generateNo, bool isRobot, int panelDire,int panelCount)
     {
         Debug.Log(generateNo);
         this.generateNo = generateNo;
@@ -178,8 +178,8 @@ public class MenuController : MonoBehaviour
             {
                 s = br[generateNo].GetComponent<Image>().sprite;
                 setPos = GameObject.Find("kernel").transform.position;
-                g.transform.position = setPos;
                 g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
+                g.transform.position = setPos;
                 for (int i = 0; i < setDire.Count; i++)
                 {
                     setDire[i].GetComponent<SpriteRenderer>().enabled = true;
@@ -192,8 +192,10 @@ public class MenuController : MonoBehaviour
             {
                 s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
                 g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
-                g.transform.position = Vector2.zero;
-                SetPosition();
+                setPos = Vector2.zero;
+                g.transform.position = setPos;
+                transform.FindChild("SetObject").gameObject.SetActive(true);
+                //SetPosition();
             }
             g.GetComponent<SpriteRenderer>().sprite = s;
             //child.GetComponent<Image>().sprite = s;
@@ -207,7 +209,7 @@ public class MenuController : MonoBehaviour
         }
         GameObject selecting = transform.FindChild("CommandList").FindChild("Selecting").gameObject;
         selecting.SetActive(true);
-        selecting.transform.localPosition = new Vector2(-500 + 250 * (generateNo % 5), 0);
+        selecting.transform.localPosition = new Vector2(-500 + 250 * (panelCount % 5), 0);
         this.panelDire = panelDire;
     }
 
@@ -216,7 +218,7 @@ public class MenuController : MonoBehaviour
         Vector3 touch_pos = Input.mousePosition;
         Vector2 t_pos = Camera.main.ScreenToWorldPoint(touch_pos);
         t_pos.x = Mathf.Round(t_pos.x);
-        t_pos.y = Mathf.Round(t_pos.y + 1.5f);
+        t_pos.y = Mathf.Round(t_pos.y/* + 1.5f*/);
         g.transform.position = t_pos;
         setPos = t_pos;
     }
@@ -236,6 +238,7 @@ public class MenuController : MonoBehaviour
             ef.name = "effect";
             ef.transform.position = ob.transform.position;
             ef.transform.SetParent(ob.transform);
+            //transform.FindChild("SetObject").gameObject.SetActive(true);
         }
     }
 
@@ -274,6 +277,7 @@ public class MenuController : MonoBehaviour
         isRobot = !isRobot;
         g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
         tabText.text=isRobot ? "Robot" : "Panel";
+        transform.FindChild("SetObject").gameObject.SetActive(false);
     }
 
     void SetPause(bool pause = false)
