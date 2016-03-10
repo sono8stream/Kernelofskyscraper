@@ -752,4 +752,10 @@ public class RobotController : MonoBehaviour {
         t.AdjustRobotNumber(number);
         Destroy(gameObject);
     }
+
+    public void CompleteGeneration()
+    {
+        GetComponent<Animator>().SetBool("Generated", true);
+        //GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
+    }
 }

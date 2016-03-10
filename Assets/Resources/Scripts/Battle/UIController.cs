@@ -268,7 +268,7 @@ public class UIController : MonoBehaviour
         t_pos.x = Mathf.Round(t_pos.x);
         t_pos.y = Mathf.Round(t_pos.y);
         //Debug.Log(t_pos);
-        GameObject ob = GameObject.Find("Main Camera").GetComponent<GetObject>().Object;
+        GameObject ob = GameObject.Find("Main Camera").GetComponent<ScreenManager>().Object;
         if (ob == null || (ob.tag != "Panel" && ob.tag != "Robot"))
         {
             if ((rbt && tr.rbdata[tr.rbdata.GetLength(0) / 2 + (int)k.transform.position.x

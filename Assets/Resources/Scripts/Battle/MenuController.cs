@@ -182,7 +182,7 @@ public class MenuController : MonoBehaviour
                 g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
                 for (int i = 0; i < setDire.Count; i++)
                 {
-                    setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+                    setDire[i].GetComponent<SpriteRenderer>().enabled = true;
                     setDire[i].GetComponent<EventTrigger>().enabled = true;
                     setDire[i].transform.position = setPos;
                 }
@@ -205,6 +205,9 @@ public class MenuController : MonoBehaviour
         }*/
             g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
         }
+        GameObject selecting = transform.FindChild("CommandList").FindChild("Selecting").gameObject;
+        selecting.SetActive(true);
+        selecting.transform.localPosition = new Vector2(-500 + 250 * (generateNo % 5), 0);
         this.panelDire = panelDire;
     }
 
@@ -252,7 +255,7 @@ public class MenuController : MonoBehaviour
                 }
                 for (int i = 0; i < setDire.Count; i++)
                 {
-                    setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
+                    setDire[i].GetComponent<SpriteRenderer>().enabled = false;
                     setDire[i].GetComponent<EventTrigger>().enabled = false;
                 }
             }

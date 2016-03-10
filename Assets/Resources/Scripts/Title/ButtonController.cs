@@ -8,11 +8,19 @@ public class ButtonController : MonoBehaviour {
 	void Start () {
 	
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.GetKey(KeyCode.Home) || Input.GetKey(KeyCode.Escape))
+            {
+                Application.Quit();
+                return;
+            }
+        }
+    }
 
     public void OnClick(int levelNo)
     {
