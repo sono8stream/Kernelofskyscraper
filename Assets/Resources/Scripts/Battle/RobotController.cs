@@ -29,7 +29,7 @@ public class RobotController : MonoBehaviour {
     }
     int ani_count;//歩行パターン切り替えウェイト
     const int SIZE = 32;//画像サイズ
-    const int ANI_SPAN = 10;//アニメーションの遷移感覚
+    int aniSpan;//アニメーションの遷移間隔
     public bool paneling;//パネル上の処理を実行中か
     public int speed;//移動スピード
     public int sp_count;
@@ -62,13 +62,13 @@ public class RobotController : MonoBehaviour {
     List<Vector2> ex_panels;//超えたパネルの座標リスト
     GameObject ln;//通過ライン
     GameObject pt;//通過ポイント
-    public bool move;
+    bool move;
     public bool Move
     {
         get { return move; }
         set { move = value;}
     }
-    public bool at;
+    bool at;
     public bool CheckAttack
     {
         get
@@ -105,6 +105,7 @@ public class RobotController : MonoBehaviour {
     #endregion
     public int fnumber;
     public Vector2 v;
+    public int typeNo;//robotのタイプ
     #endregion
 
     // Use this for initialization
@@ -138,18 +139,28 @@ public class RobotController : MonoBehaviour {
         move = false;
         sp_count = 0;
         cother = null;
+        if(typeNo==(int)RobotType.Human||typeNo==(int)RobotType.Bomb)
+        {
+            aniSpan = 10;
+        }
+        else
+        {
+            aniSpan = 20;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!breaking)
+        if ((typeNo == (int)RobotType.Human || typeNo == (int)RobotType.Bomb)
+            && !breaking)//人間タイプ、ボムタイプなら移動
         {
-            if (move)
+            if (move)//実際に移動処理
             {
                 if (sp_count < speed)
                 {
                     transform.Translate(DtoV() / speed);
+                    SetImage();
                     sp_count++;
                 }
                 if (sp_count == speed)
@@ -157,7 +168,7 @@ public class RobotController : MonoBehaviour {
                     move = false;
                 }
             }
-            else
+            else//停止し、パネル、カーネルと接触処理
             {
                 Vector2 s = transform.position + new Vector3(t.rbdata.GetLength(0) / 2, t.rbdata.GetLength(1) / 2, 0);
                 if (sp_count >= speed)//停止処理
@@ -206,7 +217,7 @@ public class RobotController : MonoBehaviour {
                 }
                 else
                 {
-                    try
+                    try//前進を試みる
                     {
                         if (t.rbdata[(int)Math.Round(s.x + DtoV().x), (int)Math.Round(s.y + DtoV().y)] == -1)//目の前にロボがいない
                         {
@@ -244,19 +255,31 @@ public class RobotController : MonoBehaviour {
             ln.transform.position = Vector2.zero;
             pt.transform.position = Vector2.zero;
         }
+        else if (!at)//フィギュリンタイプの攻撃
+        {
+            dire++;
+            if (dire >= 4)
+            {
+                dire = 0;
+            }
+            StartCoroutine(Attack());
+        }
         bar.transform.localScale = new Vector3((float)hp / (float)mhp, 1, 1);
     }
 
     void FixedUpdate()
     {
-        ani_count++;
-        if(ani_count>=ANI_SPAN)
+        if (typeNo != (int)RobotType.Figurine)
         {
-            ani_count = 0;
-            int ani_sub = last_ani_pat;
-            last_ani_pat = ani_pat;
-            ani_pat = Mathf.Abs(ani_sub - 2);
-            SetImage();
+            ani_count++;
+            if (ani_count >= aniSpan)
+            {
+                ani_count = 0;
+                int ani_sub = last_ani_pat;
+                last_ani_pat = ani_pat;
+                ani_pat = Mathf.Abs(ani_sub - 2);
+                SetImage();
+            }
         }
     }
 
@@ -295,7 +318,6 @@ public class RobotController : MonoBehaviour {
                 pos.x = -1 /* speed*/;
                 break;
         }
-        SetImage();
         return pos;
     }
 
@@ -398,6 +420,8 @@ public class RobotController : MonoBehaviour {
 
     public IEnumerator Break()
     {
+        StopCoroutine(Attack());
+        at = true;
         ef.transform.position = transform.position;
         StopCoroutine(Attack());
         GetComponent<BoxCollider2D>().isTrigger = true;
@@ -435,7 +459,7 @@ public class RobotController : MonoBehaviour {
         return t;
     }
 
-    public void RouteSet()//通過ルートを処理
+    /*public void RouteSet()//通過ルートを処理
     {
         bool t = false;
         for (int i = 0; i < ex_panels.Count; i++)
@@ -444,21 +468,24 @@ public class RobotController : MonoBehaviour {
             {
                 t = true;
             }
+            Debug.Log("Check");
         }
         if (t)//ラインで囲まれたエリア内を制圧
         {
             Suppresssion();
+            Debug.Log("Suppression");
         }
         else//新しい座標を追加し、ライン描画
         {
             if (ppos == new Vector2(-100, -100))
             {
                 ppos = transform.position;
-                ex_panels.Add(transform.position);
             }
+            ex_panels.Add(ppos);
             Liner(ppos, transform.position, 32);
+            Debug.Log("Line");
         }
-    }
+    }*/
 
     /// <summary>
     /// エリア選択、制圧メソッド
@@ -466,7 +493,6 @@ public class RobotController : MonoBehaviour {
     public void Zoning()
     {
         bool t = false;
-        Debug.Log(transform.position);
         for (int i = 0; i < ex_panels.Count; i++)
         {
             if (ex_panels[i].x == transform.position.x && ex_panels[i].y == transform.position.y)
@@ -478,12 +504,18 @@ public class RobotController : MonoBehaviour {
         if (ppos == new Vector2(-100, -100))
         {
             ppos = transform.position;
+            Debug.Log("Check");
             ex_panels.Add(ppos);
         }
         Liner(ppos, transform.position, 32);
         if (t)//ラインで囲まれたエリア内を制圧
         {
+            for(int i=0;i<ex_panels.Count;i++)
+            {
+                Debug.Log(ex_panels[i]);
+            }
             Suppresssion();
+            Debug.Log("Suppression");
         }
     }
 
@@ -509,11 +541,19 @@ public class RobotController : MonoBehaviour {
             if(v)
             {
                 length = (int)(pos2.y - pos1.y);//ラインの長さ決定
+                for (int i = 0; i < Mathf.Abs(length); i++)//ライン描画
+                {
+                    ex_panels.Add(new Vector2(pos1.x, pos1.y + (i + 1) * Mathf.Abs(length) / length));//ライン上の点を座標系に追加
+                }
             }
             else
             {
                 length = (int)(pos2.x - pos1.x);
                 l.transform.eulerAngles = new Vector3(0, 0, 90);
+                for (int i = 0; i < Mathf.Abs(length); i++)//ライン描画
+                {
+                    ex_panels.Add(new Vector2(pos1.x + (i + 1) * Mathf.Abs(length) / length, pos1.y));//ライン上の点を座標系に追加
+                }
             }
             l.transform.localScale = new Vector3(1, Math.Abs(length), 1);
         }
@@ -624,6 +664,10 @@ public class RobotController : MonoBehaviour {
         }
         ppos = new Vector2(-100, -100);
         Debug.Log("Panels" + ex_panels.Count);
+        Debug.Log(mix);
+        Debug.Log(miy);
+        Debug.Log(max);
+        Debug.Log(may);
         StartCoroutine(g.GetComponent<TerritoryController>().Refresh(mix, miy, max, may,area));
     }
 
@@ -758,4 +802,9 @@ public class RobotController : MonoBehaviour {
         GetComponent<Animator>().SetBool("Generated", true);
         //GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
     }
+}
+
+public enum RobotType
+{
+    Human = 0, Bomb, Figurine
 }

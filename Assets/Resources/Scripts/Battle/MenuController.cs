@@ -21,7 +21,7 @@ public class MenuController : MonoBehaviour
     List<GameObject> setDire;
     public KernelController kerCon, kerConEnemy;
     public Sprite loseImage, winImage;
-    Vector2 setPos;
+    Vector2 setPos,setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
     public Text tabText;
 
     // Use this for initialization
@@ -58,12 +58,8 @@ public class MenuController : MonoBehaviour
             entryDown = new EventTrigger.Entry();
             entryDown.eventID = EventTriggerType.PointerDown;
             int genNo = i;
-            entryDown.callback.AddListener((x) => SetNumber(genNo, true, 0, 0));
+            entryDown.callback.AddListener((x) => SetNumber(genNo, true, 0, genNo));
             trigger.triggers.Add(entryDown);
-            /*entryDrag = new EventTrigger.Entry();
-            entryDrag.eventID = EventTriggerType.Drag;
-            entryDrag.callback.AddListener((x) => SetPosition());
-            trigger.triggers.Add(entryDrag);*/
         }
         bp = new List<Button>();//パネルコマンド初期化
         int panelCount = 0;
@@ -88,17 +84,9 @@ public class MenuController : MonoBehaviour
                 trigger = bp[panelCount].GetComponent<EventTrigger>();
                 entryDown = new EventTrigger.Entry();
                 entryDown.eventID = EventTriggerType.PointerDown;
-                int genNo = i, dire = j,panelNo=panelCount;
+                int genNo = i, dire = j, panelNo = panelCount;
                 entryDown.callback.AddListener((x) => SetNumber(genNo, false, dire, panelNo));
                 trigger.triggers.Add(entryDown);
-                /*entryDrag = new EventTrigger.Entry();
-                entryDrag.eventID = EventTriggerType.Drag;
-                entryDrag.callback.AddListener((x) => SetPosition());
-                trigger.triggers.Add(entryDrag);
-                entryEndDrag = new EventTrigger.Entry();
-                entryEndDrag.eventID = EventTriggerType.EndDrag;
-                entryEndDrag.callback.AddListener((x) => Generate());
-                trigger.triggers.Add(entryEndDrag);*/
                 panelCount++;
             }
         }
@@ -159,7 +147,6 @@ public class MenuController : MonoBehaviour
         }
     }
 
-
     //ロボ・パネルの種類と生成する番号をセット
     public void SetNumber(int generateNo, bool isRobot, int panelDire,int panelCount)
     {
@@ -178,26 +165,35 @@ public class MenuController : MonoBehaviour
             {
                 s = br[generateNo].GetComponent<Image>().sprite;
                 setPos = GameObject.Find("kernel").transform.position;
-                g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
-                g.transform.position = setPos;
-                for (int i = 0; i < setDire.Count; i++)
+                if (robots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
                 {
-                    setDire[i].GetComponent<SpriteRenderer>().enabled = true;
-                    setDire[i].GetComponent<EventTrigger>().enabled = true;
-                    setDire[i].transform.position = setPos;
+                    transform.FindChild("SetObject").gameObject.SetActive(true);
+                }
+                else
+                {
+                    transform.FindChild("SetObject").gameObject.SetActive(false);
+                    for (int i = 0; i < setDire.Count; i++)
+                    {
+                        setDire[i].GetComponent<SpriteRenderer>().enabled = true;
+                        setDire[i].GetComponent<EventTrigger>().enabled = true;
+                        setDire[i].transform.position = setPos;
+                    }
+                    g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
+                    g.transform.position = setPos;
+                    g.GetComponent<SpriteRenderer>().sprite = s;
                 }
                 panelDire = 0;
             }
             else
             {
                 s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
-                g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
                 setPos = Vector2.zero;
-                g.transform.position = setPos;
+                /*g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
+                g.transform.position = setPos;*/
                 transform.FindChild("SetObject").gameObject.SetActive(true);
                 //SetPosition();
             }
-            g.GetComponent<SpriteRenderer>().sprite = s;
+            //g.GetComponent<SpriteRenderer>().sprite = s;
             //child.GetComponent<Image>().sprite = s;
             /*}
         }
@@ -208,19 +204,49 @@ public class MenuController : MonoBehaviour
             g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
         }
         GameObject selecting = transform.FindChild("CommandList").FindChild("Selecting").gameObject;
-        selecting.SetActive(true);
+        if (!selecting.activeSelf)
+        {
+            selecting.SetActive(true);
+        }
         selecting.transform.localPosition = new Vector2(-500 + 250 * (panelCount % 5), 0);
         this.panelDire = panelDire;
     }
 
-    public void SetPosition()
+    public void SetPosition(bool twice/*二回目か*/)//ロボ、パネルの生成位置決定
     {
         Vector3 touch_pos = Input.mousePosition;
         Vector2 t_pos = Camera.main.ScreenToWorldPoint(touch_pos);
         t_pos.x = Mathf.Round(t_pos.x);
         t_pos.y = Mathf.Round(t_pos.y/* + 1.5f*/);
-        g.transform.position = t_pos;
-        setPos = t_pos;
+        Collider2D[] col = Physics2D.OverlapPointAll(t_pos);
+        Collider2D area = null;
+        foreach (Collider2D c in col)
+        {
+            if (c.tag == "Kernel" || (isRobot && c.tag == "Panel"))
+            {
+                return;
+            }
+            if(c.tag=="Area"&&c.GetComponent<AreaController>().Mikata)
+            {
+                area = c;
+            }
+        }
+        if(isRobot&&area==null)
+        {
+            return;
+        }
+        //g.transform.position = t_pos;
+        if (twice && t_pos == setPosSub)
+        {
+            setPos = t_pos;
+            Debug.Log("setpos" + setPos);
+            Generate(0);
+        }
+        else
+        {
+            setPosSub = t_pos;
+            Debug.Log("setposSub" + setPos);
+        }
     }
 
     public void Generate(int setDire=-1)
@@ -228,10 +254,27 @@ public class MenuController : MonoBehaviour
         Debug.Log("Ok" + generateNo);
         if (isRobot)
         {
-            kerCon.Generate(generateNo, setDire, !gameStop);
+            Vector3 genPos;
+            if (robots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
+            {
+                genPos = setPos;
+            }
+            else
+            {
+                genPos = kerCon.transform.position;
+            }
+            kerCon.Generate(robots[generateNo], setDire, genPos, !gameStop);
         }
         else
         {
+            Collider2D[] aCollider2d = Physics2D.OverlapPointAll(setPos);
+            foreach (Collider2D c in aCollider2d)
+            {
+                if (c != null && c.tag == "Panel")//すでにパネルが存在していれば、上書き
+                {
+                    Destroy(c.gameObject);
+                }
+            }
             GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
             ob.GetComponent<PanelController>().direction = panelDire;
             GameObject ef = (GameObject)Instantiate(Resources.Load("Prefabs/effect_p"), Vector2.zero, transform.rotation);
@@ -278,6 +321,7 @@ public class MenuController : MonoBehaviour
         g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
         tabText.text=isRobot ? "Robot" : "Panel";
         transform.FindChild("SetObject").gameObject.SetActive(false);
+        transform.FindChild("CommandList").FindChild("Selecting").gameObject.SetActive(false);
     }
 
     void SetPause(bool pause = false)

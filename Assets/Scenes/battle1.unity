@@ -1105,9 +1105,7 @@ MonoBehaviour:
   sp: 80
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   effect_count: 7
-  robots:
-  - {fileID: 153558, guid: 826ad307b1069e94680dcab8a9f7f201, type: 2}
-  nm_r_number: 0
+  genRobotNo: {fileID: 153558, guid: 826ad307b1069e94680dcab8a9f7f201, type: 2}
   target_pos:
   - {x: -1, y: 1}
   - {x: 2, y: 2}
@@ -1589,7 +1587,7 @@ GameObject:
   - 224: {fileID: 911866257}
   - 222: {fileID: 911866260}
   - 114: {fileID: 911866259}
-  - 114: {fileID: 911866258}
+  - 114: {fileID: 911866261}
   m_Layer: 5
   m_Name: SetObject
   m_TagString: UI_Object_Set
@@ -1616,70 +1614,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &911866258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 11422750, guid: 5a0f0b104c2324e47a470bc768dae28d,
-    type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 911866256}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 911866259}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 928013812}
-        m_MethodName: SetPosition
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 928013812}
-        m_MethodName: Generate
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &911866259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1715,6 +1649,53 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 911866256}
+--- !u!114 &911866261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 911866256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 2
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 928013812}
+          m_MethodName: SetPosition
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - eventID: 3
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 928013812}
+          m_MethodName: SetPosition
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!114 &928013812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1729,6 +1710,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   robots:
   - {fileID: 183292, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
+  - {fileID: 190304, guid: 0e7404d1e6626484ba674c1cf15ef0b2, type: 2}
   panels:
   - {fileID: 183512, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
   - {fileID: 120040, guid: 0db40b33bb9c6434aad155f424fdd5be, type: 2}
@@ -1984,9 +1966,7 @@ MonoBehaviour:
   sp: 100
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   effect_count: 7
-  robots:
-  - {fileID: 183292, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-  nm_r_number: 0
+  genRobotNo: {fileID: 0}
   target_pos: []
   touch: 0
   damaged: 0

@@ -297,7 +297,7 @@ public class UIController : MonoBehaviour
         Debug.Log(gen_num);
         if (rbt)
         {
-            k.Generate(gen_num,pn_dire);
+            //k.Generate(robots[gen_num],pn_dire,);
             endMenu();
         }
         else

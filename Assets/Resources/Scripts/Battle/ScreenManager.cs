@@ -50,7 +50,7 @@ public class ScreenManager : MonoBehaviour {
             accel = velocity / (-10);
             transform.position = (Vector2)transform.position + velocity;
             transform.position += new Vector3(0, 0, -10);
-            LimitScroll(mapSizeX,mapSizeY);
+            LimitScroll(mapSizeX, mapSizeY);
             keyDownPos = Input.mousePosition;
             Debug.Log(Input.mousePosition);
         }

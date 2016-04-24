@@ -74,7 +74,7 @@ public class TerritoryController : MonoBehaviour
             {
                 /*t.SetPixels((i + w / 2) * size, (j + h / 2) * size, size, size, c);
                 t.Apply();*/
-                if (sp_data[i - mix + 1, j - miy + 1] && trdata[w / 2 + i, h / 2 + j] == -1)
+                if (sp_data[i - mix + 1, j - miy + 1]/* && trdata[w / 2 + i, h / 2 + j] == -1*/)//マスが空白
                 {
                     Generate(new Vector2(i, j), true);
                 }
