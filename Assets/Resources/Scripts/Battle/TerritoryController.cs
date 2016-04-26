@@ -85,29 +85,6 @@ public class TerritoryController : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
     }
-    public void Reset(Vector2 pos, bool mikata,GameObject rb)
-    {
-        /*if (mikata)
-        {*/
-            Generate(pos,mikata,rb);
-        /*}
-        else
-        {
-            Collider2D[] cs = Physics2D.OverlapPointAll(rb.transform.position);
-            Collider2D c = null;
-            foreach (Collider2D col in cs)
-            {
-                if (col.gameObject.tag == "Area")
-                {
-                    c = col;
-                }
-            }
-            if (c != null)
-            {
-                c.gameObject.GetComponent<AreaController>().Vanish(rb);
-            }
-        }*/
-    }
 
     public void Generate(Vector2 pos,bool mikata,GameObject robot=null)
     {
@@ -163,6 +140,11 @@ public class TerritoryController : MonoBehaviour
         return r_count - 1;
     }
 
+    /// <summary>
+    /// ロボット数を更新
+    /// ロボット破壊時に呼び出し
+    /// </summary>
+    /// <param name="robotnumber"></param>
     public void AdjustRobotNumber(int robotnumber)
     {
         GameObject[] go = GameObject.FindGameObjectsWithTag("Robot");

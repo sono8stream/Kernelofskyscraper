@@ -45,6 +45,7 @@ public class RobotController : MonoBehaviour {
         get { return att_effect; }
         set { att_effect = value; }
     }
+    public int attEffectPat;
     public Sprite br_effect;
     public int cost;//召喚コスト
     public int mhp;
@@ -166,90 +167,76 @@ public class RobotController : MonoBehaviour {
                 if (sp_count == speed)
                 {
                     move = false;
+                    sp_count = 0;
+                    transform.position =
+                        new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
+                    Vector2 sub = transform.position
+                        + new Vector3(t.rbdata.GetLength(0) / 2, t.rbdata.GetLength(1) / 2);
+                    if (0 < sub.x && sub.x < t.rbdata.GetLength(0) && 0 < sub.y && sub.y < t.rbdata.GetLength(1))
+                    {
+                    t.rbdata[(int)Math.Round(sub.x - DtoV().x), (int)Math.Round(sub.y - DtoV().y)] = -1;
+                    }
+                    if (auto)
+                    {
+                        AI();
+                    }
+                    CheckDot();
+                    t.Generate(transform.position, mikata, gameObject);
                 }
             }
             else//停止し、パネル、カーネルと接触処理
             {
-                Vector2 s = transform.position + new Vector3(t.rbdata.GetLength(0) / 2, t.rbdata.GetLength(1) / 2, 0);
-                if (sp_count >= speed)//停止処理
+                Vector2 s = transform.position
+                    + new Vector3(t.rbdata.GetLength(0) / 2, t.rbdata.GetLength(1) / 2);/* + DtoV();
+                /*if (sp_count >= speed)//停止処理
                 {
                     transform.position = new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
-                    try
+                    int x = (int)Math.Round(s.x - DtoV().x);
+                    int y = (int)Math.Round(s.y - DtoV().y);
+                    if (0 < x && x < t.rbdata.GetLength(0) && 0 < y && y < t.rbdata.GetLength(1))
                     {
                         t.rbdata[(int)Math.Round(s.x - DtoV().x), (int)Math.Round(s.y - DtoV().y)] = -1;
                     }
-                    catch { }
-                    Collider2D[] cs = Physics2D.OverlapPointAll(transform.position);//ターゲット
-                    Collider2D cp = null;//接触したパネル
-                    Collider2D ck = null;//接触したカーネル
                     if (auto)
                     {
-                        AI(false);
+                        AI();
                     }
-                    else
-                    {
-                        foreach (Collider2D col in cs)
-                        {
-                            if (col.gameObject.tag == "Panel")
-                            {
-                                cp = col;
-                            }
-                        }
-                        if (cp != null)
-                        {
-                            cp.gameObject.GetComponent<PanelController>().Run(gameObject);
-                        }
-                    }
-                    foreach (Collider2D col in cs)
-                    {
-                        if (col.gameObject.tag == "Kernel")
-                        {
-                            ck = col;
-                        }
-                    }
-                    if (ck != null)
-                    {
-                        ck.gameObject.GetComponent<KernelController>().StartCoroutine(
-                            ck.gameObject.GetComponent<KernelController>().Intake(gameObject));
-                    }
-                    t.Reset(transform.position, mikata, gameObject);
+                    CheckDot();
+                    t.Generate(transform.position, mikata, gameObject);
                     sp_count = 0;
                 }
                 else
+                {*/
+                try//前進を試みる
                 {
-                    try//前進を試みる
+                    int mpx, mpy;
+                    mpx = (int)(transform.position.x + DtoV(dire).x);
+                    mpy = (int)(transform.position.y + DtoV(dire).y);
+                    if (t.rbdata[(int)Math.Round(s.x + DtoV().x), (int)Math.Round(s.y + DtoV().y)] == -1)//目の前にロボがいない
                     {
-                        if (t.rbdata[(int)Math.Round(s.x + DtoV().x), (int)Math.Round(s.y + DtoV().y)] == -1)//目の前にロボがいない
+                        t.rbdata[(int)Math.Round(s.x + DtoV().x), (int)Math.Round(s.y + DtoV().y)] = number;
+                        Debug.Log("okashii");
+                        int[,] m_s = mp_lay2.GetComponent<MapLoader>().mapdata;
+                        if (m_s[m_s.GetLength(0) / 2 + mpx, m_s.GetLength(1) / 2 - mpy] != 7)//移動不可マスに衝突
                         {
-                            t.rbdata[(int)Math.Round(s.x + DtoV().x), (int)Math.Round(s.y + DtoV().y)] = number;
+                            breaking = true;
+                            StartCoroutine(Break());
+                        }
+                        else
+                        {
                             move = true;
-                            int mpx, mpy;
-                            mpx = (int)(transform.position.x + DtoV(dire).x);
-                            mpy = (int)(transform.position.y + DtoV(dire).y);
-                            int[,] m_s = mp_lay2.GetComponent<MapLoader>().mapdata;
-                            if (m_s[m_s.GetLength(0) / 2 + mpx, m_s.GetLength(1) / 2 - mpy] != 7)
-                            {
-                                //Stop();
-                                breaking = true;
-                                StartCoroutine(Break());
-                            }
-                        }
-                        else if (!at)
-                        {
-                            StartCoroutine(Attack());
                         }
                     }
-                    catch
-                    {
-                        //Stop();
-                        v = Vector2.zero;
-                        breaking = true;
-                        StartCoroutine(Break());
-                    }
-                    /*if (!at)
+                    else if (!at)
                     {
                         StartCoroutine(Attack());
-                    }*/
+                    }
+                }
+                catch
+                {
+                    v = Vector2.zero;
+                    breaking = true;
+                    StartCoroutine(Break());
                 }
             }
             ln.transform.position = Vector2.zero;
@@ -280,6 +267,43 @@ public class RobotController : MonoBehaviour {
                 ani_pat = Mathf.Abs(ani_sub - 2);
                 SetImage();
             }
+        }
+    }
+
+    /// <summary>
+    /// 足元のパネル、カーネルの情報を取得、処理
+    /// </summary>
+    void CheckDot()
+    {
+        Collider2D[] cs = Physics2D.OverlapPointAll(transform.position);//ターゲット
+        Collider2D cp = null;//接触したパネル
+        Collider2D ck = null;//接触したカーネル
+        if (mikata)
+        {
+            foreach (Collider2D col in cs)
+            {
+                if (col.gameObject.tag == "Panel")
+                {
+                    cp = col;
+                }
+            }
+            if (cp != null)
+            {
+                cp.gameObject.GetComponent<PanelController>().Run(gameObject);//パネル効果実行
+            }
+        }
+        foreach (Collider2D col in cs)
+        {
+            if (col.gameObject.tag == "Kernel")
+            {
+                ck = col;
+                break;
+            }
+        }
+        if (ck != null)
+        {
+            KernelController ker = ck.gameObject.GetComponent<KernelController>();
+            ker.StartCoroutine(ker.Intake(gameObject));
         }
     }
 
@@ -339,29 +363,6 @@ public class RobotController : MonoBehaviour {
         dire = direction;
     }
 
-    public void Go(bool onpanel = false)
-    {
-        GetComponent<Rigidbody2D>().AddForce(DtoV() * speed);
-        if (onpanel)
-        {
-            transform.Translate(DtoV() * 0.05f);
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="other">衝突したロボを引数にしてね</param>
-    public void Stop(GameObject other = null)
-    {
-        if (GetComponent<Rigidbody2D>().velocity != Vector2.zero)
-        {
-            GetComponent<Rigidbody2D>().AddForce(DtoV() * -speed);
-        }
-        Vector2 r = new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
-        transform.position = r;
-    }
-
     /// <summary>
     /// 攻撃
     /// </summary>
@@ -375,15 +376,25 @@ public class RobotController : MonoBehaviour {
             if (t.tag == "Robot")
             {
                 target = t;
+                break;
             }
         }
-        if(target==null)
+        if (target == null)
         {
             at = false;
             ef.GetComponent<SpriteRenderer>().sprite = null;
             yield break;
         }
         RobotController r = target.GetComponent<RobotController>();
+        /*if (r.breaking || r.Mikata == mikata)
+        {
+            at = false;
+            ef.GetComponent<SpriteRenderer>().sprite = null;
+            yield break;
+        }
+        Debug.Log("attacking");
+        Vector2 tpos = target.transform.position;
+        target.GetComponent<SpriteRenderer>().color = Color.red;*/
         Vector2 tpos = Vector2.zero;
         if (/*target != null && target.tag == "Robot" &&*/ !r.breaking && r.Mikata != mikata)
         {
@@ -397,20 +408,19 @@ public class RobotController : MonoBehaviour {
             ef.GetComponent<SpriteRenderer>().sprite = null;
             yield break;
         }
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < attEffectPat; i++)
         {
             SetEffect(att_effect, i, tpos);
-            if (i == 5 && target.GetComponent<RobotController>() != null && !target.GetComponent<RobotController>().CheckBreaking)
+            if (i == attEffectPat/2 &&!target.GetComponent<RobotController>().CheckBreaking)
             {
                 target.GetComponent<RobotController>().Damage(offence);
             }
             yield return new WaitForSeconds(0.01f);
         }
-        try
+        if (target != null)
         {
             target.GetComponent<SpriteRenderer>().color = Color.white;
         }
-        catch { }
         yield return new WaitForSeconds(1);
         at = false;
         ef.GetComponent<SpriteRenderer>().sprite = null;
@@ -459,34 +469,6 @@ public class RobotController : MonoBehaviour {
         return t;
     }
 
-    /*public void RouteSet()//通過ルートを処理
-    {
-        bool t = false;
-        for (int i = 0; i < ex_panels.Count; i++)
-        {
-            if (ex_panels[i].x == transform.position.x && ex_panels[i].y == transform.position.y)
-            {
-                t = true;
-            }
-            Debug.Log("Check");
-        }
-        if (t)//ラインで囲まれたエリア内を制圧
-        {
-            Suppresssion();
-            Debug.Log("Suppression");
-        }
-        else//新しい座標を追加し、ライン描画
-        {
-            if (ppos == new Vector2(-100, -100))
-            {
-                ppos = transform.position;
-            }
-            ex_panels.Add(ppos);
-            Liner(ppos, transform.position, 32);
-            Debug.Log("Line");
-        }
-    }*/
-
     /// <summary>
     /// エリア選択、制圧メソッド
     /// </summary>
@@ -504,18 +486,12 @@ public class RobotController : MonoBehaviour {
         if (ppos == new Vector2(-100, -100))
         {
             ppos = transform.position;
-            Debug.Log("Check");
             ex_panels.Add(ppos);
         }
         Liner(ppos, transform.position, 32);
         if (t)//ラインで囲まれたエリア内を制圧
         {
-            for(int i=0;i<ex_panels.Count;i++)
-            {
-                Debug.Log(ex_panels[i]);
-            }
             Suppresssion();
-            Debug.Log("Suppression");
         }
     }
 
@@ -528,7 +504,6 @@ public class RobotController : MonoBehaviour {
     {
         Sprite point = Resources.Load<Sprite>("Sprites/pole");//ポイント画像
         Sprite line = Resources.Load<Sprite>("Sprites/bar");//ライン画像読み込み
-        Color[] null_color = Resources.Load<Sprite>("SPrites/nullImage").texture.GetPixels(0, 0, size, size);
         if (pos1 != pos2)
         {
             GameObject l = (GameObject)Instantiate(Resources.Load("Prefabs/line"), Vector2.zero, transform.rotation);//ライン生成
@@ -562,53 +537,6 @@ public class RobotController : MonoBehaviour {
         p.transform.position = new Vector3(pos2.x, pos2.y, -1);
         p.transform.SetParent(pt.transform, false);
         ppos = transform.position;
-        /*Texture2D ln_t;
-        Color[] b = line.texture.GetPixels(0, 0, size, size);//ライン画像データ読み込み
-        Vector2 pos_l_cm = Vector2.zero;//座標補正、compensation
-        if (v)
-        {
-            ln_t = new Texture2D(size, size * (Math.Abs(length) + 1), TextureFormat.RGBA32, false);
-            ln_t.filterMode = FilterMode.Point;
-            for (int i = 0; i <= Mathf.Abs(length); i++)
-            {
-                ln_t.SetPixels(0, i * size, size, size, null_color);//画像初期化
-            }
-            pos_l_cm.y = /*length < 0 ? -0.5f : 0.5f;
-            for (int i = 0; i < Mathf.Abs(length); i++)//ライン描画
-            {
-                ex_panels.Add(new Vector2(pos1.x, pos1.y + (i + 1) * Mathf.Abs(length) / length));//ライン上の点を座標系に追加
-                ln_t.SetPixels(0, size * i + size / 2, size, size, b);
-                ln_t.Apply();
-            }
-        }
-        else
-        {
-            length = (int)(pos2.x - pos1.x);
-            ln_t = new Texture2D(size * (Math.Abs(length) + 1), size, TextureFormat.RGBA32, false);
-            ln_t.filterMode = FilterMode.Point;
-            for (int i = 0; i <= Mathf.Abs(length); i++)
-            {
-                ln_t.SetPixels(i * size, 0, size, size, null_color);//画像初期化
-            }
-            pos_l_cm.x = length < 0 ? -0.5f : 0.5f;
-            Color[] b_s = new Color[b.GetLength(0)];
-            for (int i = 0; i < b.GetLength(0); i++)//ライン画像を90度回転
-            {
-                b_s[i] = b[size * (i % size + 1) - 1 - i / size];
-            }
-            for (int i = 0; i < Mathf.Abs(length); i++)//ライン描画
-            {
-                ex_panels.Add(new Vector2(pos1.x + (i + 1) * Mathf.Abs(length) / length, pos1.y));
-                ln_t.SetPixels(size * i + size / 2, 0, size, size, b_s);
-                ln_t.Apply();
-            }
-            l.transform.eulerAngles = new Vector3(0, 0, 90);
-            
-        }*/
-        /*l.GetComponent<SpriteRenderer>().sprite = Sprite.Create(ln_t, new Rect(0, 0, ln_t.width, ln_t.height),
-            new Vector2(0.5f, 0.5f), size);*/
-        //p.GetComponent<SpriteRenderer>().sprite = point;
-        //int[] at = GetAreaSize();
     }
 
     /// <summary>
@@ -643,7 +571,6 @@ public class RobotController : MonoBehaviour {
             try
             {
                 area[(int)ex_panels[i].x - mix + 1, (int)ex_panels[i].y - miy + 1] = true;
-//Debug.Log(new Vector2((int)ex_panels[i].x - mix + 1, (int)ex_panels[i].y - miy + 1));
             }
             catch { }
         }
@@ -663,11 +590,6 @@ public class RobotController : MonoBehaviour {
             ex_panels.RemoveAt(0);
         }
         ppos = new Vector2(-100, -100);
-        Debug.Log("Panels" + ex_panels.Count);
-        Debug.Log(mix);
-        Debug.Log(miy);
-        Debug.Log(max);
-        Debug.Log(may);
         StartCoroutine(g.GetComponent<TerritoryController>().Refresh(mix, miy, max, may,area));
     }
 
@@ -731,57 +653,28 @@ public class RobotController : MonoBehaviour {
     /// 自動移動
     /// dstの座標を順に移動
     /// </summary>
-    void AI(bool tate/*移動方向*/)
+    void AI()
     {
         bool c = false;
         float ln;
-        if (dst_lt[0].x == (int)Math.Round(transform.position.x, 0))//横方向の移動を考慮
+        if (dst_lt[0].x == (int)Math.Round(transform.position.x, 0))//x座標が達しているなら
         {
-            if (GetComponent<Rigidbody2D>().velocity != Vector2.zero)
-            {
-                Stop();
-            }
             ln = dst_lt[0].y - transform.position.y;
-            if (ln < 0)//下方向に移動
-            {
-                Turn(0);
-            }
-            else
-            {
-                Turn(2);
-            }
+            dire = ln < 0 ? 0 : 2;//上下で方向を取得
             if (dst_lt[0].y == (int)Math.Round(transform.position.y, 0))
             {
                 c = true;
             }
-            //Go();
         }
-        else
-        /*{
-            ln = dst_lt[0].x - transform.position.x;
-        }
-        ln = dst_lt[0].x - transform.position.x;
-        if (dst_lt[0].y == (int)Math.Round(transform.position.y, 0))*/
+        else//x座標が達していないなら
         {
-            if (GetComponent<Rigidbody2D>().velocity != Vector2.zero)
-            {
-                Stop();
-            }
             ln = dst_lt[0].x - transform.position.x;
-            if (ln < 0)//左方向
-            {
-                Turn(3);
-            }
-            else
-            {
-                Turn(1);
-            }
-            //Go();
+            dire = ln < 0 ? 3 : 1;//左右でで方向を取得
         }
-        if(c)
+        if (c)
         {
             dst_lt.RemoveAt(0);
-            if(dst_lt.Count==0)
+            if (dst_lt.Count == 0)
             {
                 auto = false;
             }
