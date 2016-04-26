@@ -170,11 +170,11 @@ public class RobotController : MonoBehaviour {
                     sp_count = 0;
                     transform.position =
                         new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
-                    Vector2 sub = transform.position
-                        + new Vector3(t.rbdata.GetLength(0) / 2, t.rbdata.GetLength(1) / 2);
-                    if (0 < sub.x && sub.x < t.rbdata.GetLength(0) && 0 < sub.y && sub.y < t.rbdata.GetLength(1))
+                    Vector2 sub = transform.position - DtoV()
+                        + new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
+                    if (0 <= sub.x && sub.x < t.rbdata.GetLength(0) && 0 <= sub.y && sub.y < t.rbdata.GetLength(1))
                     {
-                    t.rbdata[(int)Math.Round(sub.x - DtoV().x), (int)Math.Round(sub.y - DtoV().y)] = -1;
+                    t.rbdata[(int)sub.x, (int)sub.y] = -1;
                     }
                     if (auto)
                     {
@@ -186,38 +186,18 @@ public class RobotController : MonoBehaviour {
             }
             else//停止し、パネル、カーネルと接触処理
             {
-                Vector2 s = transform.position
-                    + new Vector3(t.rbdata.GetLength(0) / 2, t.rbdata.GetLength(1) / 2);/* + DtoV();
-                /*if (sp_count >= speed)//停止処理
+                Vector2 sub = new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
+                Vector3 tarPos = new Vector3(transform.position.x + DtoV().x, transform.position.y + DtoV().y);
+                int posX, posY;
+                posX = (int)(sub.x + tarPos.x);
+                posY = (int)(sub.y + tarPos.y);
+                if (0 <= posX && posX < t.rbdata.GetLength(0) && 0 <= posY && posY < t.rbdata.GetLength(1))//前進を試みる
                 {
-                    transform.position = new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
-                    int x = (int)Math.Round(s.x - DtoV().x);
-                    int y = (int)Math.Round(s.y - DtoV().y);
-                    if (0 < x && x < t.rbdata.GetLength(0) && 0 < y && y < t.rbdata.GetLength(1))
+                    if (t.rbdata[posX, posY] == -1)//目の前にロボがいない
                     {
-                        t.rbdata[(int)Math.Round(s.x - DtoV().x), (int)Math.Round(s.y - DtoV().y)] = -1;
-                    }
-                    if (auto)
-                    {
-                        AI();
-                    }
-                    CheckDot();
-                    t.Generate(transform.position, mikata, gameObject);
-                    sp_count = 0;
-                }
-                else
-                {*/
-                try//前進を試みる
-                {
-                    int mpx, mpy;
-                    mpx = (int)(transform.position.x + DtoV(dire).x);
-                    mpy = (int)(transform.position.y + DtoV(dire).y);
-                    if (t.rbdata[(int)Math.Round(s.x + DtoV().x), (int)Math.Round(s.y + DtoV().y)] == -1)//目の前にロボがいない
-                    {
-                        t.rbdata[(int)Math.Round(s.x + DtoV().x), (int)Math.Round(s.y + DtoV().y)] = number;
-                        Debug.Log("okashii");
+                        t.rbdata[posX, posY] = number;
                         int[,] m_s = mp_lay2.GetComponent<MapLoader>().mapdata;
-                        if (m_s[m_s.GetLength(0) / 2 + mpx, m_s.GetLength(1) / 2 - mpy] != 7)//移動不可マスに衝突
+                        if (m_s[posX, posY] != 7)//移動不可マスに衝突
                         {
                             breaking = true;
                             StartCoroutine(Break());
@@ -232,9 +212,8 @@ public class RobotController : MonoBehaviour {
                         StartCoroutine(Attack());
                     }
                 }
-                catch
+                else
                 {
-                    v = Vector2.zero;
                     breaking = true;
                     StartCoroutine(Break());
                 }
@@ -303,7 +282,11 @@ public class RobotController : MonoBehaviour {
         if (ck != null)
         {
             KernelController ker = ck.gameObject.GetComponent<KernelController>();
-            ker.StartCoroutine(ker.Intake(gameObject));
+            if ((int)ker.transform.position.x == (int)transform.position.x
+                && (int)ker.transform.position.y == (int)transform.position.y)
+            {
+                ker.StartCoroutine(ker.Intake(gameObject));
+            }
         }
     }
 
@@ -433,7 +416,6 @@ public class RobotController : MonoBehaviour {
         StopCoroutine(Attack());
         at = true;
         ef.transform.position = transform.position;
-        StopCoroutine(Attack());
         GetComponent<BoxCollider2D>().isTrigger = true;
         for (int i = 0; i < 7; i++)
         {

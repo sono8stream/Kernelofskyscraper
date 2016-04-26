@@ -60,7 +60,7 @@ public class TerritoryController : MonoBehaviour
             string sub="";
             for (int j = 0; j < rbdata.GetLength(0); j++)
             {
-                sub += rbdata[j, i].ToString() + ",";
+                sub += rbdata[j, rbdata.GetLength(1) - i - 1].ToString() + ",";
             }
             rbDataDebug[i] = sub;
         }
@@ -72,25 +72,29 @@ public class TerritoryController : MonoBehaviour
         {
             for (int j = miy; j <= may; j++)
             {
-                /*t.SetPixels((i + w / 2) * size, (j + h / 2) * size, size, size, c);
-                t.Apply();*/
-                if (sp_data[i - mix + 1, j - miy + 1]/* && trdata[w / 2 + i, h / 2 + j] == -1*/)//マスが空白
+                if (sp_data[i - mix + 1, j - miy + 1])//マスが空白
                 {
                     Generate(new Vector2(i, j), true);
                 }
             }
             k.GetComponent<KernelController>().Speed_Sub = k.GetComponent<KernelController>().sp - ar_cn;
-            /*GetComponent<SpriteRenderer>().sprite
-            = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0.5f), 32);*/
             yield return new WaitForSeconds(0.1f);
         }
     }
 
     public void Generate(Vector2 pos,bool mikata,GameObject robot=null)
     {
-        if (((int)k.transform.position.x != (int)pos.x || (int)k.transform.position.y != (int)pos.y)
-            && ((int)k_e.transform.position.x != (int)pos.x || (int)k_e.transform.position.y != (int)pos.y))//新たにパネルを生成
+        Collider2D[] col = Physics2D.OverlapPointAll(pos);//カーネル上にパネルは置かない
+        foreach(Collider2D c in col)
         {
+            if(c.tag=="Kernel")
+            {
+                return;
+            }
+        }
+        /*if (((int)k.transform.position.x != (int)pos.x || (int)k.transform.position.y != (int)pos.y)
+            && ((int)k_e.transform.position.x != (int)pos.x || (int)k_e.transform.position.y != (int)pos.y))//新たにパネルを生成
+        {*/
             if (trdata[w / 2 + (int)pos.x, h / 2 + (int)pos.y] == -1)
             {
                 trdata[w / 2 + (int)pos.x, h / 2 + (int)pos.y] = 1;
@@ -131,7 +135,7 @@ public class TerritoryController : MonoBehaviour
                     }
                 }
             }
-        }
+        //}
     }
 
     public int SetRobotNumber()

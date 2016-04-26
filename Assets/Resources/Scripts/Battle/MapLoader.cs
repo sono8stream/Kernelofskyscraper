@@ -26,12 +26,12 @@ public class MapLoader : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0; i < mapdataDebug.GetLength(0); i++)
+        for (int i = 0; i < mapdataDebug.GetLength(0); i++)//タテループ
         {
             string sub = "";
-            for (int j = 0; j < mapdata.GetLength(0); j++)
+            for (int j = 0; j < mapdata.GetLength(0); j++)//よこループ
             {
-                sub += mapdata[j, i].ToString()+",";
+                sub += mapdata[j, mapdata.GetLength(1) - i - 1].ToString() + ",";
             }
             mapdataDebug[i] = sub;
         }
@@ -77,6 +77,24 @@ public class MapLoader : MonoBehaviour {
         MapImage.Apply();
         map = Sprite.Create(MapImage, new Rect(0, 0, MAP_WIDTH * MASU, MAP_HEIGHT * MASU), new Vector2(0.5f, 0.5f), MASU);
         GetComponent<SpriteRenderer>().sprite = map;
+        AdjustMapData();
         return new Vector2(mapdata.GetLength(0), mapdata.GetLength(1));
+    }
+
+    /// <summary>
+    /// マップデータをy座標上向きにとる,つまりひっくり返す
+    /// </summary>
+    void AdjustMapData()
+    {
+        for (int i = 0; i < mapdata.GetLength(0); i++)//よこループ
+        {
+            for (int j = 0; j < Mathf.FloorToInt(mapdata.GetLength(1) / 2); j++)//タテループ
+            {
+                mapdata[i, j] += mapdata[i, mapdata.GetLength(1) - j - 1];
+                mapdata[i, mapdata.GetLength(1) - j - 1] = mapdata[i, j]
+                    - mapdata[i, mapdata.GetLength(1) - j - 1];
+                mapdata[i, j] -= mapdata[i, mapdata.GetLength(1) - j - 1];
+            }
+        }
     }
 }

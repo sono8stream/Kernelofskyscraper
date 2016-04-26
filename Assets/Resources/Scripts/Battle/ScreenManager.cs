@@ -52,7 +52,6 @@ public class ScreenManager : MonoBehaviour {
             transform.position += new Vector3(0, 0, -10);
             LimitScroll(mapSizeX, mapSizeY);
             keyDownPos = Input.mousePosition;
-            Debug.Log(Input.mousePosition);
         }
         else if (velocity != Vector2.zero)//余韻スクロール
         {

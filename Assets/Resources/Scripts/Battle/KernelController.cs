@@ -73,20 +73,6 @@ public class KernelController : MonoBehaviour {
     {
         if (other.tag == "Robot")
         {
-            /*RobotController rc = other.GetComponent<RobotController>();
-            if (!rc.CheckAttack&& !rc.CheckBreaking&& rc.Mikata != mikata&&!rc.Move&& !intake)
-            {
-                //process = true;
-                if (other.GetComponent<Rigidbody2D>().velocity != Vector2.zero)
-                {
-                    other.GetComponent<RobotController>().Stop();
-                    other.GetComponent<RobotController>().CheckBreaking = true;
-                }
-                StartCoroutine(Intake(other.gameObject));
-                ot = other.gameObject;
-                Debug.Log("goo");
-
-            }*/
             touch = true;
         }
     }
@@ -176,9 +162,11 @@ public class KernelController : MonoBehaviour {
             GameObject br;
             GameObject tr = GameObject.Find("Territory");
             TerritoryController t = tr.GetComponent<TerritoryController>();
-            Vector2 s = genPos + new Vector3(t.rbdata.GetLength(0) / 2, t.rbdata.GetLength(1) / 2, 0);
-            if (t.rbdata[(int)Math.Round(s.x), (int)Math.Round(s.y)] != -1)//ロボがいるか、陣地でない
+            Vector2 s = genPos 
+                + new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
+            if (t.rbdata[(int)s.x, (int)s.y] != -1)//ロボがいるか、陣地でない
             {
+                Debug.Log("dame!");
                 return null;
             }
             ob = (GameObject)Instantiate(g, transform.position, transform.rotation);
@@ -224,7 +212,7 @@ public class KernelController : MonoBehaviour {
 
     public void AI()
     {
-        if (/*damaged && */energy > enmax / 2 && !touch)
+        if (/*damaged && */energy > enmax / 2)
         {
             Generate(genRobotNo, 2, transform.position, true, target_pos);
         }
