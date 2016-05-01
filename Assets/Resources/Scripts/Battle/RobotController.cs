@@ -50,7 +50,7 @@ public class RobotController : MonoBehaviour {
     public int cost;//召喚コスト
     public int mhp;
     public int hp;
-    public int offence;
+    public int attack;
     public int defence;
     GameObject ef;
     public GameObject EffectObject
@@ -369,15 +369,7 @@ public class RobotController : MonoBehaviour {
             yield break;
         }
         RobotController r = target.GetComponent<RobotController>();
-        /*if (r.breaking || r.Mikata == mikata)
-        {
-            at = false;
-            ef.GetComponent<SpriteRenderer>().sprite = null;
-            yield break;
-        }
-        Debug.Log("attacking");
-        Vector2 tpos = target.transform.position;
-        target.GetComponent<SpriteRenderer>().color = Color.red;*/
+        target.GetComponent<SpriteRenderer>().color = Color.red;
         Vector2 tpos = Vector2.zero;
         if (/*target != null && target.tag == "Robot" &&*/ !r.breaking && r.Mikata != mikata)
         {
@@ -396,7 +388,8 @@ public class RobotController : MonoBehaviour {
             SetEffect(att_effect, i, tpos);
             if (i == attEffectPat/2 &&!target.GetComponent<RobotController>().CheckBreaking)
             {
-                target.GetComponent<RobotController>().Damage(offence);
+                target.GetComponent<RobotController>().Damage(attack);
+                Debug.Log("Damage");
             }
             yield return new WaitForSeconds(0.01f);
         }
@@ -426,9 +419,9 @@ public class RobotController : MonoBehaviour {
         Burst();
     }
 
-    public bool Damage(int Offence)
+    public bool Damage(int Attack)
     {
-        hp -= Offence - defence;
+        hp -= Attack - defence;
         if (hp <= 0)
         {
             breaking = true;

@@ -9,8 +9,8 @@ public class MenuController : MonoBehaviour
 {
 
     public GameObject[] robots;//生成するロボ
-    List<Button> br;
     public GameObject[] panels;//生成するパネル
+    List<Button> br;
     List<Button> bp;
     int generateNo;
     bool isRobot;
@@ -23,11 +23,12 @@ public class MenuController : MonoBehaviour
     public Sprite loseImage, winImage;
     Vector2 setPos,setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
     public Text tabText;
+    public RobotController sRobo;//選択中のロボ
 
     // Use this for initialization
     void Start()
     {
-        //各コマンド初期化
+        #region 各コマンド初期化
         Transform commandList = transform.FindChild("CommandList");
         GameObject bt;
         EventTrigger trigger;
@@ -90,6 +91,7 @@ public class MenuController : MonoBehaviour
                 panelCount++;
             }
         }
+        #endregion
         g = GameObject.Find("ObjectExpectation");
         setDire = new List<GameObject>();
         setDire.Add(GameObject.Find("SetDirection"));
@@ -388,5 +390,33 @@ public class MenuController : MonoBehaviour
         {
             SceneManager.LoadScene("title");
         }
+    }
+
+    public void SetStatus()
+    {
+        GameObject status = transform.FindChild("Status").gameObject;
+        GameObject select = transform.FindChild("SelectingRobot").gameObject;
+        if (sRobo==null)//ロボが選択されていなければ終了
+        {
+            status.SetActive(false);
+            select.SetActive(false);
+            return;
+        }
+        status.SetActive(true);
+        select.SetActive(true);
+        string statusHP, statusATK, statusDEF, statusSPD;
+        /*statusHP = status.transform.FindChild("hp").GetComponent<Text>().text;
+        statusATK = status.transform.FindChild("atk").GetComponent<Text>().text;
+        statusDEF = status.transform.FindChild("def").GetComponent<Text>().text;
+        statusSPD = status.transform.FindChild("spd").GetComponent<Text>().text;
+            statusHP = sRobo.hp.ToString() + "/" + sRobo.mhp.ToString();
+            statusATK = sRobo.attack.ToString();
+            statusDEF = sRobo.defence.ToString();
+            statusSPD = sRobo.speed.ToString();*/
+        status.transform.FindChild("hp").GetComponent<Text>().text
+            = sRobo.hp.ToString() + "/" + sRobo.mhp.ToString();
+        status.transform.FindChild("atk").GetComponent<Text>().text = sRobo.attack.ToString();
+        status.transform.FindChild("def").GetComponent<Text>().text = sRobo.defence.ToString();
+        status.transform.FindChild("spd").GetComponent<Text>().text = sRobo.speed.ToString();
     }
 }

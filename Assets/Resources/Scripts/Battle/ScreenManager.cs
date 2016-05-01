@@ -16,6 +16,9 @@ public class ScreenManager : MonoBehaviour {
     Vector2 velocity;
     Vector2 accel;
     bool cameraIsFixing;//カメラ固定状態
+    [SerializeField]
+    MenuController menuCon;
+
                        // Use this for initialization
     void Start()
     {
@@ -28,20 +31,24 @@ public class ScreenManager : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (menuCon.sRobo == null || menuCon.sRobo.gameObject == null)//メニューで選択中のロボがいない
+        {//ステータスを非表示
+            menuCon.SetStatus();
+        }
+        else
+        {
+            RectTransform canvasRect = menuCon.GetComponent<RectTransform>();
+            Vector2 viewportPosition = GetComponent<Camera>().WorldToViewportPoint(menuCon.sRobo.transform.position);
+            Debug.Log(viewportPosition);
+            Vector2 worldObject_ScreenPosition = new Vector2(
+                ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
+                ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));
+            menuCon.transform.FindChild("SelectingRobot").GetComponent<RectTransform>().anchoredPosition
+                = worldObject_ScreenPosition;
+            menuCon.SetStatus();
+        }
         if (Input.GetMouseButtonDown(0))//選択したオブジェクトの情報読み取り
         {
-            Vector3 aTapPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Collider2D aCollider2d = Physics2D.OverlapPoint(aTapPoint);
-
-            if (aCollider2d)
-            {
-                obj = aCollider2d.transform.gameObject;
-                Debug.Log(obj.name);
-            }
-            else
-            {
-                obj = null;
-            }
             keyDownPos = Input.mousePosition;
         }
         else if (Input.GetMouseButton(0))//カメラスクロール
@@ -60,6 +67,33 @@ public class ScreenManager : MonoBehaviour {
             LimitScroll(mapSizeX, mapSizeY);
             velocity += accel;
         }
+        if(Input.GetMouseButtonUp(0))
+        {
+            float bure = 5;
+            Vector2 touchPos = Input.mousePosition;
+            if(keyDownPos.x-bure<touchPos.x&&touchPos.x<keyDownPos.x+bure
+                && keyDownPos.y - bure < touchPos.y && touchPos.y < keyDownPos.y + bure)
+            {
+
+                Vector3 aTapPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Collider2D[] aCollider2d = Physics2D.OverlapPointAll(aTapPoint);
+                obj = null;
+                menuCon.sRobo = null;
+                foreach (Collider2D col in aCollider2d)
+                {
+                    if (col)
+                    {
+                        obj = col.transform.gameObject;
+                        if (obj.tag == "Robot")
+                        {
+                            menuCon.sRobo = obj.GetComponent<RobotController>();
+                        }
+                        Debug.Log(obj.name);
+                    }
+                }
+                menuCon.SetStatus();
+            }
+        }
     }
 
     void LimitScroll(int sizeX,int sizeY)
@@ -68,8 +102,9 @@ public class ScreenManager : MonoBehaviour {
         float speed = 0.1f;
         float marginX = 1;
         float marginY = 1;
-        float rangeX = (sizeX - cameraSizeX) / 2 + marginX;
-        float rangeY = (sizeY - cameraSizeY) / 2 + marginY;
+        float rangeX = Mathf.Floor((sizeX - cameraSizeX) / 2) + marginX;
+        float rangeY = Mathf.Floor((sizeY - cameraSizeY) / 2) + marginY;
+        float correctionRight = 4;
         float correctionDown = 2;
         if (transform.position.x < correctionX - rangeX)
         {
@@ -77,9 +112,9 @@ public class ScreenManager : MonoBehaviour {
             velocity.x = speed;
             accel = velocity / (-10);
         }
-        if (transform.position.x > correctionX + rangeX)
+        if (transform.position.x > correctionX + rangeX + correctionRight)
         {
-            transform.position = new Vector3(correctionX + rangeX, transform.position.y, -10);
+            transform.position = new Vector3(correctionX + rangeX + correctionRight, transform.position.y, -10);
             velocity.x = -speed;
             accel = velocity / (-10);
         }

@@ -135,7 +135,7 @@ MonoBehaviour:
   cost: 3
   mhp: 5
   hp: 5
-  offence: 3
+  attack: 3
   defence: 0
   ek: {fileID: 0}
   dst: []

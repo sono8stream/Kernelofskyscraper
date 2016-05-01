@@ -108,7 +108,7 @@ public class KernelController : MonoBehaviour {
         Color c = sr.color;
         sr.color = Color.red;
         yield return new WaitForSeconds(0.1f);
-        Damage(other.GetComponent<RobotController>().offence);
+        Damage(other.GetComponent<RobotController>().attack);
         sr.color = c;
         other.GetComponent<RobotController>().Burst();
         intake = false;
