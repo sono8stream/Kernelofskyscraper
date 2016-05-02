@@ -104,9 +104,12 @@ public class RobotController : MonoBehaviour {
     List<Vector2> dst_lt;
     public bool auto;
     #endregion
+    public KernelController kerCon;
     public int fnumber;
     public Vector2 v;
     public int typeNo;//robotのタイプ
+    public bool isReady;//生成可能か（主に生成に条件があるとき）
+    public int triggerNo = -1;//破壊時にセットするロボの番号
     #endregion
 
     // Use this for initialization
@@ -148,6 +151,9 @@ public class RobotController : MonoBehaviour {
         {
             aniSpan = 20;
         }
+        GameObject hpBar = transform.FindChild("HpBar").gameObject;
+        hpBar.transform.localPosition = new Vector3(-0.5f, -0.3f, 0);
+        hpBar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
     }
 
     // Update is called once per frame
@@ -181,7 +187,6 @@ public class RobotController : MonoBehaviour {
                         AI();
                     }
                     CheckDot();
-                    t.Generate(transform.position, mikata, gameObject);
                 }
             }
             else//停止し、パネル、カーネルと接触処理
@@ -282,11 +287,15 @@ public class RobotController : MonoBehaviour {
         if (ck != null)
         {
             KernelController ker = ck.gameObject.GetComponent<KernelController>();
-            if ((int)ker.transform.position.x == (int)transform.position.x
-                && (int)ker.transform.position.y == (int)transform.position.y)
+            if (Mathf.RoundToInt(ker.transform.position.x - transform.position.x) == 0
+                && Mathf.RoundToInt(ker.transform.position.y - transform.position.y) == 0)
             {
                 ker.StartCoroutine(ker.Intake(gameObject));
             }
+        }
+        else
+        {
+            t.Generate(transform.position, mikata, gameObject);
         }
     }
 
@@ -389,7 +398,6 @@ public class RobotController : MonoBehaviour {
             if (i == attEffectPat/2 &&!target.GetComponent<RobotController>().CheckBreaking)
             {
                 target.GetComponent<RobotController>().Damage(attack);
-                Debug.Log("Damage");
             }
             yield return new WaitForSeconds(0.01f);
         }
@@ -400,8 +408,6 @@ public class RobotController : MonoBehaviour {
         yield return new WaitForSeconds(1);
         at = false;
         ef.GetComponent<SpriteRenderer>().sprite = null;
-        //ef.transform.position = transform.position;
-        Debug.Log("end");
     }
 
     public IEnumerator Break()
@@ -410,6 +416,11 @@ public class RobotController : MonoBehaviour {
         at = true;
         ef.transform.position = transform.position;
         GetComponent<BoxCollider2D>().isTrigger = true;
+        if (auto && triggerNo != -1)
+        {
+            kerCon.genNo = triggerNo;
+            kerCon.genRobots[kerCon.genNo].gameObject.GetComponent<RobotController>().isReady = true;
+        }
         for (int i = 0; i < 7; i++)
         {
             SetEffect(br_effect, i, transform.position);

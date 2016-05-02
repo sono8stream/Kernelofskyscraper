@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+
 #pragma warning disable
 public class KernelController : MonoBehaviour {
     #region Property
@@ -17,7 +18,7 @@ public class KernelController : MonoBehaviour {
     }
     int sp_cn;
     public Sprite br_effect;
-    public int effect_count;
+    public int effectCount;
     GameObject ef;
     public GameObject EffectObject
     {
@@ -30,9 +31,9 @@ public class KernelController : MonoBehaviour {
     bool intake;//ロボット取り込み中か
     #region Automation
     bool auto;//ロボを生成できるか
-    public GameObject genRobotNo;//通常生成させるロボ
+    public GameObject[] genRobots;//通常生成させるロボ
+    public int genNo;
     public Vector2[] target_pos;//ロボにアタックさせる座標
-    public bool touch;//ほかのオブジェに触れているか
     public bool damaged;
     #endregion
     #endregion
@@ -47,6 +48,10 @@ public class KernelController : MonoBehaviour {
         sp_s = sp;
         sp_cn = sp;
         auto = target_pos.GetLength(0) > 0;
+        for(int i=0;i<genRobots.GetLength(0);i++)
+        {
+            genRobots[i].GetComponent<RobotController>().kerCon = this;
+        }
     }
 
     // Update is called once per frame
@@ -69,19 +74,6 @@ public class KernelController : MonoBehaviour {
         bar.transform.localScale = new Vector3((float)energy / (float)enmax*2, 2, 2);
     }
 
-    void OnTriggerStay2D(Collider2D other)
-    {
-        if (other.tag == "Robot")
-        {
-            touch = true;
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D other)
-    {
-        touch = false;
-    }
-
     Texture2D SetEffect(Sprite s, int num, Vector2 targetpos)
     {
         Texture2D t = new Texture2D(120, 120, TextureFormat.RGBA32, false);
@@ -98,8 +90,13 @@ public class KernelController : MonoBehaviour {
 
     public IEnumerator Intake(GameObject other)
     {
-        if (mikata == other.GetComponent<RobotController>().Mikata)
+        if (other.tag == "Robot" && mikata == other.GetComponent<RobotController>().Mikata)
         {
+            yield break;
+        }
+        else if (other.tag == "Area")
+        {
+            StartCoroutine(Break(effectCount));
             yield break;
         }
         other.GetComponent<RobotController>().CheckBreaking = true;
@@ -113,10 +110,9 @@ public class KernelController : MonoBehaviour {
         other.GetComponent<RobotController>().Burst();
         intake = false;
         damaged = true;
-        touch = false;
     }
 
-    IEnumerator Break(int size)
+    public IEnumerator Break(int size)
     {
         for (int i = 0; i < size; i++)
         {
@@ -145,16 +141,16 @@ public class KernelController : MonoBehaviour {
         if (energy <= 0)
         {
             breaking = true;
-            StartCoroutine(Break(effect_count));
+            StartCoroutine(Break(effectCount));
         }
         return breaking;
     }
 
     //ロボ・パネルの生成
-    public GameObject Generate(/*int gen_num*/GameObject g, int direction,
+    public GameObject Generate(int direction,
         Vector3 genPos, bool enable = false, params Vector2[] t_pos)
     {
-        int c = g.GetComponent<RobotController>().cost;
+        int c = genRobots[genNo].GetComponent<RobotController>().cost;
         GameObject ob = null;
         if (energy > c)
         {
@@ -166,10 +162,9 @@ public class KernelController : MonoBehaviour {
                 + new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
             if (t.rbdata[(int)s.x, (int)s.y] != -1)//ロボがいるか、陣地でない
             {
-                Debug.Log("dame!");
                 return null;
             }
-            ob = (GameObject)Instantiate(g, transform.position, transform.rotation);
+            ob = (GameObject)Instantiate(genRobots[genNo], transform.position, transform.rotation);
             ob.transform.position = genPos;
             RobotController rc = ob.GetComponent<RobotController>();
             rc.Mikata = mikata;
@@ -183,26 +178,6 @@ public class KernelController : MonoBehaviour {
                 rc.auto = true;
                 rc.dst = t_pos;
             }
-            ef = (GameObject)Instantiate(Resources.Load("Prefabs/effect_r"), Vector2.zero, transform.rotation);
-            ef.name = "effect";
-            ef.transform.position = ob.transform.position;
-            ef.transform.SetParent(ob.transform);
-            br =
-                (GameObject)Instantiate(Resources.Load("Prefabs/HpBar"), Vector2.zero, transform.rotation);
-            br.name = "HpBar";
-            br.transform.position = new Vector3(-0.5f, -0.3f, 0);
-            br.transform.SetParent(ob.transform, false);
-            br.GetComponent<SpriteRenderer>().color = ob.GetComponent<RobotController>().Mikata ? Color.blue : Color.red;
-            GameObject ln =
-                (GameObject)Instantiate(Resources.Load("Prefabs/line"), Vector2.zero, transform.rotation);
-            ln.name = "line";
-            ln.transform.position = Vector2.zero;
-            ln.transform.SetParent(ob.transform, false);
-            GameObject ps =
-                (GameObject)Instantiate(Resources.Load("Prefabs/line"), Vector2.zero, transform.rotation);
-            ps.name = "point";
-            ps.transform.position = Vector2.zero;
-            ps.transform.SetParent(ob.transform, false);
             energy -= c;
             rc.Start();
             rc.enabled = enable;
@@ -212,9 +187,10 @@ public class KernelController : MonoBehaviour {
 
     public void AI()
     {
-        if (/*damaged && */energy > enmax / 2)
+        if (/*damaged && */energy > enmax / 2 &&genRobots[genNo]!=null
+            && genRobots[genNo].GetComponent<RobotController>().isReady)
         {
-            Generate(genRobotNo, 2, transform.position, true, target_pos);
+            Generate(2, transform.position, true, target_pos);
         }
     }
 }

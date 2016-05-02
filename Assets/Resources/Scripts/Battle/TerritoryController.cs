@@ -23,8 +23,8 @@ public class TerritoryController : MonoBehaviour
     int size = 32;
     public int w;
     public int h;
-    public GameObject k;
-    public GameObject k_e;
+    public KernelController kerCon;
+    public KernelController kerConEnemy;
     List<GameObject> ars;
 
     // Use this for initialization
@@ -68,74 +68,89 @@ public class TerritoryController : MonoBehaviour
 
     public IEnumerator Refresh(int mix, int miy, int max, int may, bool[,] sp_data)
     {
+        GameObject ker = null;
+        GameObject sub;
         for (int i = mix; i <= max; i++)
         {
             for (int j = miy; j <= may; j++)
             {
                 if (sp_data[i - mix + 1, j - miy + 1])//マスが空白
                 {
-                    Generate(new Vector2(i, j), true);
-                }
-            }
-            k.GetComponent<KernelController>().Speed_Sub = k.GetComponent<KernelController>().sp - ar_cn;
-            yield return new WaitForSeconds(0.1f);
-        }
-    }
-
-    public void Generate(Vector2 pos,bool mikata,GameObject robot=null)
-    {
-        Collider2D[] col = Physics2D.OverlapPointAll(pos);//カーネル上にパネルは置かない
-        foreach(Collider2D c in col)
-        {
-            if(c.tag=="Kernel")
-            {
-                return;
-            }
-        }
-        /*if (((int)k.transform.position.x != (int)pos.x || (int)k.transform.position.y != (int)pos.y)
-            && ((int)k_e.transform.position.x != (int)pos.x || (int)k_e.transform.position.y != (int)pos.y))//新たにパネルを生成
-        {*/
-            if (trdata[w / 2 + (int)pos.x, h / 2 + (int)pos.y] == -1)
-            {
-                trdata[w / 2 + (int)pos.x, h / 2 + (int)pos.y] = 1;
-                GameObject a = (GameObject)Instantiate(ar, Vector2.zero, transform.rotation);//ライン生成
-                a.name = "a";
-                a.transform.position = new Vector2((int)pos.x + 0.5f, (int)pos.y);
-                a.transform.SetParent(transform, false);
-                a.GetComponent<SpriteRenderer>().sortingLayerName = "Territory";
-                a.GetComponent<SpriteRenderer>().sprite = s;
-                a.GetComponent<AreaController>().Mikata = mikata;
-                ars.Add(a);
-                ar_cn += mikata ? 1 : 0;
-                if(!mikata)
-                {
-                    a.GetComponent<SpriteRenderer>().color = Color.red;
-                }
-            }
-            else
-            {
-                foreach(GameObject a in ars)
-                {
-                    if (a.GetComponent<AreaController>().Mikata != mikata
-                        && ((int)a.transform.position.x == (int)pos.x && (int)a.transform.position.y == (int)pos.y))
+                    sub = Generate(new Vector2(i, j), true);
+                    if(sub!=null)
                     {
-                        a.GetComponent<AreaController>().Mikata = mikata;
-                        if(robot!=null)
-                        a.gameObject.GetComponent<AreaController>().Vanish(robot);
-                        if (!mikata)//敵が踏んだら
-                        {
-                            ar_cn--;
-                            a.GetComponent<SpriteRenderer>().color = Color.red;
-                        }
-                        else
-                        {
-                            ar_cn++;
-                            a.GetComponent<SpriteRenderer>().color = Color.white;
-                        }
+                        ker = sub;
                     }
                 }
             }
-        //}
+            kerCon.Speed_Sub = kerCon.sp - ar_cn;
+            yield return new WaitForSeconds(0.1f);
+        }
+        if (ker != null)
+        {
+            KernelController k = ker.GetComponent<KernelController>();
+            k.StartCoroutine(k.Break(k.effectCount));
+        }
+    }
+
+    public GameObject Generate(Vector2 pos, bool mikata, GameObject robot = null)
+    {
+        GameObject ker = null;
+        Collider2D[] col = Physics2D.OverlapPointAll(pos);//カーネル上にパネルは置かない
+        foreach (Collider2D c in col)
+        {
+            if (c.tag == "Kernel")
+            {
+                KernelController k = c.GetComponent<KernelController>();
+                if (k.mikata != mikata
+                    && Mathf.RoundToInt(pos.x - c.transform.position.x) == 0
+                    && Mathf.RoundToInt(pos.y - c.transform.position.y) == 0)
+                {
+                    ker = c.gameObject;
+                }
+            }
+        }
+        if (trdata[w / 2 + (int)pos.x, h / 2 + (int)pos.y] == -1)
+        {
+            trdata[w / 2 + (int)pos.x, h / 2 + (int)pos.y] = 1;
+            GameObject a = (GameObject)Instantiate(ar, Vector2.zero, transform.rotation);//ライン生成
+            a.name = "a";
+            a.transform.position = new Vector2((int)pos.x + 0.5f, (int)pos.y);
+            a.transform.SetParent(transform, false);
+            a.GetComponent<SpriteRenderer>().sortingLayerName = "Territory";
+            a.GetComponent<SpriteRenderer>().sprite = s;
+            a.GetComponent<AreaController>().Mikata = mikata;
+            ars.Add(a);
+            ar_cn += mikata ? 1 : 0;
+            if (!mikata)
+            {
+                a.GetComponent<SpriteRenderer>().color = Color.red;
+            }
+        }
+        else
+        {
+            foreach (GameObject a in ars)
+            {
+                if (a.GetComponent<AreaController>().Mikata != mikata
+                    && ((int)a.transform.position.x == (int)pos.x && (int)a.transform.position.y == (int)pos.y))
+                {
+                    a.GetComponent<AreaController>().Mikata = mikata;
+                    if (robot != null)
+                        a.gameObject.GetComponent<AreaController>().Vanish(robot);
+                    if (!mikata)//敵が踏んだら
+                    {
+                        ar_cn--;
+                        a.GetComponent<SpriteRenderer>().color = Color.red;
+                    }
+                    else
+                    {
+                        ar_cn++;
+                        a.GetComponent<SpriteRenderer>().color = Color.white;
+                    }
+                }
+            }
+        }
+        return ker;
     }
 
     public int SetRobotNumber()

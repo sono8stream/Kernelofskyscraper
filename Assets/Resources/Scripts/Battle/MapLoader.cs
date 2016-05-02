@@ -12,6 +12,7 @@ public class MapLoader : MonoBehaviour {
     public Sprite mapchips;
     Sprite map;
     const int MASU = 32;
+
     // Use this for initialization
     void Awake()
     {

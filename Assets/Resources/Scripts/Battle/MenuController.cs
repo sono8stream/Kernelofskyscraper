@@ -8,7 +8,7 @@ using System.Collections.Generic;
 public class MenuController : MonoBehaviour
 {
 
-    public GameObject[] robots;//生成するロボ
+    //public GameObject[] robots;//生成するロボ
     public GameObject[] panels;//生成するパネル
     List<Button> br;
     List<Button> bp;
@@ -34,6 +34,7 @@ public class MenuController : MonoBehaviour
         EventTrigger trigger;
         EventTrigger.Entry entryDown, entryDrag, entryEndDrag;
         br = new List<Button>();//ロボコマンド初期化
+        GameObject[] robots = kerCon.genRobots;
         for (int i = 0; i < robots.GetLength(0); i++)
         {
             bt = (GameObject)Instantiate(Resources.Load("Prefabs/RoboButton"),
@@ -150,9 +151,8 @@ public class MenuController : MonoBehaviour
     }
 
     //ロボ・パネルの種類と生成する番号をセット
-    public void SetNumber(int generateNo, bool isRobot, int panelDire,int panelCount)
+    public void SetNumber(int generateNo, bool isRobot, int panelDire, int panelCount)
     {
-        Debug.Log(generateNo);
         this.generateNo = generateNo;
         this.isRobot = isRobot;
         foreach (Transform child in transform)
@@ -167,7 +167,7 @@ public class MenuController : MonoBehaviour
             {
                 s = br[generateNo].GetComponent<Image>().sprite;
                 setPos = GameObject.Find("kernel").transform.position;
-                if (robots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
+                if (kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
                 {
                     transform.FindChild("SetObject").gameObject.SetActive(true);
                 }
@@ -190,19 +190,8 @@ public class MenuController : MonoBehaviour
             {
                 s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
                 setPos = Vector2.zero;
-                /*g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
-                g.transform.position = setPos;*/
                 transform.FindChild("SetObject").gameObject.SetActive(true);
-                //SetPosition();
             }
-            //g.GetComponent<SpriteRenderer>().sprite = s;
-            //child.GetComponent<Image>().sprite = s;
-            /*}
-        }
-        else
-        {
-            child.gameObject.SetActive(false);
-        }*/
             g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
         }
         GameObject selecting = transform.FindChild("CommandList").FindChild("Selecting").gameObject;
@@ -241,31 +230,23 @@ public class MenuController : MonoBehaviour
         if (twice && t_pos == setPosSub)
         {
             setPos = t_pos;
-            Debug.Log("setpos" + setPos);
             Generate(0);
         }
         else
         {
             setPosSub = t_pos;
-            Debug.Log("setposSub" + setPos);
         }
     }
 
     public void Generate(int setDire=-1)
     {
-        Debug.Log("Ok" + generateNo);
         if (isRobot)
         {
             Vector3 genPos;
-            if (robots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
-            {
-                genPos = setPos;
-            }
-            else
-            {
-                genPos = kerCon.transform.position;
-            }
-            kerCon.Generate(robots[generateNo], setDire, genPos, !gameStop);
+            genPos = kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine
+                ? setPos : (Vector2)kerCon.transform.position;
+            kerCon.genNo = generateNo;
+            kerCon.Generate(setDire, genPos, !gameStop);
         }
         else
         {

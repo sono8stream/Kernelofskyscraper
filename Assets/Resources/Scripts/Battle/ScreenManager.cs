@@ -19,13 +19,12 @@ public class ScreenManager : MonoBehaviour {
     [SerializeField]
     MenuController menuCon;
 
-                       // Use this for initialization
+    // Use this for initialization
     void Start()
     {
         keyDownPos = new Vector2(-1000, 0);
         velocity = Vector2.zero;
         accel = Vector2.zero;
-        Debug.Log(keyDownPos);
     }
 
     // Update is called once per frame
@@ -39,7 +38,6 @@ public class ScreenManager : MonoBehaviour {
         {
             RectTransform canvasRect = menuCon.GetComponent<RectTransform>();
             Vector2 viewportPosition = GetComponent<Camera>().WorldToViewportPoint(menuCon.sRobo.transform.position);
-            Debug.Log(viewportPosition);
             Vector2 worldObject_ScreenPosition = new Vector2(
                 ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
                 ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));
@@ -88,7 +86,6 @@ public class ScreenManager : MonoBehaviour {
                         {
                             menuCon.sRobo = obj.GetComponent<RobotController>();
                         }
-                        Debug.Log(obj.name);
                     }
                 }
                 menuCon.SetStatus();
