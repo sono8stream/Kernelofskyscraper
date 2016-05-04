@@ -38,6 +38,17 @@ public class KernelController : MonoBehaviour {
     #endregion
     #endregion
 
+    void Awake()
+    {
+        Transform robots = transform.FindChild("Robots");
+        int count = robots.GetChildCount();
+        genRobots = new GameObject[count];
+        for (int i = 0; i < count; i ++)
+        {
+            genRobots[i] = robots.GetChild(i).gameObject;
+        }
+    }
+
     // Use this for initialization
     void Start ()
     {
@@ -166,6 +177,7 @@ public class KernelController : MonoBehaviour {
             }
             ob = (GameObject)Instantiate(genRobots[genNo], transform.position, transform.rotation);
             ob.transform.position = genPos;
+            ob.SetActive(true);
             RobotController rc = ob.GetComponent<RobotController>();
             rc.Mikata = mikata;
             rc.auto = false;

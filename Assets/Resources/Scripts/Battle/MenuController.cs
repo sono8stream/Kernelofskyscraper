@@ -16,14 +16,25 @@ public class MenuController : MonoBehaviour
     bool isRobot;
     bool isOnMenu;
     bool gameStop;
+    bool isSetting;//ロボ、パネルをセットする状態か
     int panelDire = 0;//パネルの向き、基本値は0
     GameObject g;//オブジェの配置予想
-    List<GameObject> setDire;
+    public GameObject setDire;//方向オブジェ
     public KernelController kerCon, kerConEnemy;
     public Sprite loseImage, winImage;
-    Vector2 setPos,setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
+    Vector2 setPos, setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
     public Text tabText;
     public RobotController sRobo;//選択中のロボ
+    #region カメラ関連
+    public Camera camera;
+    public int mapSizeX, mapSizeY;//マップの大きさ
+    const int cameraSizeX = 16;
+    const int cameraSizeY = 9;
+    Vector2 keyDownPos;
+    Vector2 velocity;
+    Vector2 accel;
+    bool cameraIsFixing;//カメラ固定状態
+    #endregion
 
     // Use this for initialization
     void Start()
@@ -46,8 +57,8 @@ public class MenuController : MonoBehaviour
             int SIZE = 32;
             Texture2D image = new Texture2D(SIZE, SIZE);
             RobotController r = robots[i].GetComponent<RobotController>();
-            Color[] c = robots[i].GetComponent<SpriteRenderer>().sprite.texture.
-                GetPixels(SIZE * (1 + (r.im_num % 4) * 3),
+            Color[] c = robots[i].GetComponent<SpriteRenderer>().sprite.texture.GetPixels(
+                SIZE * (1 + (r.im_num % 4) * 3),
                 SIZE * (7 - 4 * (r.im_num / 4) - r.Direction),
                 SIZE, SIZE);
             image.SetPixels(0, 0, SIZE, SIZE, c);
@@ -94,7 +105,7 @@ public class MenuController : MonoBehaviour
         }
         #endregion
         g = GameObject.Find("ObjectExpectation");
-        setDire = new List<GameObject>();
+        /*setDire = new List<GameObject>();
         setDire.Add(GameObject.Find("SetDirection"));
         for (int i = 0; i < 4; i++)//各方向の矢印を設定
         {
@@ -114,7 +125,8 @@ public class MenuController : MonoBehaviour
             int dire = i;
             entryDown.callback.AddListener((x) => Generate(dire));
             trigger.triggers.Add(entryDown);
-        }
+        }*/
+        setDire.SetActive(false);
         ChangeTab();
         OnMenu();
     }
@@ -148,6 +160,27 @@ public class MenuController : MonoBehaviour
                 return;
             }
         }
+        if (sRobo != null && sRobo.gameObject != null)//ステータス表示中、ロボを追従
+        {
+            RectTransform canvasRect = GetComponent<RectTransform>();
+            /*Vector2 viewportPosition = camera.WorldToViewportPoint(sRobo.transform.position);
+            Vector2 worldObject_ScreenPosition = new Vector2(
+                ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
+                ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));*/
+            transform.FindChild("SelectingRobot").GetComponent<RectTransform>().anchoredPosition
+                = SetToScreenPos(sRobo.transform.position);
+        }
+        if (sRobo != null)//ロボが選択されているとき、ステータスを表示
+        {
+            SetStatus(sRobo);
+        }
+        if (velocity != Vector2.zero)//余韻スクロール
+        {
+            camera.transform.position = (Vector2)camera.transform.position + velocity;
+            camera.transform.position += new Vector3(0, 0, -10);
+            LimitScroll(mapSizeX, mapSizeY);
+            velocity += accel;
+        }
     }
 
     //ロボ・パネルの種類と生成する番号をセット
@@ -157,29 +190,21 @@ public class MenuController : MonoBehaviour
         this.isRobot = isRobot;
         foreach (Transform child in transform)
         {
-            /*if (child.tag == "UI_Object_Set" || child.tag == "UI_Regular")
-            {
-                child.gameObject.SetActive(true);
-                if (child.name == "SelectObject")
-                {*/
             Sprite s;
             if (isRobot)
             {
                 s = br[generateNo].GetComponent<Image>().sprite;
                 setPos = GameObject.Find("kernel").transform.position;
-                if (kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
+                if(kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
                 {
-                    transform.FindChild("SetObject").gameObject.SetActive(true);
+                    isSetting = true;
+                    setDire.SetActive(false);
                 }
                 else
                 {
-                    transform.FindChild("SetObject").gameObject.SetActive(false);
-                    for (int i = 0; i < setDire.Count; i++)
-                    {
-                        setDire[i].GetComponent<SpriteRenderer>().enabled = true;
-                        setDire[i].GetComponent<EventTrigger>().enabled = true;
-                        setDire[i].transform.position = setPos;
-                    }
+                    isSetting = false;
+                    setDire.SetActive(true);
+                    setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down*0.5f);
                     g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
                     g.transform.position = setPos;
                     g.GetComponent<SpriteRenderer>().sprite = s;
@@ -190,7 +215,7 @@ public class MenuController : MonoBehaviour
             {
                 s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
                 setPos = Vector2.zero;
-                transform.FindChild("SetObject").gameObject.SetActive(true);
+                isSetting = true;
             }
             g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
         }
@@ -201,10 +226,15 @@ public class MenuController : MonoBehaviour
         }
         selecting.transform.localPosition = new Vector2(-500 + 250 * (panelCount % 5), 0);
         this.panelDire = panelDire;
+        SetStatus(kerCon.genRobots[generateNo].GetComponent<RobotController>());
     }
 
     public void SetPosition(bool twice/*二回目か*/)//ロボ、パネルの生成位置決定
     {
+        if(!isSetting)
+        {
+            return;
+        }
         Vector3 touch_pos = Input.mousePosition;
         Vector2 t_pos = Camera.main.ScreenToWorldPoint(touch_pos);
         t_pos.x = Mathf.Round(t_pos.x);
@@ -217,16 +247,15 @@ public class MenuController : MonoBehaviour
             {
                 return;
             }
-            if(c.tag=="Area"&&c.GetComponent<AreaController>().Mikata)
+            if (c.tag == "Area" && c.GetComponent<AreaController>().Mikata)
             {
                 area = c;
             }
         }
-        if(isRobot&&area==null)
+        if (isRobot && area == null)
         {
             return;
         }
-        //g.transform.position = t_pos;
         if (twice && t_pos == setPosSub)
         {
             setPos = t_pos;
@@ -238,7 +267,7 @@ public class MenuController : MonoBehaviour
         }
     }
 
-    public void Generate(int setDire=-1)
+    public void Generate(int setDire = -1)
     {
         if (isRobot)
         {
@@ -264,7 +293,6 @@ public class MenuController : MonoBehaviour
             ef.name = "effect";
             ef.transform.position = ob.transform.position;
             ef.transform.SetParent(ob.transform);
-            //transform.FindChild("SetObject").gameObject.SetActive(true);
         }
     }
 
@@ -282,11 +310,9 @@ public class MenuController : MonoBehaviour
                 {
                     child.gameObject.SetActive(true);
                 }
-                for (int i = 0; i < setDire.Count; i++)
-                {
-                    setDire[i].GetComponent<SpriteRenderer>().enabled = false;
-                    setDire[i].GetComponent<EventTrigger>().enabled = false;
-                }
+                /*setDire.GetComponent<Image>().enabled = false;
+                setDire.GetComponent<EventTrigger>().enabled = false;*/
+                setDire.SetActive(false);
             }
             else
             {
@@ -302,8 +328,8 @@ public class MenuController : MonoBehaviour
         }
         isRobot = !isRobot;
         g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
-        tabText.text=isRobot ? "Robot" : "Panel";
-        transform.FindChild("SetObject").gameObject.SetActive(false);
+        tabText.text = isRobot ? "Robot" : "Panel";
+        isSetting = false;
         transform.FindChild("CommandList").FindChild("Selecting").gameObject.SetActive(false);
     }
 
@@ -329,11 +355,8 @@ public class MenuController : MonoBehaviour
     public void OnMenu()
     {
         g.GetComponent<SpriteRenderer>().sprite = null;
-        for (int i = 0; i < setDire.Count; i++)
-        {
-            setDire[i].GetComponent<EventTrigger>().enabled = false;
-            setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
-        }
+        //setDire.GetComponent<EventTrigger>().enabled = false;
+        setDire.SetActive(false);
         isOnMenu = !isOnMenu;
         foreach (Transform child in transform)
         {
@@ -341,7 +364,7 @@ public class MenuController : MonoBehaviour
             {
                 child.gameObject.SetActive(isOnMenu);
             }
-            else if(child.name == "MenuSwitch")
+            else if (child.name == "MenuSwitch")
             {
                 child.FindChild("Text").GetComponent<Text>().text = isOnMenu ? "OFF" : "ON";
             }
@@ -373,31 +396,108 @@ public class MenuController : MonoBehaviour
         }
     }
 
-    public void SetStatus()
+    public void SetStatus(RobotController robot)
     {
         GameObject status = transform.FindChild("Status").gameObject;
         GameObject select = transform.FindChild("SelectingRobot").gameObject;
-        if (sRobo==null)//ロボが選択されていなければ終了
+        if (robot == null)//ロボが選択されていなければ終了
         {
             status.SetActive(false);
             select.SetActive(false);
             return;
         }
         status.SetActive(true);
-        select.SetActive(true);
+        select.SetActive(sRobo!=null);
         string statusHP, statusATK, statusDEF, statusSPD;
-        /*statusHP = status.transform.FindChild("hp").GetComponent<Text>().text;
-        statusATK = status.transform.FindChild("atk").GetComponent<Text>().text;
-        statusDEF = status.transform.FindChild("def").GetComponent<Text>().text;
-        statusSPD = status.transform.FindChild("spd").GetComponent<Text>().text;
-            statusHP = sRobo.hp.ToString() + "/" + sRobo.mhp.ToString();
-            statusATK = sRobo.attack.ToString();
-            statusDEF = sRobo.defence.ToString();
-            statusSPD = sRobo.speed.ToString();*/
         status.transform.FindChild("hp").GetComponent<Text>().text
-            = sRobo.hp.ToString() + "/" + sRobo.mhp.ToString();
-        status.transform.FindChild("atk").GetComponent<Text>().text = sRobo.attack.ToString();
-        status.transform.FindChild("def").GetComponent<Text>().text = sRobo.defence.ToString();
-        status.transform.FindChild("spd").GetComponent<Text>().text = sRobo.speed.ToString();
+            = robot.hp.ToString() + "/" + robot.mhp.ToString();
+        status.transform.FindChild("atk").GetComponent<Text>().text = robot.attack.ToString();
+        status.transform.FindChild("def").GetComponent<Text>().text = robot.defence.ToString();
+        status.transform.FindChild("spd").GetComponent<Text>().text = robot.speed.ToString();
+    }
+
+    public void TouchDownScreen()
+    {
+        keyDownPos = Input.mousePosition;
+    }
+
+    public void TouchingScreen()
+    {
+        velocity = keyDownPos / 160 - (Vector2)Input.mousePosition / 160;
+        accel = velocity / (-10);
+        camera.transform.position = (Vector2)camera.transform.position + velocity;
+        camera.transform.position += new Vector3(0, 0, -10);
+        LimitScroll(mapSizeX, mapSizeY);
+        keyDownPos = Input.mousePosition;
+    }
+
+    public void TouchUpScreen()
+    {
+        Debug.Log("srobo");
+        float bure = 5;
+        Vector2 touchPos = Input.mousePosition;
+        if (keyDownPos.x - bure < touchPos.x && touchPos.x < keyDownPos.x + bure
+            && keyDownPos.y - bure < touchPos.y && touchPos.y < keyDownPos.y + bure)
+        {
+
+            Vector3 aTapPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Collider2D[] aCollider2d = Physics2D.OverlapPointAll(aTapPoint);
+            sRobo = null;
+            foreach (Collider2D col in aCollider2d)
+            {
+                if (col && col.tag == "Robot")
+                {
+                    sRobo = col.GetComponent<RobotController>();
+                }
+            }
+        }
+        SetStatus(sRobo);
+    }
+
+    void LimitScroll(int sizeX, int sizeY)
+    {
+        float correctionX = -0.5f;
+        float speed = 0.1f;
+        float marginX = 1;
+        float marginY = 1;
+        float rangeX = Mathf.Floor((sizeX - cameraSizeX) / 2) + marginX;
+        float rangeY = Mathf.Floor((sizeY - cameraSizeY) / 2) + marginY;
+        float correctionRight = 4;
+        float correctionDown = 2;
+        if (camera.transform.position.x < correctionX - rangeX)
+        {
+            camera.transform.position = new Vector3(correctionX - rangeX, camera.transform.position.y, -10);
+            velocity.x = speed;
+            accel = velocity / (-10);
+        }
+        if (camera.transform.position.x > correctionX + rangeX + correctionRight)
+        {
+            camera.transform.position = new Vector3(correctionX + rangeX + correctionRight, camera.transform.position.y, -10);
+            velocity.x = -speed;
+            accel = velocity / (-10);
+        }
+        if (camera.transform.position.y < -(rangeY + correctionDown))
+        {
+            camera.transform.position = new Vector3(camera.transform.position.x, -(rangeY + correctionDown), -10);
+            velocity.y = speed;
+            accel = velocity / (-10);
+        }
+        if (camera.transform.position.y > rangeY)
+        {
+            camera.transform.position = new Vector3(camera.transform.position.x, rangeY, -10);
+            velocity.y = -speed;
+            accel = velocity / (-10);
+        }
+        setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down * 0.5f);
+    }
+
+    Vector2 SetToScreenPos(Vector2 pos)
+    {
+        RectTransform canvasRect = GetComponent<RectTransform>();
+        Vector2 viewportPosition = camera.WorldToViewportPoint(pos);
+        Vector2 worldObject_ScreenPosition = new Vector2(
+            ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
+            ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));
+        return worldObject_ScreenPosition;
     }
 }
