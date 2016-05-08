@@ -5,8 +5,8 @@ public class MapLoader : MonoBehaviour {
 
     public TextAsset mp_layout;//マップ情報を記述したテキスト
     Texture2D MapImage;
-    const int MAP_WIDTH = 16;
-    const int MAP_HEIGHT = 9;
+    int mapWidth;
+    int mapHeight;
     public int[,] mapdata;
     public string[] mapdataDebug;
     public Sprite mapchips;
@@ -47,14 +47,16 @@ public class MapLoader : MonoBehaviour {
     {
         char[] kugiri = { '\r' };
         string[] layoutInfo = mp_layout.text.Split(kugiri);
+        mapHeight = layoutInfo.GetLength(0);
 
         string[] eachInfo;
         for (int i = 0; i < layoutInfo.Length; i++)
         {
-            layoutInfo[i]=layoutInfo[i].Remove(layoutInfo[i].Length - 1);
+            //layoutInfo[i]=layoutInfo[i].Remove(layoutInfo[i].Length - 1);
             eachInfo = layoutInfo[i].Split(',');
             if (i == 0)//mapdata初期化
             {
+                mapWidth = eachInfo.Length;
                 mapdata = new int[eachInfo.Length, layoutInfo.Length];
             }
             for (int j = 0; j < eachInfo.Length; j++)
@@ -65,10 +67,10 @@ public class MapLoader : MonoBehaviour {
                 }
             }
         }
-        MapImage = new Texture2D(MASU * MAP_WIDTH, MASU * MAP_HEIGHT, TextureFormat.RGBA32, false);//マップ初期化
-        for (int i = 0; i < MAP_WIDTH; i++)
+        MapImage = new Texture2D(MASU * mapWidth, MASU * mapHeight, TextureFormat.RGBA32, false);//マップ初期化
+        for (int i = 0; i < mapWidth; i++)
         {
-            for (int j = 0; j < MAP_HEIGHT; j++)
+            for (int j = 0; j < mapHeight; j++)
             {
                 Color[] c = mapchips.texture.GetPixels(MASU * (mapdata[i, j] % 8),
                     mapchips.texture.height - MASU * (1 + mapdata[i, j] / 8), MASU, MASU);
@@ -76,7 +78,7 @@ public class MapLoader : MonoBehaviour {
             }
         }
         MapImage.Apply();
-        map = Sprite.Create(MapImage, new Rect(0, 0, MAP_WIDTH * MASU, MAP_HEIGHT * MASU), new Vector2(0.5f, 0.5f), MASU);
+        map = Sprite.Create(MapImage, new Rect(0, 0, mapWidth * MASU, mapHeight * MASU), new Vector2(0.5f, 0.5f), MASU);
         GetComponent<SpriteRenderer>().sprite = map;
         AdjustMapData();
         return new Vector2(mapdata.GetLength(0), mapdata.GetLength(1));

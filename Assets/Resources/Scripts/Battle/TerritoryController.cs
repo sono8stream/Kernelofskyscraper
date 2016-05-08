@@ -33,6 +33,8 @@ public class TerritoryController : MonoBehaviour
         int[,] mpd = GameObject.Find("MapLayer1").GetComponent<MapLoader>().mapdata;
         trdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
         rbdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
+        Debug.Log(rbdata.GetLength(0));
+        Debug.Log(rbdata.GetLength(1));
         r_count = 0;
         t = new Texture2D(trdata.GetLength(0) * size, trdata.GetLength(1) * size, TextureFormat.RGBA32, false);
         ar = (GameObject)Instantiate(Resources.Load("Prefabs/area"), Vector2.zero, transform.rotation);//ライン生成
@@ -46,6 +48,20 @@ public class TerritoryController : MonoBehaviour
                 trdata[i, j] = -1;
                 t.SetPixels(i * size, j * size, size, size, nc);//エリア画像初期化
                 rbdata[i, j] = -1;
+            }
+        }
+        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Robot"))
+        {
+            if (g.activeSelf)
+            {
+                RobotController rCon = g.GetComponent<RobotController>();
+                if (rCon != null)
+                {
+                    rCon.number = r_count;
+                    rbdata[rbdata.GetLength(0) / 2 + (int)rCon.transform.position.x,
+                        rbdata.GetLength(1) / 2 + (int)rCon.transform.position.y] = rCon.number;
+                    r_count++;
+                }
             }
         }
         ars = new List<GameObject>();

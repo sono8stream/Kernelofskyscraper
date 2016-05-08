@@ -67,7 +67,7 @@ public class RobotController : MonoBehaviour {
     public bool Move
     {
         get { return move; }
-        set { move = value;}
+        set { move = value; }
     }
     bool at;
     public bool CheckAttack
@@ -109,11 +109,11 @@ public class RobotController : MonoBehaviour {
     public Vector2 v;
     public int typeNo;//robotのタイプ
     public bool isReady;//生成可能か（主に生成に条件があるとき）
-    public int triggerNo = -1;//破壊時にセットするロボの番号
+    public int triggerNo;//破壊時にセットするロボの番号
     #endregion
 
     // Use this for initialization
-    public void Start ()
+    public void Start()
     {
         ani_pat = 1;//真ん中に調整
         last_ani_pat = 0;
@@ -143,7 +143,7 @@ public class RobotController : MonoBehaviour {
         move = false;
         sp_count = 0;
         cother = null;
-        if(typeNo==(int)RobotType.Human||typeNo==(int)RobotType.Bomb)
+        if (typeNo == (int)RobotType.Human || typeNo == (int)RobotType.Bomb)
         {
             aniSpan = 10;
         }
@@ -180,7 +180,7 @@ public class RobotController : MonoBehaviour {
                         + new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
                     if (0 <= sub.x && sub.x < t.rbdata.GetLength(0) && 0 <= sub.y && sub.y < t.rbdata.GetLength(1))
                     {
-                    t.rbdata[(int)sub.x, (int)sub.y] = -1;
+                        t.rbdata[(int)sub.x, (int)sub.y] = -1;
                     }
                     if (auto)
                     {
@@ -204,7 +204,6 @@ public class RobotController : MonoBehaviour {
                         int[,] m_s = mp_lay2.GetComponent<MapLoader>().mapdata;
                         if (m_s[posX, posY] != 7)//移動不可マスに衝突
                         {
-                            breaking = true;
                             StartCoroutine(Break());
                         }
                         else
@@ -212,9 +211,13 @@ public class RobotController : MonoBehaviour {
                             move = true;
                         }
                     }
-                    else if (!at)
+                    else if (typeNo == (int)RobotType.Human && !at)
                     {
                         StartCoroutine(Attack());
+                    }
+                    else if (typeNo == (int)RobotType.Bomb)
+                    {
+                        StartCoroutine(Break());
                     }
                 }
                 else
@@ -290,6 +293,7 @@ public class RobotController : MonoBehaviour {
             if (Mathf.RoundToInt(ker.transform.position.x - transform.position.x) == 0
                 && Mathf.RoundToInt(ker.transform.position.y - transform.position.y) == 0)
             {
+                at = true;
                 ker.StartCoroutine(ker.Intake(gameObject));
             }
         }
@@ -319,7 +323,7 @@ public class RobotController : MonoBehaviour {
             direction = dire;
         }
         Vector2 pos = Vector2.zero;
-        switch(direction)
+        switch (direction)
         {
             case 0:
                 pos.y = -1;
@@ -395,7 +399,7 @@ public class RobotController : MonoBehaviour {
         for (int i = 0; i < attEffectPat; i++)
         {
             SetEffect(att_effect, i, tpos);
-            if (i == attEffectPat/2 &&!target.GetComponent<RobotController>().CheckBreaking)
+            if (i == attEffectPat / 2 && !target.GetComponent<RobotController>().CheckBreaking)
             {
                 target.GetComponent<RobotController>().Damage(attack);
             }
@@ -412,19 +416,37 @@ public class RobotController : MonoBehaviour {
 
     public IEnumerator Break()
     {
+        breaking = true;
         StopCoroutine(Attack());
         at = true;
         ef.transform.position = transform.position;
         GetComponent<BoxCollider2D>().isTrigger = true;
-        if (auto && triggerNo != -1)
+        if (typeNo == (int)RobotType.Bomb)
         {
-            kerCon.genNo = triggerNo;
-            kerCon.genRobots[kerCon.genNo].gameObject.GetComponent<RobotController>().isReady = true;
+            ef.transform.localScale *= 3;
+
         }
         for (int i = 0; i < 7; i++)
         {
             SetEffect(br_effect, i, transform.position);
+            if (typeNo == (int)RobotType.Bomb && i == 3)
+            {
+                Collider2D[] targets = Physics2D.OverlapAreaAll(transform.position - Vector3.one,
+                    transform.position + Vector3.one);
+                foreach (Collider2D c in targets)
+                {
+                    if (c.tag == "Robot")
+                    {
+                        RobotController rCon = c.GetComponent<RobotController>();
+                        if (rCon.mikata != mikata && !rCon.CheckBreaking)
+                        {
+                            rCon.Damage(attack);
+                        }
+                    }
+                }
+            }
             yield return new WaitForSeconds(0.05f);
+            Debug.Log("burast");
         }
         GetComponent<SpriteRenderer>().sprite = null;
         Burst();
@@ -646,16 +668,19 @@ public class RobotController : MonoBehaviour {
         if (dst_lt[0].x == (int)Math.Round(transform.position.x, 0))//x座標が達しているなら
         {
             ln = dst_lt[0].y - transform.position.y;
-            dire = ln < 0 ? 0 : 2;//上下で方向を取得
             if (dst_lt[0].y == (int)Math.Round(transform.position.y, 0))
             {
                 c = true;
+            }
+            else
+            {
+                dire = ln < 0 ? 0 : 2;//上下で方向を取得
             }
         }
         else//x座標が達していないなら
         {
             ln = dst_lt[0].x - transform.position.x;
-            dire = ln < 0 ? 3 : 1;//左右でで方向を取得
+            dire = ln < 0 ? 3 : 1;//左右で方向を取得
         }
         if (c)
         {
@@ -663,6 +688,10 @@ public class RobotController : MonoBehaviour {
             if (dst_lt.Count == 0)
             {
                 auto = false;
+            }
+            else
+            {
+                AI();
             }
         }
     }
@@ -673,6 +702,11 @@ public class RobotController : MonoBehaviour {
     public void Burst()
     {
         t.AdjustRobotNumber(number);
+        if (auto && triggerNo != -1&&kerCon!=null)
+        {
+            kerCon.genNo = triggerNo;
+            kerCon.genRobots[triggerNo].gameObject.GetComponent<RobotController>().isReady = true;
+        }
         Destroy(gameObject);
     }
 

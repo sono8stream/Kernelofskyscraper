@@ -101,7 +101,8 @@ public class KernelController : MonoBehaviour {
 
     public IEnumerator Intake(GameObject other)
     {
-        if (other.tag == "Robot" && mikata == other.GetComponent<RobotController>().Mikata)
+        if (other.tag == "Robot" && (mikata == other.GetComponent<RobotController>().Mikata
+            || other.GetComponent<RobotController>().CheckBreaking))
         {
             yield break;
         }
@@ -110,15 +111,17 @@ public class KernelController : MonoBehaviour {
             StartCoroutine(Break(effectCount));
             yield break;
         }
+
         other.GetComponent<RobotController>().CheckBreaking = true;
         intake = true;
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         Color c = sr.color;
         sr.color = Color.red;
+        Debug.Log("Start Break");
+        StartCoroutine(other.GetComponent<RobotController>().Break());
         yield return new WaitForSeconds(0.1f);
         Damage(other.GetComponent<RobotController>().attack);
         sr.color = c;
-        other.GetComponent<RobotController>().Burst();
         intake = false;
         damaged = true;
     }
@@ -199,7 +202,7 @@ public class KernelController : MonoBehaviour {
 
     public void AI()
     {
-        if (/*damaged && */energy > enmax / 2 &&genRobots[genNo]!=null
+        if (/*damaged && */energy > enmax / 2 &&genRobots.Length>0&&genRobots[genNo]!=null
             && genRobots[genNo].GetComponent<RobotController>().isReady)
         {
             Generate(2, transform.position, true, target_pos);
