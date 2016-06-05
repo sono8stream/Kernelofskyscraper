@@ -59,7 +59,7 @@ public class MenuController : MonoBehaviour
             RobotController r = robots[i].GetComponent<RobotController>();
             Color[] c = robots[i].GetComponent<SpriteRenderer>().sprite.texture.GetPixels(
                 SIZE * (1 + (r.im_num % 4) * 3),
-                SIZE * (7 - 4 * (r.im_num / 4) - r.Direction),
+                SIZE * (7 - 4 * (r.im_num / 4) - r.dire),
                 SIZE, SIZE);
             image.SetPixels(0, 0, SIZE, SIZE, c);
             image.Apply();
@@ -129,6 +129,7 @@ public class MenuController : MonoBehaviour
         setDire.SetActive(false);
         ChangeTab();
         OnMenu();
+        LimitScroll(mapSizeX, mapSizeY, false);
     }
 
     // Update is called once per frame
@@ -178,7 +179,7 @@ public class MenuController : MonoBehaviour
         {
             camera.transform.position = (Vector2)camera.transform.position + velocity;
             camera.transform.position += new Vector3(0, 0, -10);
-            LimitScroll(mapSizeX, mapSizeY);
+            LimitScroll(mapSizeX, mapSizeY, false);
             velocity += accel;
         }
     }
@@ -204,7 +205,7 @@ public class MenuController : MonoBehaviour
                 {
                     isSetting = false;
                     setDire.SetActive(true);
-                    setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down*0.5f);
+                    setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down);
                     g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
                     g.transform.position = setPos;
                     g.GetComponent<SpriteRenderer>().sprite = s;
@@ -275,7 +276,7 @@ public class MenuController : MonoBehaviour
             genPos = kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine
                 ? setPos : (Vector2)kerCon.transform.position;
             kerCon.genNo = generateNo;
-            kerCon.Generate(setDire, genPos, !gameStop);
+            kerCon.Generate(genPos, !gameStop, setDire);
         }
         else
         {
@@ -427,7 +428,7 @@ public class MenuController : MonoBehaviour
         accel = velocity / (-10);
         camera.transform.position = (Vector2)camera.transform.position + velocity;
         camera.transform.position += new Vector3(0, 0, -10);
-        LimitScroll(mapSizeX, mapSizeY);
+        LimitScroll(mapSizeX, mapSizeY, false);
         keyDownPos = Input.mousePosition;
     }
 
@@ -452,9 +453,10 @@ public class MenuController : MonoBehaviour
             }
         }
         SetStatus(sRobo);
+        LimitScroll(mapSizeX, mapSizeY);
     }
 
-    void LimitScroll(int sizeX, int sizeY)
+    void LimitScroll(int sizeX, int sizeY,bool bound=true)
     {
         float correctionX = -0.5f;
         float speed = 0.1f;
@@ -467,28 +469,40 @@ public class MenuController : MonoBehaviour
         if (camera.transform.position.x < correctionX - rangeX)
         {
             camera.transform.position = new Vector3(correctionX - rangeX, camera.transform.position.y, -10);
-            velocity.x = speed;
+            if (bound)
+            {
+                velocity.x = speed;
+            }
             accel = velocity / (-10);
         }
         if (camera.transform.position.x > correctionX + rangeX + correctionRight)
         {
             camera.transform.position = new Vector3(correctionX + rangeX + correctionRight, camera.transform.position.y, -10);
-            velocity.x = -speed;
+            if (bound)
+            {
+                velocity.x = -speed;
+            }
             accel = velocity / (-10);
         }
         if (camera.transform.position.y < -(rangeY + correctionDown))
         {
             camera.transform.position = new Vector3(camera.transform.position.x, -(rangeY + correctionDown), -10);
-            velocity.y = speed;
+            if (bound)
+            {
+                velocity.y = speed;
+            }
             accel = velocity / (-10);
         }
         if (camera.transform.position.y > rangeY)
         {
             camera.transform.position = new Vector3(camera.transform.position.x, rangeY, -10);
-            velocity.y = -speed;
+            if (bound)
+            {
+                velocity.y = -speed;
+            }
             accel = velocity / (-10);
         }
-        setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down * 0.5f);
+        setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down);
     }
 
     Vector2 SetToScreenPos(Vector2 pos)

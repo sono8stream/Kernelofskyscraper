@@ -15,12 +15,7 @@ public class RobotController : MonoBehaviour {
     Texture2D image;//瞬間のキャラチップ
     int ani_pat;//歩行パターン
     int last_ani_pat;
-    int dire;//方向
-    public int Direction
-    {
-        get { return dire; }
-        set { dire = value; }
-    }
+    public int dire;//方向
     bool mikata;//自陣営かどうか
     public bool Mikata
     {
@@ -105,8 +100,6 @@ public class RobotController : MonoBehaviour {
     public bool auto;
     #endregion
     public KernelController kerCon;
-    public int fnumber;
-    public Vector2 v;
     public int typeNo;//robotのタイプ
     public bool isReady;//生成可能か（主に生成に条件があるとき）
     public int triggerNo;//破壊時にセットするロボの番号
@@ -139,6 +132,7 @@ public class RobotController : MonoBehaviour {
         ppos = new Vector2(-100, -100);
         dst_lt = new List<Vector2>();
         dst_lt.AddRange(dst);
+        auto = dst.Length > 0;
         t = GameObject.Find("Territory").GetComponent<TerritoryController>();
         move = false;
         sp_count = 0;
@@ -384,13 +378,31 @@ public class RobotController : MonoBehaviour {
         RobotController r = target.GetComponent<RobotController>();
         target.GetComponent<SpriteRenderer>().color = Color.red;
         Vector2 tpos = Vector2.zero;
-        if (/*target != null && target.tag == "Robot" &&*/ !r.breaking && r.Mikata != mikata)
+        if (!r.breaking && r.Mikata != mikata)
         {
             tpos = target.transform.position;
             target.GetComponent<SpriteRenderer>().color = Color.red;
         }
         else
         {
+            if (!r.breaking && typeNo != (int)RobotType.Figurine && r.typeNo == (int)RobotType.Figurine)
+            {
+                Vector2 sub = transform.position
+                    + new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
+                t.rbdata[(int)sub.x, (int)sub.y] = -1;
+                transform.position += DtoV();
+                Update();
+                if(move)
+                {
+                    transform.position += DtoV();
+                    move = false;
+                }
+                else if(!breaking)
+                {
+                    transform.position -= DtoV() * 1;
+                    StartCoroutine(Break());
+                }
+            }
             tpos = Vector2.zero;
             at = false;
             ef.GetComponent<SpriteRenderer>().sprite = null;
@@ -457,6 +469,7 @@ public class RobotController : MonoBehaviour {
         hp -= Attack - defence;
         if (hp <= 0)
         {
+            hp = 0;
             breaking = true;
             StartCoroutine(Break());
         }
@@ -702,10 +715,11 @@ public class RobotController : MonoBehaviour {
     public void Burst()
     {
         t.AdjustRobotNumber(number);
-        if (auto && triggerNo != -1&&kerCon!=null)
+        if (triggerNo != -1 && kerCon != null)
         {
             kerCon.genNo = triggerNo;
             kerCon.genRobots[triggerNo].gameObject.GetComponent<RobotController>().isReady = true;
+            Debug.Log("Set");
         }
         Destroy(gameObject);
     }

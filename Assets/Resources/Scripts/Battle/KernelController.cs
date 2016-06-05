@@ -30,10 +30,9 @@ public class KernelController : MonoBehaviour {
     GameObject ot;//接触した敵のロボット
     bool intake;//ロボット取り込み中か
     #region Automation
-    bool auto;//ロボを生成できるか
+    public bool auto;//ロボを生成できるか
     public GameObject[] genRobots;//通常生成させるロボ
     public int genNo;
-    public Vector2[] target_pos;//ロボにアタックさせる座標
     public bool damaged;
     #endregion
     #endregion
@@ -58,7 +57,6 @@ public class KernelController : MonoBehaviour {
         bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         sp_s = sp;
         sp_cn = sp;
-        auto = target_pos.GetLength(0) > 0;
         for(int i=0;i<genRobots.GetLength(0);i++)
         {
             genRobots[i].GetComponent<RobotController>().kerCon = this;
@@ -154,6 +152,7 @@ public class KernelController : MonoBehaviour {
         energy -= Offence;
         if (energy <= 0)
         {
+            energy = 0;
             breaking = true;
             StartCoroutine(Break(effectCount));
         }
@@ -161,8 +160,7 @@ public class KernelController : MonoBehaviour {
     }
 
     //ロボ・パネルの生成
-    public GameObject Generate(int direction,
-        Vector3 genPos, bool enable = false, params Vector2[] t_pos)
+    public GameObject Generate(Vector3 genPos, bool enable = false, int direction = -1, params Vector2[] t_pos)
     {
         int c = genRobots[genNo].GetComponent<RobotController>().cost;
         GameObject ob = null;
@@ -185,7 +183,7 @@ public class KernelController : MonoBehaviour {
             rc.Mikata = mikata;
             rc.auto = false;
             rc.number = t.SetRobotNumber();
-            rc.Direction = direction;
+            rc.dire = direction != -1 ? direction : rc.dire;
             t.rbdata[t.rbdata.GetLength(0) / 2 + (int)rc.transform.position.x,
                 t.rbdata.GetLength(1) / 2 + (int)rc.transform.position.y] = rc.number;
             if (t_pos.GetLength(0) > 0)
@@ -202,10 +200,19 @@ public class KernelController : MonoBehaviour {
 
     public void AI()
     {
-        if (/*damaged && */energy > enmax / 2 &&genRobots.Length>0&&genRobots[genNo]!=null
+        if (/*damaged && */energy > enmax / 2 && genRobots.Length > 0 && genRobots[genNo] != null
             && genRobots[genNo].GetComponent<RobotController>().isReady)
         {
-            Generate(2, transform.position, true, target_pos);
+            Generate(transform.position, true, -1);
+            do
+            {
+                genNo++;
+                if (genNo >= genRobots.Length)
+                {
+                    genNo = 0;
+                }
+            }
+            while (!genRobots[genNo].GetComponent<RobotController>().isReady);
         }
     }
 }
