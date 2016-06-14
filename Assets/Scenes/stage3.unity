@@ -126,7 +126,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11466894, guid: 826ad307b1069e94680dcab8a9f7f201, type: 2}
       propertyPath: isReady
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11466894, guid: 826ad307b1069e94680dcab8a9f7f201, type: 2}
       propertyPath: attack

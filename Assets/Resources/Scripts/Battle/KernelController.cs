@@ -49,7 +49,7 @@ public class KernelController : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
         ef = transform.FindChild("effect").gameObject;//エフェクトオブジェ取得
         bar = transform.FindChild("HpBar").gameObject;
@@ -57,7 +57,7 @@ public class KernelController : MonoBehaviour {
         bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         sp_s = sp;
         sp_cn = sp;
-        for(int i=0;i<genRobots.GetLength(0);i++)
+        for (int i = 0; i < genRobots.GetLength(0); i++)
         {
             genRobots[i].GetComponent<RobotController>().kerCon = this;
         }
@@ -170,7 +170,7 @@ public class KernelController : MonoBehaviour {
             GameObject br;
             GameObject tr = GameObject.Find("Territory");
             TerritoryController t = tr.GetComponent<TerritoryController>();
-            Vector2 s = genPos 
+            Vector2 s = genPos
                 + new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
             if (t.rbdata[(int)s.x, (int)s.y] != -1)//ロボがいるか、陣地でない
             {
@@ -194,6 +194,18 @@ public class KernelController : MonoBehaviour {
             energy -= c;
             rc.Start();
             rc.enabled = enable;
+            if(auto)
+            {
+                do
+                {
+                    genNo++;
+                    if (genNo >= genRobots.Length)
+                    {
+                        genNo = 0;
+                    }
+                }
+                while (!genRobots[genNo].GetComponent<RobotController>().isReady);
+            }
         }
         return ob;
     }
@@ -204,15 +216,7 @@ public class KernelController : MonoBehaviour {
             && genRobots[genNo].GetComponent<RobotController>().isReady)
         {
             Generate(transform.position, true, -1);
-            do
-            {
-                genNo++;
-                if (genNo >= genRobots.Length)
-                {
-                    genNo = 0;
-                }
-            }
-            while (!genRobots[genNo].GetComponent<RobotController>().isReady);
+            Debug.Log(genNo);
         }
     }
 }

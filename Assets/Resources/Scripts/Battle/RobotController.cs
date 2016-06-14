@@ -205,14 +205,14 @@ public class RobotController : MonoBehaviour {
                             move = true;
                         }
                     }
-                    else if (typeNo == (int)RobotType.Human && !at)
+                    else if (typeNo!= (int)RobotType.Figurine && !at)
                     {
                         StartCoroutine(Attack());
                     }
-                    else if (typeNo == (int)RobotType.Bomb)
+                    /*else if (typeNo == (int)RobotType.Bomb)
                     {
                         StartCoroutine(Break());
-                    }
+                    }*/
                 }
                 else
                 {
@@ -382,6 +382,14 @@ public class RobotController : MonoBehaviour {
         {
             tpos = target.transform.position;
             target.GetComponent<SpriteRenderer>().color = Color.red;
+            if (typeNo == (int)RobotType.Bomb)
+            {
+                StartCoroutine(Break());
+                tpos = Vector2.zero;
+                at = false;
+                ef.GetComponent<SpriteRenderer>().sprite = null;
+                yield break;
+            }
         }
         else
         {
@@ -397,10 +405,13 @@ public class RobotController : MonoBehaviour {
                     transform.position += DtoV();
                     move = false;
                 }
-                else if(!breaking)
+                else
                 {
                     transform.position -= DtoV() * 1;
-                    StartCoroutine(Break());
+                    if (!breaking)
+                    {
+                        StartCoroutine(Break());
+                    }
                 }
             }
             tpos = Vector2.zero;
@@ -435,7 +446,7 @@ public class RobotController : MonoBehaviour {
         GetComponent<BoxCollider2D>().isTrigger = true;
         if (typeNo == (int)RobotType.Bomb)
         {
-            ef.transform.localScale *= 3;
+            ef.transform.localScale = Vector3.one * 3;
 
         }
         for (int i = 0; i < 7; i++)
