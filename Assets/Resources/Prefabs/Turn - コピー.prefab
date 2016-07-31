@@ -31,7 +31,7 @@ GameObject:
   - 114: {fileID: 11481276}
   - 95: {fileID: 9520774}
   m_Layer: 10
-  m_Name: Turn
+  m_Name: "Turn - \u30B3\u30D4\u30FC"
   m_TagString: Panel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,7 +165,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 126901059
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 2f270b3127166ad428b1cd2e7bb23186, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c137cfb0fa6b3f34fbecaa7ea122ca16, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

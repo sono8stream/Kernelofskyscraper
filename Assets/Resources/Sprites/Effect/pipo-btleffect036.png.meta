@@ -1,9 +1,16 @@
 fileFormatVersion: 2
 guid: 891f7cc04f3e34445ae156dd8924e3b0
-timeCreated: 1447164917
+timeCreated: 1469111159
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: pipo-btleffect036_0
+    21300002: pipo-btleffect036_1
+    21300004: pipo-btleffect036_2
+    21300006: pipo-btleffect036_3
+    21300008: pipo-btleffect036_4
+    21300010: pipo-btleffect036_5
+    21300012: pipo-btleffect036_6
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -17,9 +24,9 @@ TextureImporter:
   bumpmap:
     convertToNormalMap: 0
     externalNormalMap: 0
-    heightScale: .25
+    heightScale: 0.25
     normalMapFilter: 0
-  isReadable: 1
+  isReadable: 0
   grayScaleToAlpha: 0
   generateCubemap: 0
   cubemapConvolution: 0
@@ -38,18 +45,163 @@ TextureImporter:
   rGBM: 0
   compressionQuality: 50
   allowsAlphaSplitting: 0
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 4
-  spritePivot: {x: .5, y: .5}
+  spritePivot: {x: 0.5, y: 0.5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 120
+  spritePixelsToUnits: 80
   alphaIsTransparency: 1
-  textureType: 5
+  textureType: 8
   buildTargetSettings: []
   spriteSheet:
-    sprites: []
+    sprites:
+    - name: pipo-btleffect036_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 120
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -8, y: 42}
+        - {x: -41, y: 31}
+        - {x: -41, y: -34}
+        - {x: -10, y: -42}
+        - {x: 38, y: -42}
+        - {x: 38, y: 26}
+        - {x: 15, y: 42}
+    - name: pipo-btleffect036_1
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 120
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -20, y: 50}
+        - {x: -54, y: 29}
+        - {x: -54, y: -35}
+        - {x: -47, y: -51}
+        - {x: 49, y: -51}
+        - {x: 49, y: 26}
+        - {x: 42, y: 50}
+    - name: pipo-btleffect036_2
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 120
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -35, y: 56}
+        - {x: -59, y: 36}
+        - {x: -59, y: -34}
+        - {x: -46, y: -55}
+        - {x: 54, y: -55}
+        - {x: 55, y: -53}
+        - {x: 55, y: 32}
+        - {x: 43, y: 56}
+    - name: pipo-btleffect036_3
+      rect:
+        serializedVersion: 2
+        x: 360
+        y: 0
+        width: 120
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -21, y: 58}
+        - {x: -60, y: 34}
+        - {x: -60, y: -42}
+        - {x: -32, y: -58}
+        - {x: 51, y: -58}
+        - {x: 58, y: -31}
+        - {x: 58, y: 14}
+        - {x: 45, y: 58}
+    - name: pipo-btleffect036_4
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 120
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -27, y: 59}
+        - {x: -60, y: 41}
+        - {x: -60, y: -47}
+        - {x: -36, y: -60}
+        - {x: 45, y: -60}
+        - {x: 60, y: -55}
+        - {x: 60, y: 30}
+        - {x: 42, y: 59}
+    - name: pipo-btleffect036_5
+      rect:
+        serializedVersion: 2
+        x: 600
+        y: 0
+        width: 120
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -17, y: 59}
+        - {x: -34, y: 50}
+        - {x: -60, y: 30}
+        - {x: -60, y: -27}
+        - {x: -57, y: -38}
+        - {x: -48, y: -60}
+        - {x: 50, y: -60}
+        - {x: 60, y: -41}
+        - {x: 60, y: 27}
+        - {x: 47, y: 59}
+    - name: pipo-btleffect036_6
+      rect:
+        serializedVersion: 2
+        x: 720
+        y: 0
+        width: 120
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -30, y: 58}
+        - {x: -54, y: 42}
+        - {x: -54, y: -35}
+        - {x: -40, y: -54}
+        - {x: -29, y: -55}
+        - {x: -26, y: -54}
+        - {x: -23, y: -51}
+        - {x: -23, y: -50}
+        - {x: -23, y: -51}
+        - {x: -21, y: -59}
+        - {x: 50, y: -59}
+        - {x: 60, y: -38}
+        - {x: 60, y: 27}
+        - {x: 42, y: 58}
+      - - {x: 50, y: -38}
+        - {x: 53, y: -37}
+        - {x: 53, y: -34}
+        - {x: 50, y: -33}
+        - {x: 48, y: -35}
+    outline: []
   spritePackingTag: 
   userData: 
   assetBundleName: 

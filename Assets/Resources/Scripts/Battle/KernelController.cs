@@ -116,7 +116,7 @@ public class KernelController : MonoBehaviour {
         Color c = sr.color;
         sr.color = Color.red;
         Debug.Log("Start Break");
-        StartCoroutine(other.GetComponent<RobotController>().Break());
+        other.GetComponent<RobotController>().Break();
         yield return new WaitForSeconds(0.1f);
         Damage(other.GetComponent<RobotController>().attack);
         sr.color = c;
@@ -136,7 +136,7 @@ public class KernelController : MonoBehaviour {
         {
             if(g.GetComponent<RobotController>()!=null)
             {
-                StartCoroutine(g.GetComponent<RobotController>().Break());
+                g.GetComponent<RobotController>().Break();
             }
         }
         foreach (GameObject g in GameObject.FindGameObjectsWithTag("Kernel"))
@@ -166,10 +166,8 @@ public class KernelController : MonoBehaviour {
         GameObject ob = null;
         if (energy > c)
         {
-            GameObject ef;
-            GameObject br;
-            GameObject tr = GameObject.Find("Territory");
-            TerritoryController t = tr.GetComponent<TerritoryController>();
+            TerritoryController t
+                = GameObject.Find("Territory").GetComponent<TerritoryController>();
             Vector2 s = genPos
                 + new Vector3(Mathf.Floor(t.rbdata.GetLength(0) / 2), Mathf.Floor(t.rbdata.GetLength(1) / 2));
             if (t.rbdata[(int)s.x, (int)s.y] != -1)//ロボがいるか、陣地でない

@@ -195,7 +195,7 @@ public class MenuController : MonoBehaviour
             if (isRobot)
             {
                 s = br[generateNo].GetComponent<Image>().sprite;
-                setPos = GameObject.Find("kernel").transform.position;
+                setPos = GameObject.Find("Kernel").transform.position;
                 if(kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
                 {
                     isSetting = true;
@@ -290,10 +290,6 @@ public class MenuController : MonoBehaviour
             }
             GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
             ob.GetComponent<PanelController>().direction = panelDire;
-            GameObject ef = (GameObject)Instantiate(Resources.Load("Prefabs/effect_p"), Vector2.zero, transform.rotation);
-            ef.name = "effect";
-            ef.transform.position = ob.transform.position;
-            ef.transform.SetParent(ob.transform);
         }
     }
 

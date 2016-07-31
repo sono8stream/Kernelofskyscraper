@@ -2,7 +2,8 @@
 using System.Collections;
 using System;
 
-public class Turn : MonoBehaviour {
+public class Turn : MonoBehaviour
+{
 
     int direction;
     bool process = false;
@@ -20,44 +21,16 @@ public class Turn : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        /*if(process)
-        {
-            StartCoroutine("Effect");
-        }
-        else
-        {
-            StopCoroutine("Effect");
-        }*/
     }
-
-    /*void OnTriggerStay2D(Collider2D other)
-    {
-        RobotController rc = other.GetComponent<RobotController>();
-        if (other.tag == "Robot" && rc.Mikata
-            && Math.Round(other.transform.position.x) == Math.Round(transform.position.x)
-            && Math.Round(other.transform.position.y) == Math.Round(transform.position.y)
-            && rc.Speed_Count != rc.speed
-            && !rc.Move
-            && !process)
-        {
-            process = true;
-            other.GetComponent<RobotController>().Turn(direction);
-            /*other.GetComponent<Rigidbody2D>().transform.position
-                = new Vector3(this.transform.position.x, this.transform.position.y);
-            other.GetComponent<RobotController>().Zoning();
-            StartCoroutine("Effect");
-        }
-    }*/
 
     public void RunPanel(GameObject other)
     {
         RobotController rc = other.GetComponent<RobotController>();
-        if (rc.Mikata&&!process)
+        if (rc.Mikata && !process)
         {
             process = true;
+            direction = rc.dire >= 3 ? 0 : rc.dire + 1;
             rc.Turn(direction);
-            /*other.GetComponent<Rigidbody2D>().transform.position
-                = new Vector3(this.transform.position.x, this.transform.position.y);*/
             rc.Zoning();
             StartCoroutine("Effect");
         }
