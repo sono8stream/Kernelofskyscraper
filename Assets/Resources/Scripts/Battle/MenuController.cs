@@ -18,13 +18,17 @@ public class MenuController : MonoBehaviour
     bool gameStop;
     bool isSetting;//ロボ、パネルをセットする状態か
     int panelDire = 0;//パネルの向き、基本値は0
+    public int eCount = 0;//敵の数　0になったらゲームクリア
     GameObject g;//オブジェの配置予想
     public GameObject setDire;//方向オブジェ
-    public KernelController kerCon, kerConEnemy;
+    #region 各種コントローラの参照
+    public KernelController kerCon/*, kerConEnemy*/;
+    public TerritoryController terCon;
+    public RobotController sRobo;//選択中のロボ
+    #endregion
     public Sprite loseImage, winImage;
     Vector2 setPos, setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
     public Text tabText;
-    public RobotController sRobo;//選択中のロボ
     #region カメラ関連
     public Camera camera;
     public int mapSizeX, mapSizeY;//マップの大きさ
@@ -105,6 +109,8 @@ public class MenuController : MonoBehaviour
         }
         #endregion
         g = GameObject.Find("ObjectExpectation");
+        kerCon = GameObject.Find("Kernel").GetComponent<KernelController>();
+        terCon = GameObject.Find("Territory").GetComponent<TerritoryController>();
         /*setDire = new List<GameObject>();
         setDire.Add(GameObject.Find("SetDirection"));
         for (int i = 0; i < 4; i++)//各方向の矢印を設定
@@ -130,12 +136,20 @@ public class MenuController : MonoBehaviour
         ChangeTab();
         OnMenu();
         LimitScroll(mapSizeX, mapSizeY, false);
+        //eCount = 0;
+        /*foreach(GameObject rb in GameObject.FindGameObjectsWithTag("Robot"))
+        {
+            if (g.activeSelf)
+            {
+                eCount++;
+            }
+        }*/
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (kerCon == null || kerConEnemy == null)
+        if (kerCon == null || /*kerConEnemy == null*/eCount == 0)
         {
             transform.FindChild("EndMessage").GetComponent<Image>().enabled = true;
             if (kerCon == null)
@@ -389,7 +403,7 @@ public class MenuController : MonoBehaviour
     {
         if (transform.FindChild("EndMessage").GetComponent<Image>().enabled)
         {
-            SceneManager.LoadScene("title");
+            SceneManager.LoadSceneAsync("title");
         }
     }
 

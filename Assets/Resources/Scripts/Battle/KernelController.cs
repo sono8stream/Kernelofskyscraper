@@ -57,10 +57,6 @@ public class KernelController : MonoBehaviour {
         bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         sp_s = sp;
         sp_cn = sp;
-        for (int i = 0; i < genRobots.GetLength(0); i++)
-        {
-            genRobots[i].GetComponent<RobotController>().kerCon = this;
-        }
     }
 
     // Update is called once per frame

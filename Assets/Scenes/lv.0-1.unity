@@ -1729,7 +1729,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &134024830
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1829,7 +1829,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22439176, guid: 88fcf3e7c00c41b43a3ad0381fcab9d6, type: 2}
       propertyPath: m_RootOrder
-      value: 10
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 22439176, guid: 88fcf3e7c00c41b43a3ad0381fcab9d6, type: 2}
       propertyPath: m_AnchoredPosition.x
@@ -1994,7 +1994,6 @@ Transform:
   - {fileID: 1943941931}
   - {fileID: 1231021274}
   - {fileID: 134024832}
-  - {fileID: 1148577380}
   - {fileID: 257791812}
   - {fileID: 745032229}
   - {fileID: 1694233273}
@@ -2030,7 +2029,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 229071705}
-  m_RootOrder: 7
+  m_RootOrder: 6
 --- !u!114 &257791813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2273,10 +2272,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rbDataDebug: []
   r_count: 0
+  ar_cn: 0
+  t: {fileID: 0}
+  ar: {fileID: 0}
+  s: {fileID: 0}
+  size: 32
   w: 16
   h: 9
   kerCon: {fileID: 1231021271}
   kerConEnemy: {fileID: 992142691}
+  ars: []
 --- !u!212 &479291089
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2405,11 +2410,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -5
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.z
@@ -2458,48 +2463,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
   m_IsPrefabParent: 0
---- !u!1001 &695309014
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 461460, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-      propertyPath: m_RootOrder
-      value: 6
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: bc07ec4b674955d46b2f3369b44e4be6, type: 2}
-  m_IsPrefabParent: 0
 --- !u!1 &745032228
 GameObject:
   m_ObjectHideFlags: 0
@@ -2528,7 +2491,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 229071705}
-  m_RootOrder: 8
+  m_RootOrder: 7
 --- !u!212 &745032230
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2560,48 +2523,6 @@ SpriteRenderer:
   m_Color: {r: 1, g: 1, b: 1, a: 0.627451}
   m_FlipX: 0
   m_FlipY: 0
---- !u!1001 &918016323
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 428398, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-  m_IsPrefabParent: 0
 --- !u!114 &992142691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2614,12 +2535,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b147e0dc8877da049bd396451b36ff75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  kernelNo: 0
   mikata: 0
   energy: 10
   enmax: 10
   sp: 80
+  sp_s: 0
+  sp_cn: 0
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   effectCount: 7
+  ef: {fileID: 0}
+  bar: {fileID: 0}
+  breaking: 0
+  ot: {fileID: 0}
+  intake: 0
   auto: 1
   genRobots: []
   genNo: 0
@@ -2693,7 +2622,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -3
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.y
@@ -2760,11 +2689,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.z
@@ -2878,34 +2807,6 @@ SpriteRenderer:
   m_Color: {r: 1, g: 1, b: 1, a: 0.959}
   m_FlipX: 0
   m_FlipY: 0
---- !u!1 &1148577379
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 134402, guid: 5a0f0b104c2324e47a470bc768dae28d, type: 2}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 4
-  m_Component:
-  - 4: {fileID: 1148577380}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1148577380
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 437648, guid: 5a0f0b104c2324e47a470bc768dae28d, type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1148577379}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: -1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_Children: []
-  m_Father: {fileID: 229071705}
-  m_RootOrder: 6
 --- !u!1 &1203878390
 GameObject:
   m_ObjectHideFlags: 0
@@ -3011,7 +2912,15 @@ MonoBehaviour:
   number: 0
   image_all: {fileID: 21300000, guid: 237882d0cc1c5964aa46152e94a92241, type: 3}
   im_num: 0
+  c: []
+  points: []
+  image: {fileID: 0}
+  ani_pat: 0
+  last_ani_pat: 0
   dire: 0
+  mikata: 0
+  ani_count: 0
+  aniSpan: 0
   paneling: 0
   speed: 20
   spCount: 0
@@ -3024,10 +2933,23 @@ MonoBehaviour:
   hp: 10
   attack: 5
   defence: 0
-  ek: {fileID: 0}
+  ef: {fileID: 0}
+  bar: {fileID: 0}
+  ppos: {x: 0, y: 0}
+  ex_panels: []
+  ln: {fileID: 0}
+  pt: {fileID: 0}
+  move: 0
+  at: 0
+  attacking: 0
+  breaking: 0
+  mp_lay2: {fileID: 0}
+  dmas: 0
+  cother: {fileID: 0}
   dst: []
+  dst_lt: []
   auto: 0
-  kerCon: {fileID: 0}
+  menCon: {fileID: 0}
   typeNo: 0
   isReady: 0
   triggerNo: 0
@@ -3093,12 +3015,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b147e0dc8877da049bd396451b36ff75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  kernelNo: 0
   mikata: 1
   energy: 10
   enmax: 10
   sp: 100
+  sp_s: 0
+  sp_cn: 0
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   effectCount: 7
+  ef: {fileID: 0}
+  bar: {fileID: 0}
+  breaking: 0
+  ot: {fileID: 0}
+  intake: 0
   auto: 0
   genRobots: []
   genNo: 0
@@ -3156,7 +3086,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1231021270}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: 2, z: -1}
+  m_LocalPosition: {x: -1, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
@@ -3531,6 +3461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c330e1e57ffc56541a3569eeed1fbe3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boundary: 12
 --- !u!212 &1613997972
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3651,6 +3582,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c330e1e57ffc56541a3569eeed1fbe3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boundary: 12
 --- !u!212 &1660329953
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3691,11 +3623,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -4
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 435584, guid: d2b2ecf2ad2e83443a16f233e21f65ae, type: 2}
       propertyPath: m_LocalPosition.z
@@ -3788,8 +3720,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mp_layout: {fileID: 4900000, guid: 94118b12b71c88349abbed69ca0bcdd4, type: 3}
+  MapImage: {fileID: 0}
+  mapWidth: 0
+  mapHeight: 0
   mapdataDebug: []
   mapchips: {fileID: 21300000, guid: f9db2596d4f9ed34fb7f045fccf2964b, type: 3}
+  map: {fileID: 0}
 --- !u!212 &1840410367
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3924,8 +3860,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mp_layout: {fileID: 4900000, guid: ee1ce95013c1afb4191fc20bf26d79cc, type: 3}
+  MapImage: {fileID: 0}
+  mapWidth: 0
+  mapHeight: 0
   mapdataDebug: []
   mapchips: {fileID: 21300000, guid: f9db2596d4f9ed34fb7f045fccf2964b, type: 3}
+  map: {fileID: 0}
 --- !u!212 &1943941933
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3999,6 +3939,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c330e1e57ffc56541a3569eeed1fbe3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boundary: 12
 --- !u!212 &1975919195
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4195,7 +4136,15 @@ MonoBehaviour:
   number: 0
   image_all: {fileID: 21300000, guid: 40266de7712938a4d97689ac493985e6, type: 3}
   im_num: 0
+  c: []
+  points: []
+  image: {fileID: 0}
+  ani_pat: 0
+  last_ani_pat: 0
   dire: 0
+  mikata: 0
+  ani_count: 0
+  aniSpan: 0
   paneling: 0
   speed: 20
   spCount: 0
@@ -4208,10 +4157,23 @@ MonoBehaviour:
   hp: 10
   attack: 5
   defence: 0
-  ek: {fileID: 0}
+  ef: {fileID: 0}
+  bar: {fileID: 0}
+  ppos: {x: 0, y: 0}
+  ex_panels: []
+  ln: {fileID: 0}
+  pt: {fileID: 0}
+  move: 0
+  at: 0
+  attacking: 0
+  breaking: 0
+  mp_lay2: {fileID: 0}
+  dmas: 0
+  cother: {fileID: 0}
   dst: []
+  dst_lt: []
   auto: 0
-  kerCon: {fileID: 0}
+  menCon: {fileID: 0}
   typeNo: 2
   isReady: 0
   triggerNo: 0

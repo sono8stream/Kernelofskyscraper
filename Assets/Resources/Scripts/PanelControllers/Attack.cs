@@ -26,7 +26,7 @@ public class Attack : MonoBehaviour {
         if (Math.Round(other.transform.position.x, 1) == Math.Round(transform.position.x, 1)
             && Math.Round(other.transform.position.y, 1) == Math.Round(transform.position.y, 1)
             && !process
-            && !other.GetComponent<RobotController>().CheckAttack)
+            /*&& !other.GetComponent<RobotController>().CheckAttack*/)
         {
             process = true;
             StartCoroutine("Effect");
@@ -51,10 +51,10 @@ public class Attack : MonoBehaviour {
             }
             yield return new WaitForSeconds(0.1f);
         }
-        while(ot.GetComponent<RobotController>().CheckAttack)
+        /*while(ot.GetComponent<RobotController>().CheckAttack)
         {
             yield return null;
-        }
+        }*/
         process = false;
         ef.GetComponent<SpriteRenderer>().sprite = null;
         Debug.Log("fire");

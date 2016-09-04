@@ -49,4 +49,17 @@ public class GameController : MonoBehaviour {
     {
 
     }
+
+    public bool EndGame()
+    {
+        int rbCount = 0;
+        foreach (GameObject g in GameObject.FindGameObjectsWithTag("Robot"))
+        {
+            if(g.GetComponent<RobotController>().Mikata)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

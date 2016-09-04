@@ -25,6 +25,6 @@ public class ButtonController : MonoBehaviour {
     public void OnClick(int levelNo)
     {
 
-        SceneManager.LoadScene(levelNo);
+        SceneManager.LoadSceneAsync(levelNo);
     }
 }
