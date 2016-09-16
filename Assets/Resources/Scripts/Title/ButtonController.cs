@@ -24,7 +24,6 @@ public class ButtonController : MonoBehaviour {
 
     public void OnClick(int levelNo)
     {
-
-        SceneManager.LoadSceneAsync(levelNo);
+        StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(levelNo));
     }
 }

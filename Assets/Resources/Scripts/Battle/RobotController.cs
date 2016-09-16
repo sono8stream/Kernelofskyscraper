@@ -6,7 +6,6 @@ using System;
 public class RobotController : MonoBehaviour {
 
     #region　プロパティ
-    public Collider2D tar;
     public int number;//
     public Sprite image_all;//キャラチップ全パターン
     public int im_num;//画像番号
@@ -25,21 +24,6 @@ public class RobotController : MonoBehaviour {
     int ani_count;//歩行パターン切り替えウェイト
     const int SIZE = 32;//画像サイズ
     int aniSpan;//アニメーションの遷移間隔
-    public bool paneling;//パネル上の処理を実行中か
-    public int speed;//移動スピード
-    public int spCount;
-    /*public int SpeedCount
-    {
-        get { return spCount; }
-        set { spCount = value; }
-    }*/
-    public bool go;//進むかどうか
-    public Sprite att_effect;
-    /*public Sprite AttackEffect
-    {
-        get { return att_effect; }
-        set { att_effect = value; }
-    }*/
     public int attEffectPat;
     public Sprite br_effect;
     public int cost;//召喚コスト
@@ -58,6 +42,11 @@ public class RobotController : MonoBehaviour {
     List<Vector2> ex_panels;//超えたパネルの座標リスト
     GameObject ln;//通過ライン
     GameObject pt;//通過ポイント
+    #region 行動用(移動、攻撃)
+    bool generated;//生成完了かどうか
+    public bool paneling;//パネル上の処理を実行中か
+    public int speed;//移動スピード
+    public int spCount;
     public bool move;
     public bool Move
     {
@@ -76,7 +65,7 @@ public class RobotController : MonoBehaviour {
             at = value;
         }
     }
-    bool attacking;
+    RobotController tarCon;//攻撃対象のスクリプト
     bool breaking = false;
     public bool CheckBreaking
     {
@@ -92,8 +81,7 @@ public class RobotController : MonoBehaviour {
     GameObject mp_lay2;//マップレイヤー2
     //public GameObject ek;//敵のカーネル情報
     bool dmas;//マス移動時、一度だけ呼び出し
-    //TerritoryController t;
-    GameObject cother;//衝突した他のロボット
+    #endregion
     #region 自動移動用
     public Vector2[] dst;
     List<Vector2> dst_lt;
@@ -103,6 +91,7 @@ public class RobotController : MonoBehaviour {
     public int typeNo;//robotのタイプ
     public bool isReady;//生成可能か（主に生成に条件があるとき）
     public int triggerNo;//破壊時にセットするロボの番号
+    public bool is3d;
     #endregion
 
     // Use this for initialization
@@ -117,9 +106,14 @@ public class RobotController : MonoBehaviour {
         paneling = false;
         ef = transform.FindChild("effect").gameObject;//エフェクトオブジェ取得
         bar = transform.FindChild("HpBar").gameObject;
+        if (!is3d)
+        {
+            bar.transform.localPosition = new Vector3(-0.5f, -0.3f, 0);
+        }
+        bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         ex_panels = new List<Vector2>();
         //at = false;
-        attacking = false;
+        generated = false;
         mp_lay2 = GameObject.Find("MapLayer2");
         ln = transform.FindChild("line").gameObject;
         ln.GetComponent<SpriteRenderer>().sprite = null;
@@ -132,7 +126,6 @@ public class RobotController : MonoBehaviour {
         //t = GameObject.Find("Territory").GetComponent<TerritoryController>();
         move = false;
         spCount = 0;
-        cother = null;
         if (typeNo == (int)RobotType.Human || typeNo == (int)RobotType.Bomb)
         {
             aniSpan = 10;
@@ -141,9 +134,6 @@ public class RobotController : MonoBehaviour {
         {
             aniSpan = 20;
         }
-        GameObject hpBar = transform.FindChild("HpBar").gameObject;
-        hpBar.transform.localPosition = new Vector3(-0.5f, -0.3f, 0);
-        hpBar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         menCon = GameObject.Find("Menu").GetComponent<MenuController>();
         if(!mikata)
         {
@@ -154,105 +144,109 @@ public class RobotController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if ((typeNo == (int)RobotType.Human || typeNo == (int)RobotType.Bomb)
-            && !breaking)//人間タイプ、ボムタイプなら移動
+        if (generated)
         {
-            #region 実際の移動処理
-            if (move)//実際の移動処理
+            if ((typeNo == (int)RobotType.Human || typeNo == (int)RobotType.Bomb)
+                && !breaking)//人間タイプ、ボムタイプなら移動
             {
-                if (spCount < speed)
+                #region 実際の移動処理
+                if (move)//実際の移動処理
                 {
-                    spCount++;
-                    Debug.Log("Moving");
-                    transform.Translate(DtoV() / speed);
-                    SetImage();
-                }
-                if (spCount == speed)
-                {
-                    move = false;
-                    spCount = 0;
-                    transform.position =
-                        new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
-                    Vector2 sub = transform.position - DtoV()
-                        + new Vector3(Mathf.Floor(menCon.terCon.rbdata.GetLength(0) / 2), Mathf.Floor(menCon.terCon.rbdata.GetLength(1) / 2));
-                    if (0 <= sub.x && sub.x < menCon.terCon.rbdata.GetLength(0) && 0 <= sub.y && sub.y < menCon.terCon.rbdata.GetLength(1))
+                    if (spCount < speed)
                     {
-                        menCon.terCon.rbdata[(int)sub.x, (int)sub.y] = -1;
+                        spCount++;
+                        //transform.Translate(DtoV() / speed);
+                        transform.position += DtoV() / speed;
+                        SetImage();
                     }
-                    if (auto)
+                    if (spCount == speed)
                     {
-                        AI();
-                    }
-                    CheckDot();
-                }
-            }
-            #endregion
-            else//停止し、パネル、カーネルと接触処理
-            {
-                Vector2 sub = 
-                    new Vector3(Mathf.Floor(menCon.terCon.rbdata.GetLength(0) / 2), Mathf.Floor(menCon.terCon.rbdata.GetLength(1) / 2));
-                Vector3 tarPos = new Vector3(transform.position.x + DtoV().x, transform.position.y + DtoV().y);
-                int posX, posY;
-                posX = (int)(sub.x + tarPos.x);
-                posY = (int)(sub.y + tarPos.y);
-                if (0 <= posX && posX < menCon.terCon.rbdata.GetLength(0) && 0 <= posY && posY < menCon.terCon.rbdata.GetLength(1))//前進を試みる
-                {
-                    if (menCon.terCon.rbdata[posX, posY] == -1)//目の前にロボがいない
-                    {
-                        int mapFront = mp_lay2.GetComponent<MapLoader>().mapdata[posX, posY];
-                        if (mapFront != 7)//移動不可マスに衝突
+                        move = false;
+                        spCount = 0;
+                        transform.position =
+                            new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
+                        if(is3d)
                         {
-                            Debug.Log("ok?");
-                            Break();
+                            transform.position += new Vector3(0, 0, -2);
+                        }
+                        Vector2 sub = transform.position - DtoV()
+                            + new Vector3(Mathf.Floor(menCon.terCon.rbdata.GetLength(0) / 2), Mathf.Floor(menCon.terCon.rbdata.GetLength(1) / 2));
+                        if (0 <= sub.x && sub.x < menCon.terCon.rbdata.GetLength(0) && 0 <= sub.y && sub.y < menCon.terCon.rbdata.GetLength(1))
+                        {
+                            menCon.terCon.rbdata[(int)sub.x, (int)sub.y] = -1;
+                        }
+                        if (auto)
+                        {
+                            AI();
+                        }
+                        CheckDot();
+                    }
+                }
+                #endregion
+                else//停止し、パネル、カーネルと接触処理
+                {
+                    Vector2 sub =
+                        new Vector2(Mathf.Floor(menCon.terCon.rbdata.GetLength(0) / 2), Mathf.Floor(menCon.terCon.rbdata.GetLength(1) / 2));
+                    Vector2 tarPos = new Vector2(transform.position.x + DtoV().x, transform.position.y + DtoV().y);
+                    int posX, posY;
+                    posX = (int)(sub.x + tarPos.x);
+                    posY = (int)(sub.y + tarPos.y);
+                    if (0 <= posX && posX < menCon.terCon.rbdata.GetLength(0) && 0 <= posY && posY < menCon.terCon.rbdata.GetLength(1))//前進を試みる
+                    {
+                        if (menCon.terCon.rbdata[posX, posY] == -1)//目の前にロボがいない
+                        {
+                            int mapFront = mp_lay2.GetComponent<MapLoader>().mapdata[posX, posY];
+                            if (mapFront != 7)//移動不可マスに衝突
+                            {
+                                Break();
+                            }
+                            else
+                            {
+                                move = true;
+                                menCon.terCon.rbdata[posX, posY] = number;
+                                spCount = 0;
+                            }
                         }
                         else
                         {
-                            Debug.Log("どうなってんの");
-                            move = true;
-                            menCon.terCon.rbdata[posX, posY] = number;
-                            spCount = 0;
+                            spCount++;
+                            if (spCount > speed)
+                            {
+                                spCount = 0;
+                                if (typeNo != (int)RobotType.Figurine && !at)
+                                {
+                                    Attack();
+                                }
+                                else if (typeNo == (int)RobotType.Bomb)
+                                {
+                                    Break();
+                                }
+                            }
                         }
                     }
                     else
                     {
-                        Debug.Log("kotti!?");
-                        spCount++;
-                        if (spCount > speed)
-                        {
-                            spCount = 0;
-                            if (typeNo != (int)RobotType.Figurine && !at)
-                            {
-                                Attack();
-                            }
-                            else if (typeNo == (int)RobotType.Bomb)
-                            {
-                                Break();
-                            }
-                        }
+                        Debug.Log("ok");
+                        breaking = true;
+                        Break();
                     }
                 }
-                else
-                {
-                    Debug.Log("ok");
-                    breaking = true;
-                    Break();
-                }
+                ln.transform.position = Vector2.zero;
+                pt.transform.position = Vector2.zero;
             }
-            ln.transform.position = Vector2.zero;
-            pt.transform.position = Vector2.zero;
-        }
-        else if (!at)//フィギュリンタイプの攻撃
-        {
-            spCount++;
-            if (spCount > speed)
+            else if (!at)//フィギュリンタイプの攻撃
             {
-                spCount = 0;
-                dire++;
-                if (dire >= 4)
+                spCount++;
+                if (spCount > speed)
                 {
-                    dire = 0;
+                    spCount = 0;
+                    dire++;
+                    if (dire >= 4)
+                    {
+                        dire = 0;
+                    }
+                    Attack();
                 }
-                Attack();
             }
         }
         bar.transform.localScale = new Vector3(hp / (float)mhp, 1, 1);
@@ -260,7 +254,7 @@ public class RobotController : MonoBehaviour {
 
     void FixedUpdate()
     {
-        if (typeNo != (int)RobotType.Figurine)
+        if (typeNo != (int)RobotType.Figurine&&generated)
         {
             ani_count++;
             if (ani_count >= aniSpan)
@@ -282,7 +276,7 @@ public class RobotController : MonoBehaviour {
         Collider2D[] cs = Physics2D.OverlapPointAll(transform.position);//ターゲット
         Collider2D cp = null;//接触したパネル
         Collider2D ck = null;//接触したカーネル
-        if (mikata)
+        if (mikata)//パネル効果実行
         {
             foreach (Collider2D col in cs)
             {
@@ -311,7 +305,7 @@ public class RobotController : MonoBehaviour {
                 && Mathf.RoundToInt(ker.transform.position.y - transform.position.y) == 0)
             {
                 at = true;
-                ker.StartCoroutine(ker.Intake(gameObject));
+                ker.Intake(gameObject);
             }
         }
         else
@@ -322,10 +316,13 @@ public class RobotController : MonoBehaviour {
 
     public void SetImage()
     {
-        c = image_all.texture.GetPixels(SIZE * (ani_pat + (im_num % 4) * 3), SIZE * (7 - 4 * (im_num / 4) - dire), SIZE, SIZE);
-        image.SetPixels(0, 0, SIZE, SIZE, c);
-        image.Apply();
-        GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, SIZE, SIZE), new Vector2(0.5f, 0.5f), 32);
+        if (!is3d)
+        {
+            c = image_all.texture.GetPixels(SIZE * (ani_pat + (im_num % 4) * 3), SIZE * (7 - 4 * (im_num / 4) - dire), SIZE, SIZE);
+            image.SetPixels(0, 0, SIZE, SIZE, c);
+            image.Apply();
+            GetComponent<SpriteRenderer>().sprite = Sprite.Create(image, new Rect(0, 0, SIZE, SIZE), new Vector2(0.5f, 0.5f), 32);
+        }
     }
 
     /// <summary>
@@ -381,30 +378,51 @@ public class RobotController : MonoBehaviour {
     /// </summary>
     public void Attack()
     {
-        Collider2D[] targets = Physics2D.OverlapPointAll(transform.position + DtoV());
-        Collider2D target = null;
-        foreach (Collider2D t in targets)
+        if (is3d)
         {
-            if (t.tag == "Robot")
+            Collider[] targets = Physics.OverlapSphere(transform.position + DtoV(), 1);
+            Collider target = null;
+            foreach (Collider t in targets)
             {
-                target = t;
-                break;
+                if (t.tag == "Robot")
+                {
+                    target = t;
+                    break;
+                }
             }
+            if (target == null)
+            {
+                ef.GetComponent<SpriteRenderer>().sprite = null;
+                return;
+            }
+            tarCon = target.GetComponent<RobotController>();
         }
-        if (target == null)
+        else
         {
-            ef.GetComponent<SpriteRenderer>().sprite = null;
-            return;
+            Collider2D[] targets2d = Physics2D.OverlapPointAll(transform.position + DtoV());
+            Collider2D target2d = null;
+            foreach (Collider2D t in targets2d)
+            {
+                if (t.tag == "Robot")
+                {
+                    target2d = t;
+                    break;
+                }
+            }
+            if (target2d == null)
+            {
+                ef.GetComponent<SpriteRenderer>().sprite = null;
+                return;
+            }
+            tarCon = target2d.GetComponent<RobotController>();
         }
-        RobotController r = target.GetComponent<RobotController>();
-        if (r.breaking || r.Mikata == mikata)
+        if (tarCon.breaking || tarCon.Mikata == mikata)
         {
             ef.GetComponent<SpriteRenderer>().sprite = null;
             return;
         }
         at = true;
-        Vector2 tpos = target.transform.position;
-        ef.transform.position = tpos;
+        ef.transform.position = tarCon.transform.position;
         if (typeNo == (int)RobotType.Bomb)
         {
             Break();
@@ -412,15 +430,14 @@ public class RobotController : MonoBehaviour {
         else
         {
             GetComponent<Animator>().SetTrigger("Attack");
-            Debug.Log("kougeki!!!!!");
         }
-        r.Damage(attack);
     }
 
     public void EndAttack()
     {
-
         at = false;
+        tarCon.Damage(attack);
+        tarCon = null;
     }
 
     public void Break()
@@ -428,7 +445,10 @@ public class RobotController : MonoBehaviour {
         breaking = true;
         at = true;
         ef.transform.position = transform.position;
-        GetComponent<BoxCollider2D>().isTrigger = true;
+        if (!is3d)
+        {
+            GetComponent<BoxCollider2D>().isTrigger = true;
+        }
         GetComponent<Animator>().SetTrigger("Break");
         if (typeNo == (int)RobotType.Bomb)
         {
@@ -723,7 +743,8 @@ public class RobotController : MonoBehaviour {
 
     public void CompleteGeneration()
     {
-        GetComponent<Animator>().SetBool("Generated", true);
+        //GetComponent<Animator>().SetBool("Generated", true);
+        generated = true;
         //GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
     }
 }

@@ -76,7 +76,7 @@ public class KernelController : MonoBehaviour {
             }
         }
         sp_cn--;
-        bar.transform.localScale = new Vector3((float)energy / (float)enmax*2, 2, 2);
+        bar.transform.localScale = new Vector3(energy / (float)enmax*2, 2, 2);
     }
 
     Texture2D SetEffect(Sprite s, int num, Vector2 targetpos)
@@ -93,17 +93,17 @@ public class KernelController : MonoBehaviour {
         return t;
     }
 
-    public IEnumerator Intake(GameObject other)
+    public void Intake(GameObject other)
     {
         if (other.tag == "Robot" && (mikata == other.GetComponent<RobotController>().Mikata
             || other.GetComponent<RobotController>().CheckBreaking))
         {
-            yield break;
+            return;
         }
         else if (other.tag == "Area")
         {
             StartCoroutine(Break(effectCount));
-            yield break;
+            return;
         }
 
         other.GetComponent<RobotController>().CheckBreaking = true;
@@ -113,7 +113,7 @@ public class KernelController : MonoBehaviour {
         sr.color = Color.red;
         Debug.Log("Start Break");
         other.GetComponent<RobotController>().Break();
-        yield return new WaitForSeconds(0.1f);
+        //yield return new WaitForSeconds(0.1f);
         Damage(other.GetComponent<RobotController>().attack);
         sr.color = c;
         intake = false;
@@ -170,7 +170,7 @@ public class KernelController : MonoBehaviour {
             {
                 return null;
             }
-            ob = (GameObject)Instantiate(genRobots[genNo], transform.position, transform.rotation);
+            ob = (GameObject)Instantiate(genRobots[genNo]/*, transform.position, transform.rotation*/);
             ob.transform.position = genPos;
             ob.SetActive(true);
             RobotController rc = ob.GetComponent<RobotController>();
@@ -178,6 +178,11 @@ public class KernelController : MonoBehaviour {
             rc.auto = false;
             rc.number = t.SetRobotNumber();
             rc.dire = direction != -1 ? direction : rc.dire;
+            if(rc.is3d)
+            {
+                ob.transform.eulerAngles=new Vector3(90, 180, 0);
+                ob.transform.position += new Vector3(0, 0, -2);
+            }
             t.rbdata[t.rbdata.GetLength(0) / 2 + (int)rc.transform.position.x,
                 t.rbdata.GetLength(1) / 2 + (int)rc.transform.position.y] = rc.number;
             if (t_pos.GetLength(0) > 0)

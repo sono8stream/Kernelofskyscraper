@@ -56,15 +56,26 @@ public class MenuController : MonoBehaviour
                 transform.position, transform.rotation);//新たなロボボタン 
             br.Add(bt.GetComponent<Button>());
             br[i].transform.SetParent(commandList, true);
-            br[i].transform.localPosition = new Vector2(-500 + 250 * (i % 5), 0);
+            br[i].transform.localPosition = new Vector2(-500 + 150 * (i % 5), 0);
             br[i].transform.localScale = Vector3.one;
-            int SIZE = 32;
-            Texture2D image = new Texture2D(SIZE, SIZE);
             RobotController r = robots[i].GetComponent<RobotController>();
-            Color[] c = robots[i].GetComponent<SpriteRenderer>().sprite.texture.GetPixels(
+            int SIZE = 32;
+            Texture2D image = new Texture2D(SIZE, SIZE, TextureFormat.ARGB32, false);
+            Color[] c;
+            if (r.is3d)
+            {
+                c = r.image_all.texture.GetPixels(
                 SIZE * (1 + (r.im_num % 4) * 3),
                 SIZE * (7 - 4 * (r.im_num / 4) - r.dire),
                 SIZE, SIZE);
+            }
+            else
+            {
+                c = robots[i].GetComponent<SpriteRenderer>().sprite.texture.GetPixels(
+                   SIZE * (1 + (r.im_num % 4) * 3),
+                   SIZE * (7 - 4 * (r.im_num / 4) - r.dire),
+                   SIZE, SIZE);
+            }
             image.SetPixels(0, 0, SIZE, SIZE, c);
             image.Apply();
             br[i].GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, SIZE, SIZE),
@@ -111,45 +122,17 @@ public class MenuController : MonoBehaviour
         g = GameObject.Find("ObjectExpectation");
         kerCon = GameObject.Find("Kernel").GetComponent<KernelController>();
         terCon = GameObject.Find("Territory").GetComponent<TerritoryController>();
-        /*setDire = new List<GameObject>();
-        setDire.Add(GameObject.Find("SetDirection"));
-        for (int i = 0; i < 4; i++)//各方向の矢印を設定
-        {
-            if (0 < i)
-            {
-                setDire.Add((GameObject)Instantiate(setDire[0],
-                        setDire[0].transform.position, Quaternion.Euler(0, 0, 90 * i)));
-            }
-            setDire[i].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
-            trigger = setDire[i].GetComponent<EventTrigger>();
-            if (0 < i)
-            {
-                trigger.triggers.RemoveAt(0);
-            }
-            entryDown = new EventTrigger.Entry();
-            entryDown.eventID = EventTriggerType.PointerDown;
-            int dire = i;
-            entryDown.callback.AddListener((x) => Generate(dire));
-            trigger.triggers.Add(entryDown);
-        }*/
         setDire.SetActive(false);
         ChangeTab();
         OnMenu();
         LimitScroll(mapSizeX, mapSizeY, false);
-        //eCount = 0;
-        /*foreach(GameObject rb in GameObject.FindGameObjectsWithTag("Robot"))
-        {
-            if (g.activeSelf)
-            {
-                eCount++;
-            }
-        }*/
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (kerCon == null || /*kerConEnemy == null*/eCount == 0)
+        #region 終了処理
+        if (kerCon == null || eCount == 0)
         {
             transform.FindChild("EndMessage").GetComponent<Image>().enabled = true;
             if (kerCon == null)
@@ -167,6 +150,7 @@ public class MenuController : MonoBehaviour
                 OnMenu();
             }
         }
+        #endregion
         if (Application.platform == RuntimePlatform.Android)
         {
             if (Input.GetKey(KeyCode.Home) || Input.GetKey(KeyCode.Escape))
@@ -210,7 +194,7 @@ public class MenuController : MonoBehaviour
             {
                 s = br[generateNo].GetComponent<Image>().sprite;
                 setPos = GameObject.Find("Kernel").transform.position;
-                if(kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
+                if (kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
                 {
                     isSetting = true;
                     setDire.SetActive(false);
@@ -246,7 +230,7 @@ public class MenuController : MonoBehaviour
 
     public void SetPosition(bool twice/*二回目か*/)//ロボ、パネルの生成位置決定
     {
-        if(!isSetting)
+        if (!isSetting)
         {
             return;
         }
@@ -304,6 +288,7 @@ public class MenuController : MonoBehaviour
             }
             GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
             ob.GetComponent<PanelController>().direction = panelDire;
+            ob.transform.position += new Vector3(0, 0, -5);
         }
     }
 
@@ -366,20 +351,11 @@ public class MenuController : MonoBehaviour
     public void OnMenu()
     {
         g.GetComponent<SpriteRenderer>().sprite = null;
-        //setDire.GetComponent<EventTrigger>().enabled = false;
         setDire.SetActive(false);
         isOnMenu = !isOnMenu;
-        foreach (Transform child in transform)
-        {
-            if (child.name == "CommandList")
-            {
-                child.gameObject.SetActive(isOnMenu);
-            }
-            else if (child.name == "MenuSwitch")
-            {
-                child.FindChild("Text").GetComponent<Text>().text = isOnMenu ? "OFF" : "ON";
-            }
-        }
+        transform.FindChild("CommandList").gameObject.SetActive(isOnMenu);
+        transform.FindChild("MenuSwitch").FindChild("Text").GetComponent<Text>().text
+            = isOnMenu ? "OFF" : "ON";
     }
 
     public void TimeHandle()
@@ -397,14 +373,8 @@ public class MenuController : MonoBehaviour
             t.text = "||";
             t.transform.eulerAngles = Vector3.zero;
         }
-    }
-
-    public void ReturnTitle()
-    {
-        if (transform.FindChild("EndMessage").GetComponent<Image>().enabled)
-        {
-            SceneManager.LoadSceneAsync("title");
-        }
+        transform.FindChild("CommandList").gameObject.SetActive(!gameStop);
+        transform.FindChild("PauseMenu").gameObject.SetActive(gameStop);
     }
 
     public void SetStatus(RobotController robot)
@@ -418,7 +388,7 @@ public class MenuController : MonoBehaviour
             return;
         }
         status.SetActive(true);
-        select.SetActive(sRobo!=null);
+        select.SetActive(sRobo != null);
         string statusHP, statusATK, statusDEF, statusSPD;
         status.transform.FindChild("hp").GetComponent<Text>().text
             = robot.hp.ToString() + "/" + robot.mhp.ToString();
@@ -466,7 +436,19 @@ public class MenuController : MonoBehaviour
         LimitScroll(mapSizeX, mapSizeY);
     }
 
-    void LimitScroll(int sizeX, int sizeY,bool bound=true)
+    public void ToTitle()//タイトルへ戻る処理
+    {
+        StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(0));
+    }
+
+    public void Retry()
+    {
+        StartCoroutine(
+            GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(
+                SceneManager.GetActiveScene().buildIndex));
+    }
+
+    void LimitScroll(int sizeX, int sizeY, bool bound = true)
     {
         float correctionX = -0.5f;
         float speed = 0.1f;
@@ -523,5 +505,22 @@ public class MenuController : MonoBehaviour
             ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
             ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));
         return worldObject_ScreenPosition;
+    }
+
+    public void WriteMessage(string text, float x = 300, float y = 400,
+        float width = 1200, float height = 220)
+    {
+        Transform messageBox = transform.FindChild("MessageBox");
+        messageBox.gameObject.SetActive(true);
+        RectTransform rect = messageBox.GetComponent<RectTransform>();
+        rect.localPosition = new Vector3(x, y,0);
+        rect.sizeDelta = new Vector2(width, height);
+        messageBox.FindChild("Text").GetComponent<Text>().text = text;
+    }
+
+    public void CloseMessage()
+    {
+        Transform messageBox = transform.FindChild("MessageBox");
+        messageBox.gameObject.SetActive(false);
     }
 }
