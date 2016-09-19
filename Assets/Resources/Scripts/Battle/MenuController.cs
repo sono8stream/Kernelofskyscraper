@@ -29,6 +29,7 @@ public class MenuController : MonoBehaviour
     public Sprite loseImage, winImage;
     Vector2 setPos, setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
     public Text tabText;
+    List<GameObject> cautionCursors;
     #region カメラ関連
     public Camera camera;
     public int mapSizeX, mapSizeY;//マップの大きさ
@@ -126,6 +127,7 @@ public class MenuController : MonoBehaviour
         ChangeTab();
         OnMenu();
         LimitScroll(mapSizeX, mapSizeY, false);
+        cautionCursors = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -507,7 +509,7 @@ public class MenuController : MonoBehaviour
         return worldObject_ScreenPosition;
     }
 
-    public void WriteMessage(string text, float x = 300, float y = 400,
+    public void WriteMessage(string text,bool on,Color textColor, float x = 300, float y = 400,
         float width = 1200, float height = 220)
     {
         Transform messageBox = transform.FindChild("MessageBox");
@@ -516,11 +518,34 @@ public class MenuController : MonoBehaviour
         rect.localPosition = new Vector3(x, y,0);
         rect.sizeDelta = new Vector2(width, height);
         messageBox.FindChild("Text").GetComponent<Text>().text = text;
+        messageBox.FindChild("Text").GetComponent<Text>().color = textColor;
+        if(on)
+        {
+            messageBox.GetComponent<Animator>().SetTrigger("On");
+        }
     }
 
     public void CloseMessage()
     {
         Transform messageBox = transform.FindChild("MessageBox");
         messageBox.gameObject.SetActive(false);
+    }
+
+    public void SetCautionCursor(float x,float y)//注目位置にカーソル表示
+    {
+        cautionCursors.Add(Instantiate(transform.FindChild("SelectingRobot").gameObject));
+        cautionCursors[cautionCursors.Count - 1].transform.SetParent(transform);
+        cautionCursors[cautionCursors.Count - 1].SetActive(true);
+        cautionCursors[cautionCursors.Count - 1].GetComponent<RectTransform>().position
+            = RectTransformUtility.WorldToScreenPoint(Camera.main, new Vector3(x, y, 0));
+        cautionCursors[cautionCursors.Count - 1].GetComponent<RectTransform>().localScale
+            = Vector3.one;
+    }
+
+    public void RemoveCautionCursor(int index = 0)
+    {
+        GameObject sub = cautionCursors[index];
+        cautionCursors.RemoveAt(index);
+        Destroy(sub);
     }
 }

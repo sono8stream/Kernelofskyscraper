@@ -9,7 +9,7 @@ public class TerritoryController : MonoBehaviour
     public int[,] rbdata;//すべてのロボの位置を管理
     public string[] rbDataDebug;
     public int[,] pndata;//すべてのパネルの位置を管理
-    public int r_count;//ロボット数
+    public int rCount;//ロボット数
 
     int ar_cn;//所持エリア数
     public int Area_count
@@ -35,7 +35,7 @@ public class TerritoryController : MonoBehaviour
         rbdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
         Debug.Log(rbdata.GetLength(0));
         Debug.Log(rbdata.GetLength(1));
-        r_count = 0;
+        rCount = 0;
         t = new Texture2D(trdata.GetLength(0) * size, trdata.GetLength(1) * size, TextureFormat.RGBA32, false);
         ar = (GameObject)Instantiate(Resources.Load("Prefabs/area"), Vector2.zero, transform.rotation);//ライン生成
         ar.transform.position = new Vector2(-100, -100);
@@ -57,10 +57,10 @@ public class TerritoryController : MonoBehaviour
                 RobotController rCon = g.GetComponent<RobotController>();
                 if (rCon != null)
                 {
-                    rCon.number = r_count;
+                    rCon.number = rCount;
                     rbdata[rbdata.GetLength(0) / 2 + (int)rCon.transform.position.x,
                         rbdata.GetLength(1) / 2 + (int)rCon.transform.position.y] = rCon.number;
-                    r_count++;
+                    rCount++;
                 }
             }
         }
@@ -171,8 +171,8 @@ public class TerritoryController : MonoBehaviour
 
     public int SetRobotNumber()
     {
-        r_count++;
-        return r_count - 1;
+        rCount++;
+        return rCount - 1;
     }
 
     /// <summary>
@@ -205,6 +205,6 @@ public class TerritoryController : MonoBehaviour
                 }
             }
         }
-        r_count--;
+        rCount--;
     }
 }

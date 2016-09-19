@@ -170,7 +170,7 @@ public class KernelController : MonoBehaviour {
             {
                 return null;
             }
-            ob = (GameObject)Instantiate(genRobots[genNo]/*, transform.position, transform.rotation*/);
+            ob = Instantiate(genRobots[genNo]);
             ob.transform.position = genPos;
             ob.SetActive(true);
             RobotController rc = ob.GetComponent<RobotController>();
