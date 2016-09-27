@@ -67,12 +67,12 @@ public class TutorialManager : MonoBehaviour {
             case 3:
                 menuCon.WriteMessage(
                     "まず、フロアを攻略する方法。\nそれはただ一つ、\nエネミーを全滅させることだ。",
-                    true, Color.yellow,500,400,800,220);
+                    true, Color.yellow,-530,400,800,220);
                 break;
             case 4:
                 menuCon.WriteMessage(
                     "このフロアには４体のロボットが君を待ち構えている。\n奴らがエネミーだ。",
-                    false, Color.white, 500, 400, 800, 220);
+                    false, Color.white, -530, 400, 800, 220);
                 menuCon.SetCautionCursor(-1, 3);
                 menuCon.SetCautionCursor(-1, -3);
                 menuCon.SetCautionCursor(2, 0);
@@ -80,8 +80,8 @@ public class TutorialManager : MonoBehaviour {
                 break;
             case 5:
                 menuCon.WriteMessage(
-                    "奴らを全滅させることで、君は\n次のフロアへと進むことができる。",
-                    false, Color.yellow, 500, 400, 800, 220);
+                    "奴らを全滅させることで、君は\n次のフロアへと\n進むことができる。",
+                    false, Color.yellow, -530, 400, 800, 220);
                 break;
             case 6:
                 for (int i = 0; i < 4; i++)
@@ -90,13 +90,13 @@ public class TutorialManager : MonoBehaviour {
                 }
                 menuCon.WriteMessage(
                     "エネミーを倒すためには、\nこちらもロボットを扱う。\n画面下のロボットをタップしよう。",
-                    false, Color.green, 500, 400, 800, 220);
+                    false, Color.green, -530, 400, 800, 220);
                 filter.SetActive(false);
                 filterOn = false;
                 phase++;
                 break;
             case 7:
-                if(menuCon.transform.FindChild("CommandList").FindChild("Selecting").gameObject.activeSelf)
+                if(menuCon.transform.FindChild("Selecting").gameObject.activeSelf)
                 {
                     filter.SetActive(true);
                     filterOn = true;
@@ -106,7 +106,7 @@ public class TutorialManager : MonoBehaviour {
             case 8:
                 menuCon.WriteMessage(
                     "いいぞ。\nあとはロボを動かしたい\n方向カーソルをタップしよう。",
-                    true, Color.green, -500, 360, 800, 300);
+                    false, Color.green, -530, 400, 850, 220);
                 filter.SetActive(false);
                 filterOn = false;
                 phase++;
@@ -121,22 +121,19 @@ public class TutorialManager : MonoBehaviour {
                 break;
             case 10:
                 menuCon.WriteMessage(
-                    "OK.\nロボが出現し、前方のエネミーを倒す。\nこれで君は、エネミーを倒せる。",
-                    false, Color.white, -500, 360, 800, 300);
+                    "OK.\nロボが出現し、正面のエネミーを倒す。\nこれで君は、エネミーを倒せる。",
+                    false, Color.white, -530, 400, 850, 220);
                 break;
             case 11:
                 menuCon.WriteMessage(
                     "残りは3体だ。\nさあ、蹴散らせ！",
-                    false, Color.white, -500, 360, 800, 300);
+                    false, Color.white, -530, 400, 850, 220);
+                break;
+            case 12:
+                menuCon.CloseMessage();
                 filter.SetActive(false);
                 filterOn = false;
                 phase++;
-                break;
-            case 12:
-                if (menuCon.eCount == 0)
-                {
-                    menuCon.CloseMessage();
-                }
                 break;
 
 

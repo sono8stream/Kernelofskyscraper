@@ -30,6 +30,7 @@ public class MenuController : MonoBehaviour
     Vector2 setPos, setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
     public Text tabText;
     List<GameObject> cautionCursors;
+    bool windowClosing;
     #region カメラ関連
     public Camera camera;
     public int mapSizeX, mapSizeY;//マップの大きさ
@@ -40,12 +41,21 @@ public class MenuController : MonoBehaviour
     Vector2 accel;
     bool cameraIsFixing;//カメラ固定状態
     #endregion
+    #region サウンド
+    [SerializeField]
+    AudioClip result;
+    #endregion
+    public int comboCount;
+    public int comboCountMax;
+    [SerializeField]
+    int comboWait;//コンボを持続する時間、短いほど難しい
+    int comboWaitCount;
 
     // Use this for initialization
     void Start()
     {
         #region 各コマンド初期化
-        Transform commandList = transform.FindChild("CommandList");
+        Transform robotList = transform.FindChild("RobotList");
         GameObject bt;
         EventTrigger trigger;
         EventTrigger.Entry entryDown, entryDrag, entryEndDrag;
@@ -56,8 +66,8 @@ public class MenuController : MonoBehaviour
             bt = (GameObject)Instantiate(Resources.Load("Prefabs/RoboButton"),
                 transform.position, transform.rotation);//新たなロボボタン 
             br.Add(bt.GetComponent<Button>());
-            br[i].transform.SetParent(commandList, true);
-            br[i].transform.localPosition = new Vector2(-500 + 150 * (i % 5), 0);
+            br[i].transform.SetParent(robotList, true);
+            br[i].transform.localPosition = new Vector2(-400 + 200 * (i % 5), 0);
             br[i].transform.localScale = Vector3.one;
             RobotController r = robots[i].GetComponent<RobotController>();
             int SIZE = 32;
@@ -90,6 +100,7 @@ public class MenuController : MonoBehaviour
             entryDown.callback.AddListener((x) => SetNumber(genNo, true, 0, genNo));
             trigger.triggers.Add(entryDown);
         }
+        Transform panelList = transform.FindChild("PanelList");
         bp = new List<Button>();//パネルコマンド初期化
         int panelCount = 0;
         for (int i = 0; i < panels.GetLength(0); i++)
@@ -104,8 +115,8 @@ public class MenuController : MonoBehaviour
                 bt = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"),
                     transform.position, Quaternion.Euler(0, 0, 90 * j));//新たなパネルボタン
                 bp.Add(bt.GetComponent<Button>());
-                bp[panelCount].transform.SetParent(commandList, true);
-                bp[panelCount].transform.localPosition = new Vector2(-500 + 250 * (panelCount % 5), 0);
+                bp[panelCount].transform.SetParent(panelList, true);
+                bp[panelCount].transform.localPosition = new Vector2(0, 300 - 200 * (i % 5));
                 bp[panelCount].transform.localScale = Vector3.one;
                 bp[panelCount].GetComponent<Image>().sprite = panels[i].GetComponent<SpriteRenderer>().sprite;
                 bp[panelCount].transform.FindChild("Text").gameObject.SetActive(false);
@@ -124,35 +135,40 @@ public class MenuController : MonoBehaviour
         kerCon = GameObject.Find("Kernel").GetComponent<KernelController>();
         terCon = GameObject.Find("Territory").GetComponent<TerritoryController>();
         setDire.SetActive(false);
-        ChangeTab();
+        //ChangeTab();
         OnMenu();
         LimitScroll(mapSizeX, mapSizeY, false);
         cautionCursors = new List<GameObject>();
+        comboCount = 0;
+        comboCountMax = 0;
+        comboWaitCount = 0;
+        SetCombo();
     }
 
     // Update is called once per frame
     void Update()
     {
         #region 終了処理
-        if (kerCon == null || eCount == 0)
+        if ((kerCon == null || eCount == 0) && !gameStop)
         {
-            transform.FindChild("EndMessage").GetComponent<Image>().enabled = true;
-            if (kerCon == null)
+            SetScore();
+            transform.FindChild("EndMessage").gameObject.SetActive(true);
+            if (kerCon == null)//敗北時
             {
-                transform.FindChild("EndMessage").GetComponent<Image>().sprite = loseImage;
             }
-            else
+            else//勝利時
             {
-                transform.FindChild("EndMessage").GetComponent<Image>().sprite = winImage;
             }
-            if (!gameStop)
-            {
-                TimeHandle();
-                isOnMenu = true;
-                OnMenu();
-            }
+            /*if (!gameStop)
+            {*/
+            TimeHandle();
+            isOnMenu = true;
+            OnMenu();
+            transform.FindChild("Selecting").gameObject.SetActive(false);
+            //}
         }
         #endregion
+        #region 中断処理
         if (Application.platform == RuntimePlatform.Android)
         {
             if (Input.GetKey(KeyCode.Home) || Input.GetKey(KeyCode.Escape))
@@ -161,6 +177,7 @@ public class MenuController : MonoBehaviour
                 return;
             }
         }
+        #endregion
         if (sRobo != null && sRobo.gameObject != null)//ステータス表示中、ロボを追従
         {
             RectTransform canvasRect = GetComponent<RectTransform>();
@@ -182,6 +199,27 @@ public class MenuController : MonoBehaviour
             LimitScroll(mapSizeX, mapSizeY, false);
             velocity += accel;
         }
+        if(windowClosing)//ウィンドウ終了後に非アクティブに
+        {
+            Transform messageBox = transform.FindChild("MessageBox");
+            if (messageBox.GetComponent<RectTransform>().localScale.x <= 0.2)
+            {
+                messageBox.gameObject.SetActive(false);
+                windowClosing = false;
+            }
+        }
+        /*if (0 < comboWaitCount)
+        {
+            comboWaitCount--;
+            if (comboWaitCount == 0)
+            {
+                if (comboCountMax < comboCount)
+                {
+                    comboCountMax = comboCount;
+                }
+                comboCount = 0;
+            }
+        }*/
     }
 
     //ロボ・パネルの種類と生成する番号をセット
@@ -189,6 +227,11 @@ public class MenuController : MonoBehaviour
     {
         this.generateNo = generateNo;
         this.isRobot = isRobot;
+        GameObject selecting = transform.FindChild("Selecting").gameObject;
+        if (!selecting.activeSelf)
+        {
+            selecting.SetActive(true);
+        }
         foreach (Transform child in transform)
         {
             Sprite s;
@@ -211,23 +254,23 @@ public class MenuController : MonoBehaviour
                     g.GetComponent<SpriteRenderer>().sprite = s;
                 }
                 panelDire = 0;
+                selecting.transform.localPosition 
+                    = new Vector2(-190 + 200 * (panelCount % 5), -430);
+                SetStatus(kerCon.genRobots[generateNo].GetComponent<RobotController>());
             }
             else
             {
+                setDire.SetActive(false);
                 s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
                 setPos = Vector2.zero;
                 isSetting = true;
+                selecting.transform.localPosition
+                    = new Vector2(840, 400 - 200 * (panelCount % 5));
             }
             g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
         }
-        GameObject selecting = transform.FindChild("CommandList").FindChild("Selecting").gameObject;
-        if (!selecting.activeSelf)
-        {
-            selecting.SetActive(true);
-        }
-        selecting.transform.localPosition = new Vector2(-500 + 250 * (panelCount % 5), 0);
         this.panelDire = panelDire;
-        SetStatus(kerCon.genRobots[generateNo].GetComponent<RobotController>());
+        this.isRobot = isRobot;
     }
 
     public void SetPosition(bool twice/*二回目か*/)//ロボ、パネルの生成位置決定
@@ -294,6 +337,7 @@ public class MenuController : MonoBehaviour
         }
     }
 
+    /*
     public void ChangeTab()
     {
         foreach (Transform child in transform.FindChild("CommandList"))
@@ -308,8 +352,6 @@ public class MenuController : MonoBehaviour
                 {
                     child.gameObject.SetActive(true);
                 }
-                /*setDire.GetComponent<Image>().enabled = false;
-                setDire.GetComponent<EventTrigger>().enabled = false;*/
                 setDire.SetActive(false);
             }
             else
@@ -329,7 +371,7 @@ public class MenuController : MonoBehaviour
         tabText.text = isRobot ? "Robot" : "Panel";
         isSetting = false;
         transform.FindChild("CommandList").FindChild("Selecting").gameObject.SetActive(false);
-    }
+    }*/
 
     void SetPause(bool pause = false)
     {
@@ -355,7 +397,8 @@ public class MenuController : MonoBehaviour
         g.GetComponent<SpriteRenderer>().sprite = null;
         setDire.SetActive(false);
         isOnMenu = !isOnMenu;
-        transform.FindChild("CommandList").gameObject.SetActive(isOnMenu);
+        transform.FindChild("RobotList").gameObject.SetActive(isOnMenu);
+        transform.FindChild("PanelList").gameObject.SetActive(isOnMenu);
         transform.FindChild("MenuSwitch").FindChild("Text").GetComponent<Text>().text
             = isOnMenu ? "OFF" : "ON";
     }
@@ -375,7 +418,9 @@ public class MenuController : MonoBehaviour
             t.text = "||";
             t.transform.eulerAngles = Vector3.zero;
         }
-        transform.FindChild("CommandList").gameObject.SetActive(!gameStop);
+        transform.FindChild("RobotList").gameObject.SetActive(!gameStop);
+        transform.FindChild("PanelList").gameObject.SetActive(!gameStop);
+        transform.FindChild("Status").gameObject.SetActive(!gameStop);
         transform.FindChild("PauseMenu").gameObject.SetActive(gameStop);
     }
 
@@ -528,7 +573,8 @@ public class MenuController : MonoBehaviour
     public void CloseMessage()
     {
         Transform messageBox = transform.FindChild("MessageBox");
-        messageBox.gameObject.SetActive(false);
+        messageBox.GetComponent<Animator>().SetTrigger("Off");
+        windowClosing = true;
     }
 
     public void SetCautionCursor(float x,float y)//注目位置にカーソル表示
@@ -547,5 +593,28 @@ public class MenuController : MonoBehaviour
         GameObject sub = cautionCursors[index];
         cautionCursors.RemoveAt(index);
         Destroy(sub);
+    }
+    
+    void SetScore()
+    {
+        int panelCount = GameObject.FindGameObjectsWithTag("Panel").Length;
+        transform.FindChild("EndMessage").FindChild("PanelCount").GetComponent<Text>().text
+            = "Panel Count     =  -1000×" + panelCount.ToString();
+        transform.FindChild("EndMessage").FindChild("ComboCount").GetComponent <Text>().text
+            = "Combo Count   =   1000×" + comboCountMax.ToString();
+        transform.FindChild("EndMessage").FindChild("TotalScore").GetComponent<Text>().text
+            = "Total Score      =   " + ((comboCountMax - panelCount)*1000).ToString();
+        GetComponent<AudioSource>().clip = result;
+        GetComponent<AudioSource>().Play();
+    }
+
+    public void SetCombo()
+    {
+        Transform comboCounter = transform.FindChild("ComboCounter");
+        comboCounter.FindChild("ComboCount").GetComponent<Text>().text
+            = comboCount.ToString();
+        comboCounter.FindChild("MaxCount").GetComponent<Text>().text
+            = comboCountMax.ToString();
+        comboCounter.GetComponent<Animator>().SetTrigger("Update");
     }
 }

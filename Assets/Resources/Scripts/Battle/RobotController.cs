@@ -442,6 +442,24 @@ public class RobotController : MonoBehaviour {
 
     public void Break()
     {
+        /*if(breaking)
+        {
+            return;
+        }*/
+        //コンボ判定
+        if (mikata)
+        {
+            if (menCon.comboCountMax < menCon.comboCount)
+            {
+                menCon.comboCountMax = menCon.comboCount;
+            }
+            menCon.comboCount = 0;
+        }
+        else
+        {
+            menCon.comboCount++;
+        }
+        menCon.SetCombo();
         breaking = true;
         at = true;
         ef.transform.position = transform.position;
@@ -453,7 +471,6 @@ public class RobotController : MonoBehaviour {
         if (typeNo == (int)RobotType.Bomb)
         {
             ef.transform.localScale = Vector3.one * 3;
-
         }
         if (typeNo == (int)RobotType.Bomb)
         {
