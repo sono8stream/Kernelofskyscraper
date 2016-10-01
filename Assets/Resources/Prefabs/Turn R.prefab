@@ -31,7 +31,7 @@ GameObject:
   - 114: {fileID: 11481276}
   - 95: {fileID: 9520774}
   m_Layer: 10
-  m_Name: Turn
+  m_Name: Turn R
   m_TagString: Panel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   s: {fileID: 21300000, guid: 39d1cc8b35eb06343a2481c2cb1176dc, type: 3}
-  reverse: 0
+  reverse: 1
   uTurn: 0
 --- !u!114 &11481276
 MonoBehaviour:
@@ -170,7 +170,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 126901059
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 5cede343cf858664ab68a9a7c3c42e96, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d057adf200887484a9a6a8d8e4b901fb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

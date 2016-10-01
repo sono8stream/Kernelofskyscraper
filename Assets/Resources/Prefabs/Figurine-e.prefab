@@ -108,7 +108,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 128556}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.5, y: -0.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
@@ -134,7 +134,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 127652}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 1, z: 0}
+  m_LocalPosition: {x: 2, y: 4, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
@@ -243,10 +243,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c71eeb4ac2e7c424ba1d6a8a6e1ecbaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  number: 0
+  number: 1
   image_all: {fileID: 21300000, guid: 40266de7712938a4d97689ac493985e6, type: 3}
   im_num: 3
-  dire: 0
+  dire: 3
   attEffectPat: 9
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   cost: 3
@@ -256,8 +256,9 @@ MonoBehaviour:
   defence: 0
   paneling: 0
   speed: 20
-  spCount: 0
+  spCount: 9
   move: 0
+  at: 0
   dst: []
   auto: 1
   menCon: {fileID: 0}
@@ -315,7 +316,7 @@ ParticleSystem:
   moveWithTransform: 1
   autoRandomSeed: 1
   scalingMode: 1
-  randomSeed: 0
+  randomSeed: -1855206409
   InitialModule:
     serializedVersion: 2
     enabled: 1
@@ -2153,7 +2154,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1289593217
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a20dbdeb3ecbba040bea82ee264d6cfc, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.959}
   m_FlipX: 0
   m_FlipY: 0
@@ -2186,7 +2187,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1289593217
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a20dbdeb3ecbba040bea82ee264d6cfc, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.959}
   m_FlipX: 0
   m_FlipY: 0
@@ -2220,7 +2221,7 @@ SpriteRenderer:
   m_SortingLayerID: -1289593217
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 08ad5ea0786ede24a83dd6b5dd4cc174, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
 --- !u!1001 &100100000

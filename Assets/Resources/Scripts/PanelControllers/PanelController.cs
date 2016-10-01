@@ -42,9 +42,10 @@ public class PanelController : MonoBehaviour {
         if (rc.Mikata && !process)
         {
             process = true;
-            direction = rc.dire >= 3 ? 0 : rc.dire + 1;
+            /*direction = rc.dire >= 3 ? 0 : rc.dire + 1;
             rc.Turn(direction);
-            rc.Zoning();
+            rc.Zoning();*/
+            GetComponent<Turn>().RunPanel(other.gameObject);
             GetComponent<Animator>().SetTrigger("PanelEffect");
         }
     }
@@ -52,5 +53,10 @@ public class PanelController : MonoBehaviour {
     public void End()
     {
         process = false;
+    }
+
+    public void Break()
+    {
+        Destroy(gameObject);
     }
 }

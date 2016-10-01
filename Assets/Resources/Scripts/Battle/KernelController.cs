@@ -95,8 +95,9 @@ public class KernelController : MonoBehaviour {
 
     public void Intake(GameObject other)
     {
-        if (other.tag == "Robot" && (mikata == other.GetComponent<RobotController>().Mikata
-            || other.GetComponent<RobotController>().CheckBreaking))
+        RobotController rbCon = other.GetComponent<RobotController>();
+        if (other.tag == "Robot" && (mikata == rbCon.Mikata
+            || rbCon.CheckBreaking))
         {
             return;
         }

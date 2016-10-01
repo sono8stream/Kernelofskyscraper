@@ -4,18 +4,19 @@ using System;
 
 public class Turn : MonoBehaviour
 {
-
     int direction;
     bool process = false;
     public Sprite s;
     GameObject ef;
+    [SerializeField]
+    bool reverse,uTurn;//右折、uターン
     // Use this for initialization
     void Start()
     {
-        direction = GetComponent<PanelController>().direction;
-        transform.Rotate(new Vector3(0, 0, 90 * direction));
+        //direction = GetComponent<PanelController>().direction;
+        //transform.Rotate(new Vector3(0, 0, 90 * direction));
         ef = transform.FindChild("effect").gameObject;//エフェクトオブジェ取得
-        ef.transform.Rotate(new Vector3(0, 0, -90 * direction));
+        //ef.transform.Rotate(new Vector3(0, 0, -90 * direction));
     }
 
     // Update is called once per frame
@@ -26,14 +27,23 @@ public class Turn : MonoBehaviour
     public void RunPanel(GameObject other)
     {
         RobotController rc = other.GetComponent<RobotController>();
-        if (rc.Mikata && !process)
+        if (reverse)
         {
-            process = true;
-            direction = rc.dire >= 3 ? 0 : rc.dire + 1;
-            rc.Turn(direction);
-            rc.Zoning();
-            StartCoroutine("Effect");
+            direction = rc.dire == 0 ? 3 : rc.dire - 1;
         }
+        else
+        {
+            direction = rc.dire >= 3 ? 0 : rc.dire + 1;
+        }
+        if (uTurn)
+        {
+            direction = (rc.dire + 2) % 4;
+            Debug.Log("Uturn");
+        }
+        Debug.Log("方向" + direction);
+        rc.Turn(direction);
+        rc.Zoning();
+        //StartCoroutine("Effect");
     }
 
     IEnumerator Effect()

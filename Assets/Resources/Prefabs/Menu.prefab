@@ -270,7 +270,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &162476
 GameObject:
   m_ObjectHideFlags: 1
@@ -570,7 +570,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &9515564
 Animator:
   serializedVersion: 3
@@ -1451,7 +1451,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 806e8d40987278d4d9534b5ca21255f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panels: []
+  panels:
+  - {fileID: 183512, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
+  - {fileID: 183512, guid: 8fb6564c88f30c743a3e60fac3c82566, type: 2}
+  - {fileID: 183512, guid: e5cd7069f4ce5d14cab8171878dfe2f9, type: 2}
   eCount: 0
   setDire: {fileID: 121824}
   kerCon: {fileID: 0}
@@ -2549,8 +2552,8 @@ RectTransform:
   - {fileID: 22453262}
   - {fileID: 22494588}
   - {fileID: 22466646}
-  - {fileID: 224000010318145460}
   - {fileID: 224000013612014078}
+  - {fileID: 224000010318145460}
   - {fileID: 22497836}
   - {fileID: 22417182}
   - {fileID: 22442870}
@@ -4741,7 +4744,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 22421200}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 490, y: 400}
@@ -5058,7 +5061,7 @@ RectTransform:
   - {fileID: 22473294}
   - {fileID: 22456100}
   m_Father: {fileID: 22421200}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 210, y: -430}

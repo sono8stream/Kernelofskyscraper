@@ -53,7 +53,7 @@ public class RobotController : MonoBehaviour {
         get { return move; }
         set { move = value; }
     }
-    bool at;
+    public bool at;
     public bool CheckAttack
     {
         get
@@ -155,7 +155,6 @@ public class RobotController : MonoBehaviour {
                     if (spCount < speed)
                     {
                         spCount++;
-                        //transform.Translate(DtoV() / speed);
                         transform.position += DtoV() / speed;
                         SetImage();
                     }
@@ -301,7 +300,8 @@ public class RobotController : MonoBehaviour {
         if (ck != null)
         {
             KernelController ker = ck.gameObject.GetComponent<KernelController>();
-            if (Mathf.RoundToInt(ker.transform.position.x - transform.position.x) == 0
+            if (mikata != ker.mikata
+                &&Mathf.RoundToInt(ker.transform.position.x - transform.position.x) == 0
                 && Mathf.RoundToInt(ker.transform.position.y - transform.position.y) == 0)
             {
                 at = true;
@@ -378,6 +378,7 @@ public class RobotController : MonoBehaviour {
     /// </summary>
     public void Attack()
     {
+        at = false;
         if (is3d)
         {
             Collider[] targets = Physics.OverlapSphere(transform.position + DtoV(), 1);
@@ -422,6 +423,7 @@ public class RobotController : MonoBehaviour {
             return;
         }
         at = true;
+        Debug.Log("攻撃するぜ！" + name);
         ef.transform.position = tarCon.transform.position;
         if (typeNo == (int)RobotType.Bomb)
         {
@@ -435,9 +437,9 @@ public class RobotController : MonoBehaviour {
 
     public void EndAttack()
     {
-        at = false;
         tarCon.Damage(attack);
         tarCon = null;
+        at = false;
     }
 
     public void Break()
@@ -462,6 +464,7 @@ public class RobotController : MonoBehaviour {
         menCon.SetCombo();
         breaking = true;
         at = true;
+        Debug.Log("壊れるぜ！" + name);
         ef.transform.position = transform.position;
         if (!is3d)
         {

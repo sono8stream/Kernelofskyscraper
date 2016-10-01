@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class TerritoryController : MonoBehaviour
 {
-
     public int[,] trdata;//領土データ
     public int[,] rbdata;//すべてのロボの位置を管理
     public string[] rbDataDebug;
@@ -21,8 +20,8 @@ public class TerritoryController : MonoBehaviour
     GameObject ar;
     Sprite s;
     int size = 32;
-    public int w;
-    public int h;
+    int w;
+    int h;
     public KernelController kerCon;
     public KernelController kerConEnemy;
     List<GameObject> ars;
@@ -32,6 +31,8 @@ public class TerritoryController : MonoBehaviour
     {
         int[,] mpd = GameObject.Find("MapLayer1").GetComponent<MapLoader>().mapdata;
         trdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
+        w = trdata.GetLength(0);
+        h = trdata.GetLength(1);
         rbdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
         Debug.Log(rbdata.GetLength(0));
         Debug.Log(rbdata.GetLength(1));

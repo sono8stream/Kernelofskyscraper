@@ -430,7 +430,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 1103163086}
-          m_MethodName: filterClick
+          m_MethodName: ClickFilter
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -675,8 +675,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rbDataDebug: []
   rCount: 0
-  w: 16
-  h: 9
   kerCon: {fileID: 1231021271}
   kerConEnemy: {fileID: 992142691}
 --- !u!212 &479291089
@@ -1308,6 +1306,7 @@ MonoBehaviour:
   speed: 20
   spCount: 0
   move: 0
+  at: 0
   dst: []
   auto: 0
   menCon: {fileID: 0}

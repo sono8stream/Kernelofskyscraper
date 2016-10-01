@@ -13,7 +13,16 @@ public class MenuController : MonoBehaviour
     List<Button> br;
     List<Button> bp;
     int generateNo;
+    [SerializeField]
     bool isRobot;
+    public int GenNo
+    {
+        get { return generateNo; }
+    }
+    public bool IsRobot
+    {
+        get { return isRobot; }
+    }
     bool isOnMenu;
     bool gameStop;
     bool isSetting;//ロボ、パネルをセットする状態か
@@ -232,87 +241,88 @@ public class MenuController : MonoBehaviour
         {
             selecting.SetActive(true);
         }
-        foreach (Transform child in transform)
+        Sprite s;
+        if (isRobot)
         {
-            Sprite s;
-            if (isRobot)
+            s = br[generateNo].GetComponent<Image>().sprite;
+            setPos = GameObject.Find("Kernel").transform.position;
+            if (kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
             {
-                s = br[generateNo].GetComponent<Image>().sprite;
-                setPos = GameObject.Find("Kernel").transform.position;
-                if (kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
-                {
-                    isSetting = true;
-                    setDire.SetActive(false);
-                }
-                else
-                {
-                    isSetting = false;
-                    setDire.SetActive(true);
-                    setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down);
-                    g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
-                    g.transform.position = setPos;
-                    g.GetComponent<SpriteRenderer>().sprite = s;
-                }
-                panelDire = 0;
-                selecting.transform.localPosition 
-                    = new Vector2(-190 + 200 * (panelCount % 5), -430);
-                SetStatus(kerCon.genRobots[generateNo].GetComponent<RobotController>());
+                isSetting = true;
+                setDire.SetActive(false);
             }
             else
             {
-                setDire.SetActive(false);
-                s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
-                setPos = Vector2.zero;
-                isSetting = true;
-                selecting.transform.localPosition
-                    = new Vector2(840, 400 - 200 * (panelCount % 5));
+                isSetting = false;
+                setDire.SetActive(true);
+                setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down);
+                g.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.6f);
+                g.transform.position = setPos;
+                g.GetComponent<SpriteRenderer>().sprite = s;
             }
-            g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
+            panelDire = 0;
+            selecting.transform.localPosition
+                = new Vector2(-190 + 200 * (panelCount % 5), -430);
+            SetStatus(kerCon.genRobots[generateNo].GetComponent<RobotController>());
         }
+        else
+        {
+            setDire.SetActive(false);
+            s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
+            setPos = Vector2.zero;
+            isSetting = true;
+            selecting.transform.localPosition
+                = new Vector2(840, 400 - 200 * (panelCount % 5));
+        }
+        g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
         this.panelDire = panelDire;
         this.isRobot = isRobot;
     }
 
     public void SetPosition(bool twice/*二回目か*/)//ロボ、パネルの生成位置決定
     {
-        if (!isSetting)
-        {
-            return;
-        }
         Vector3 touch_pos = Input.mousePosition;
         Vector2 t_pos = Camera.main.ScreenToWorldPoint(touch_pos);
         t_pos.x = Mathf.Round(t_pos.x);
         t_pos.y = Mathf.Round(t_pos.y/* + 1.5f*/);
-        Collider2D[] col = Physics2D.OverlapPointAll(t_pos);
-        Collider2D area = null;
-        foreach (Collider2D c in col)
+        if (isSetting)
         {
-            if (c.tag == "Kernel" || (isRobot && c.tag == "Panel"))
+            Collider2D[] col = Physics2D.OverlapPointAll(t_pos);
+            Collider2D area = null;
+            foreach (Collider2D c in col)
+            {
+                if (c.tag == "Kernel" || (isRobot && c.tag == "Panel"))
+                {
+                    return;
+                }
+                if (c.tag == "Area" && c.GetComponent<AreaController>().Mikata)
+                {
+                    area = c;
+                }
+            }
+            if (isRobot && area == null)
             {
                 return;
             }
-            if (c.tag == "Area" && c.GetComponent<AreaController>().Mikata)
+            if (twice && t_pos == setPosSub)
             {
-                area = c;
+                setPos = t_pos;
+                Generate(0);
+            }
+            else
+            {
+                setPosSub = t_pos;
             }
         }
-        if (isRobot && area == null)
+        else if (isRobot)
         {
-            return;
-        }
-        if (twice && t_pos == setPosSub)
-        {
-            setPos = t_pos;
-            Generate(0);
-        }
-        else
-        {
-            setPosSub = t_pos;
+            Debug.Log("Calling?");
         }
     }
 
     public void Generate(int setDire = -1)
     {
+        Debug.Log("Generate");
         if (isRobot)
         {
             Vector3 genPos;
@@ -332,7 +342,6 @@ public class MenuController : MonoBehaviour
                 }
             }
             GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
-            ob.GetComponent<PanelController>().direction = panelDire;
             ob.transform.position += new Vector3(0, 0, -5);
         }
     }
@@ -461,7 +470,6 @@ public class MenuController : MonoBehaviour
 
     public void TouchUpScreen()
     {
-        Debug.Log("srobo");
         float bure = 5;
         Vector2 touchPos = Input.mousePosition;
         if (keyDownPos.x - bure < touchPos.x && touchPos.x < keyDownPos.x + bure
