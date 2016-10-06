@@ -148,38 +148,38 @@ public class TutorialManager : MonoBehaviour {
             case 0:
                 menuCon.WriteMessage(
                     "ここでは、「パネル」を使ってみよう。",
-                    true, Color.white, -530, 400, 800, 220);
+                    true, Color.white, -400,400,1000, 220);
                 menuCon.transform.FindChild("ScreenToucher").gameObject.SetActive(false);
                 break;
             case 1:
                 menuCon.WriteMessage(
-                    "まずは「パネル」について\n説明をする前に、\nこのマップを見てほしい。",
-                    false, Color.yellow, -530, 400, 800, 220);
+                    "まずは「パネル」の前に\nこのマップを見てほしい。",
+                    false, Color.yellow, -400,400,1000, 220);
                 break;
             case 2:
                 menuCon.WriteMessage(
-                    "このフロアーでは、ただロボを\n生成するだけではエネミーを倒せない。\nつまり、攻略することができないのだ。",
-                    false, Color.white, -530, 400, 800, 220);
+                    "このフロアーでは、ただロボを\n生成するだけではエネミーを倒せない。",
+                    false, Color.white, -400,400,1000, 220);
                 break;
             case 3:
                 menuCon.WriteMessage(
                     "そこで、「パネル」が必要になる。\n画面右のメニューに\n表示されているのが「パネル」だ。",
-                    false, Color.yellow, -530, 400, 800, 220);
+                    false, Color.yellow, -400,400,1000, 220);
                 break;
             case 4:
                 menuCon.WriteMessage(
                     "「パネル」はマップに設置し、\nそれを踏んだロボットに\n様々な効果を付与することができる。",
-                    false, Color.yellow, -530, 400, 800, 220);
+                    false, Color.yellow, -400,400,1000, 220);
                 break;
             case 5:
                 menuCon.WriteMessage(
                     "まずは実際に使用してみて、\nイメージをつかんでみよう。",
-                    false, Color.white, -530, 400, 800, 220);
+                    false, Color.white, -400,400,1000, 220);
                 break;
             case 6:
                 menuCon.WriteMessage(
                     "今回は2段目の「右折パネル」\nを使ってみよう。\nロボの時と同様に、タップして選択だ。",
-                    false, Color.green, -530, 400, 800, 220);
+                    false, Color.green, -400,400,1000, 220);
                 SetFilterActive(false);
                 phase++;
                 break;
@@ -195,14 +195,14 @@ public class TutorialManager : MonoBehaviour {
                     {
                         menuCon.WriteMessage(
                             "それじゃない、右メニューの\n2段目のパネルを選んでくれ。",
-                            false, Color.green, -530, 400, 800, 220);
+                            false, Color.green, -400,400,1000, 220);
                     }
                 }
                 break;
             case 8:
                 menuCon.WriteMessage(
                     "そのまま、ここをタップしてみよう。",
-                    false, Color.green, -530, 400, 800, 220);
+                    false, Color.green, -400,400,1000, 220);
                 menuCon.SetCautionCursor(1, 4);
                 SetFilterActive(false);
                 phase++;
@@ -234,7 +234,7 @@ public class TutorialManager : MonoBehaviour {
             case 10:
                 menuCon.WriteMessage(
                     "これでパネルが設置されたはずだ。\n今度はロボットを生成し、\n上に動かしてみよう。",
-                    false, Color.green, -530, 400, 800, 220);
+                    false, Color.green, -400,400,1000, 220);
                 SetFilterActive(false);
                 phase++;
                 break;
@@ -248,35 +248,45 @@ public class TutorialManager : MonoBehaviour {
             case 12:
                 menuCon.WriteMessage(
                     "「右折パネル」を踏んだロボは、\nそれに従って\n右へと曲がり、エネミーを倒した。",
-                    false, Color.white, -530, 400, 800, 220);
+                    false, Color.white, -400,400,1000, 220);
                 break;
             case 13:
                 menuCon.WriteMessage(
                     "このように、ロボに対して\n特定の効果を及ぼすのが\nパネルである。",
-                    false, Color.white, -530, 400, 800, 220);
+                    false, Color.white, -400,400,1000, 220);
                 break;
             case 14:
                 menuCon.WriteMessage(
                     "また、パネルには「右折パネル」\nのような「移動型」以外にも\n様々なタイプがある。",
-                    false, Color.yellow, -530, 400, 800, 220);
+                    false, Color.yellow, -400,400,1000, 220);
                 break;
             case 15:
                 menuCon.WriteMessage(
                     "これらをいかに組み合わせるかが、\n摩天楼の攻略において\n大きなカギとなるはずだ。",
-                    false, Color.white, -530, 400, 800, 220);
+                    false, Color.white, -400,400,1000, 220);
                 break;
             case 16:
                 menuCon.WriteMessage(
                     "これで君は、このフロアーを\n攻略できるようになった。",
-                    false, Color.white, -530, 400, 800, 220);
+                    false, Color.white, -400,400,1000, 220);
                 break;
             case 17:
                 menuCon.WriteMessage(
-                    "さあ、パネルを駆使して蹂躙せよ！\n*パネルはダブルタップで\n除去可能。",
-                    false, Color.green, -530, 400, 800, 220);
-                menuCon.transform.FindChild("ScreenToucher").gameObject.SetActive(true);
+                    "おっと、忘れていた。\nパネルはダブルタップで\n除去可能だぞ。",
+                    false, Color.yellow, -400,400,1000, 220);
                 break;
             case 18:
+                menuCon.WriteMessage(
+                    "ロボを動かしている間は\n除去できないので\n注意してくれ。",
+                    false, Color.yellow, -400, 400, 1000, 220);
+                break;
+            case 19:
+                menuCon.WriteMessage(
+                    "それでは、パネルを駆使して蹂躙せよ！",
+                    false, Color.white, -400,400,1000, 220);
+                menuCon.transform.FindChild("ScreenToucher").gameObject.SetActive(true);
+                break;
+            case 20:
                 menuCon.CloseMessage();
                 SetFilterActive(false);
                 phase++;

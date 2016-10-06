@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class MenuController : MonoBehaviour
 {
-
+    #region property
     //public GameObject[] robots;//生成するロボ
     public GameObject[] panels;//生成するパネル
     List<Button> br;
@@ -28,6 +28,7 @@ public class MenuController : MonoBehaviour
     bool isSetting;//ロボ、パネルをセットする状態か
     int panelDire = 0;//パネルの向き、基本値は0
     public int eCount = 0;//敵の数　0になったらゲームクリア
+    public int myRobotCount = 0;//味方ロボットの生成数
     GameObject g;//オブジェの配置予想
     public GameObject setDire;//方向オブジェ
     #region 各種コントローラの参照
@@ -59,6 +60,7 @@ public class MenuController : MonoBehaviour
     [SerializeField]
     int comboWait;//コンボを持続する時間、短いほど難しい
     int comboWaitCount;
+    #endregion
 
     // Use this for initialization
     void Start()
@@ -208,7 +210,7 @@ public class MenuController : MonoBehaviour
             LimitScroll(mapSizeX, mapSizeY, false);
             velocity += accel;
         }
-        if(windowClosing)//ウィンドウ終了後に非アクティブに
+        if (windowClosing)//ウィンドウ終了後に非アクティブに
         {
             Transform messageBox = transform.FindChild("MessageBox");
             if (messageBox.GetComponent<RectTransform>().localScale.x <= 0.2)
@@ -337,7 +339,7 @@ public class MenuController : MonoBehaviour
             Collider2D[] aCollider2d = Physics2D.OverlapPointAll(setPos);
             foreach (Collider2D c in aCollider2d)
             {
-                if (c != null && c.tag == "Panel")//すでにパネルが存在していれば、上書き
+                if (c != null && c.tag == "Panel")//すでにパネルが存在していれば、戻る
                 {
                     return;
                 }
@@ -460,7 +462,7 @@ public class MenuController : MonoBehaviour
             status.transform.FindChild("Defence").GetComponent<Text>().text = "DF";
             status.transform.FindChild("Speed").GetComponent<Text>().text = "SP";
         }
-        else if(target.tag=="Panel")
+        else if (target.tag == "Panel")
         {
             status.transform.FindChild("hp").GetComponent<Text>().text
                 = target.GetComponent<PanelController>().description;
@@ -584,17 +586,17 @@ public class MenuController : MonoBehaviour
         return worldObject_ScreenPosition;
     }
 
-    public void WriteMessage(string text,bool on,Color textColor, float x = 300, float y = 400,
+    public void WriteMessage(string text, bool on, Color textColor, float x = 300, float y = 400,
         float width = 1200, float height = 220)
     {
         Transform messageBox = transform.FindChild("MessageBox");
         messageBox.gameObject.SetActive(true);
         RectTransform rect = messageBox.GetComponent<RectTransform>();
-        rect.localPosition = new Vector3(x, y,0);
+        rect.localPosition = new Vector3(x, y, 0);
         rect.sizeDelta = new Vector2(width, height);
         messageBox.FindChild("Text").GetComponent<Text>().text = text;
         messageBox.FindChild("Text").GetComponent<Text>().color = textColor;
-        if(on)
+        if (on)
         {
             messageBox.GetComponent<Animator>().SetTrigger("On");
         }
@@ -607,7 +609,7 @@ public class MenuController : MonoBehaviour
         windowClosing = true;
     }
 
-    public void SetCautionCursor(float x,float y)//注目位置にカーソル表示
+    public void SetCautionCursor(float x, float y)//注目位置にカーソル表示
     {
         cautionCursors.Add(Instantiate(transform.FindChild("SelectingRobot").gameObject));
         cautionCursors[cautionCursors.Count - 1].transform.SetParent(transform);
@@ -624,16 +626,16 @@ public class MenuController : MonoBehaviour
         cautionCursors.RemoveAt(index);
         Destroy(sub);
     }
-    
+
     void SetScore()
     {
         int panelCount = GameObject.FindGameObjectsWithTag("Panel").Length;
         transform.FindChild("EndMessage").FindChild("PanelCount").GetComponent<Text>().text
             = "Panel Count     =  -1000×" + panelCount.ToString();
-        transform.FindChild("EndMessage").FindChild("ComboCount").GetComponent <Text>().text
+        transform.FindChild("EndMessage").FindChild("ComboCount").GetComponent<Text>().text
             = "Combo Count   =   1000×" + comboCountMax.ToString();
         transform.FindChild("EndMessage").FindChild("TotalScore").GetComponent<Text>().text
-            = "Total Score      =   " + ((comboCountMax - panelCount)*1000).ToString();
+            = "Total Score      =   " + ((comboCountMax - panelCount) * 1000).ToString();
         GetComponent<AudioSource>().clip = result;
         GetComponent<AudioSource>().Play();
     }
@@ -650,7 +652,14 @@ public class MenuController : MonoBehaviour
 
     public void DestroyPanel()
     {
-        if(sObject!=null&&sObject.tag=="Panel")
+        /*foreach(GameObject g in GameObject.FindGameObjectsWithTag("Robot"))
+        {
+            if (g.GetComponent<RobotController>().Mikata)
+            {
+                return;
+            }
+        }*/
+        if (myRobotCount == 0 && sObject != null && sObject.tag == "Panel")
         {
             sObject.GetComponent<Animator>().SetTrigger("PanelBreak");
             SetStatus(null);

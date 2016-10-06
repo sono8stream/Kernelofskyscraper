@@ -260,6 +260,18 @@ Prefab:
       propertyPath: camera
       value: 
       objectReference: {fileID: 1414071060}
+    - target: {fileID: 158210, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 22466646, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 22466646, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: -400
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
   m_IsPrefabParent: 0
@@ -875,7 +887,7 @@ GameObject:
   - 212: {fileID: 745032230}
   m_Layer: 11
   m_Name: ObjectExpectation
-  m_TagString: Robot
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

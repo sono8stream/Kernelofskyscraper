@@ -192,7 +192,7 @@ public class KernelController : MonoBehaviour {
                 rc.dst = t_pos;
             }
             energy -= c;
-            rc.Start();
+            //rc.Start();
             rc.enabled = enable;
             if(auto)
             {

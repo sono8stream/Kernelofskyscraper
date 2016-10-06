@@ -135,8 +135,14 @@ public class RobotController : MonoBehaviour {
             aniSpan = 20;
         }
         menCon = GameObject.Find("Menu").GetComponent<MenuController>();
-        if(!mikata)
+        if (mikata)
         {
+            Debug.Log(name + "Twice!?");
+            menCon.myRobotCount++;
+        }
+        else
+        {
+            Debug.Log(name);
             menCon.eCount++;
         }
     }
@@ -464,7 +470,6 @@ public class RobotController : MonoBehaviour {
         menCon.SetCombo();
         breaking = true;
         at = true;
-        Debug.Log("壊れるぜ！" + name);
         ef.transform.position = transform.position;
         if (!is3d)
         {
@@ -754,7 +759,11 @@ public class RobotController : MonoBehaviour {
             menCon.kerCon.genRobots[triggerNo].gameObject.GetComponent<RobotController>().isReady = true;
             Debug.Log("Set");
         }
-        if (!mikata)
+        if(mikata)
+        {
+            menCon.myRobotCount--;
+        }
+        else
         {
             menCon.eCount--;
         }
