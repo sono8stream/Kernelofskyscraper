@@ -33,7 +33,7 @@ public class MenuController : MonoBehaviour
     #region 各種コントローラの参照
     public KernelController kerCon/*, kerConEnemy*/;
     public TerritoryController terCon;
-    public RobotController sRobo;//選択中のロボ
+    public GameObject sObject;//選択中のオブジェクト
     #endregion
     public Sprite loseImage, winImage;
     Vector2 setPos, setPosSub;//subで押下時の座標を取り、setposがそれと一致したときにパネル生成
@@ -187,7 +187,7 @@ public class MenuController : MonoBehaviour
             }
         }
         #endregion
-        if (sRobo != null && sRobo.gameObject != null)//ステータス表示中、ロボを追従
+        if (sObject != null)//ステータス表示中、ロボを追従
         {
             RectTransform canvasRect = GetComponent<RectTransform>();
             /*Vector2 viewportPosition = camera.WorldToViewportPoint(sRobo.transform.position);
@@ -195,12 +195,12 @@ public class MenuController : MonoBehaviour
                 ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
                 ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));*/
             transform.FindChild("SelectingRobot").GetComponent<RectTransform>().anchoredPosition
-                = SetToScreenPos(sRobo.transform.position);
+                = SetToScreenPos(sObject.transform.position);
         }
-        if (sRobo != null)//ロボが選択されているとき、ステータスを表示
+        /*if (sRobo != null)//ロボが選択されているとき、ステータスを表示
         {
             SetStatus(sRobo);
-        }
+        }*/
         if (velocity != Vector2.zero)//余韻スクロール
         {
             camera.transform.position = (Vector2)camera.transform.position + velocity;
@@ -263,7 +263,7 @@ public class MenuController : MonoBehaviour
             panelDire = 0;
             selecting.transform.localPosition
                 = new Vector2(-190 + 200 * (panelCount % 5), -430);
-            SetStatus(kerCon.genRobots[generateNo].GetComponent<RobotController>());
+            SetStatus(kerCon.genRobots[generateNo]);
         }
         else
         {
@@ -273,6 +273,7 @@ public class MenuController : MonoBehaviour
             isSetting = true;
             selecting.transform.localPosition
                 = new Vector2(840, 400 - 200 * (panelCount % 5));
+            SetStatus(panels[generateNo]);
         }
         g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
         this.panelDire = panelDire;
@@ -338,7 +339,7 @@ public class MenuController : MonoBehaviour
             {
                 if (c != null && c.tag == "Panel")//すでにパネルが存在していれば、上書き
                 {
-                    Destroy(c.gameObject);
+                    return;
                 }
             }
             GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
@@ -433,24 +434,44 @@ public class MenuController : MonoBehaviour
         transform.FindChild("PauseMenu").gameObject.SetActive(gameStop);
     }
 
-    public void SetStatus(RobotController robot)
+    public void SetStatus(GameObject target)
     {
         GameObject status = transform.FindChild("Status").gameObject;
         GameObject select = transform.FindChild("SelectingRobot").gameObject;
-        if (robot == null)//ロボが選択されていなければ終了
+        if (target == null)//ロボが選択されていなければ終了
         {
             status.SetActive(false);
             select.SetActive(false);
             return;
         }
         status.SetActive(true);
-        select.SetActive(sRobo != null);
+        select.SetActive(sObject != null);
         string statusHP, statusATK, statusDEF, statusSPD;
-        status.transform.FindChild("hp").GetComponent<Text>().text
-            = robot.hp.ToString() + "/" + robot.mhp.ToString();
-        status.transform.FindChild("atk").GetComponent<Text>().text = robot.attack.ToString();
-        status.transform.FindChild("def").GetComponent<Text>().text = robot.defence.ToString();
-        status.transform.FindChild("spd").GetComponent<Text>().text = robot.speed.ToString();
+        if (target.tag == "Robot")
+        {
+            RobotController robot = target.GetComponent<RobotController>();
+            status.transform.FindChild("hp").GetComponent<Text>().text
+                = robot.hp.ToString() + "/" + robot.mhp.ToString();
+            status.transform.FindChild("atk").GetComponent<Text>().text = robot.attack.ToString();
+            status.transform.FindChild("def").GetComponent<Text>().text = robot.defence.ToString();
+            status.transform.FindChild("spd").GetComponent<Text>().text = robot.speed.ToString();
+            status.transform.FindChild("HP").GetComponent<Text>().text = "HP";
+            status.transform.FindChild("Attack").GetComponent<Text>().text = "AT";
+            status.transform.FindChild("Defence").GetComponent<Text>().text = "DF";
+            status.transform.FindChild("Speed").GetComponent<Text>().text = "SP";
+        }
+        else if(target.tag=="Panel")
+        {
+            status.transform.FindChild("hp").GetComponent<Text>().text
+                = target.GetComponent<PanelController>().description;
+            status.transform.FindChild("atk").GetComponent<Text>().text = "";
+            status.transform.FindChild("def").GetComponent<Text>().text = "";
+            status.transform.FindChild("spd").GetComponent<Text>().text = "";
+            status.transform.FindChild("HP").GetComponent<Text>().text = "";
+            status.transform.FindChild("Attack").GetComponent<Text>().text = "";
+            status.transform.FindChild("Defence").GetComponent<Text>().text = "";
+            status.transform.FindChild("Speed").GetComponent<Text>().text = "";
+        }
     }
 
     public void TouchDownScreen()
@@ -478,16 +499,17 @@ public class MenuController : MonoBehaviour
 
             Vector3 aTapPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Collider2D[] aCollider2d = Physics2D.OverlapPointAll(aTapPoint);
-            sRobo = null;
+            sObject = null;
             foreach (Collider2D col in aCollider2d)
             {
-                if (col && col.tag == "Robot")
+                if (col && (col.tag == "Robot" || col.tag == "Panel"))
                 {
-                    sRobo = col.GetComponent<RobotController>();
+                    sObject = col.gameObject;
                 }
+
             }
         }
-        SetStatus(sRobo);
+        SetStatus(sObject);
         LimitScroll(mapSizeX, mapSizeY);
     }
 
@@ -624,5 +646,14 @@ public class MenuController : MonoBehaviour
         comboCounter.FindChild("MaxCount").GetComponent<Text>().text
             = comboCountMax.ToString();
         comboCounter.GetComponent<Animator>().SetTrigger("Update");
+    }
+
+    public void DestroyPanel()
+    {
+        if(sObject!=null&&sObject.tag=="Panel")
+        {
+            sObject.GetComponent<Animator>().SetTrigger("PanelBreak");
+            SetStatus(null);
+        }
     }
 }

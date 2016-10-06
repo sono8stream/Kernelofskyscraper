@@ -239,7 +239,7 @@ public class TutorialManager : MonoBehaviour {
                 phase++;
                 break;
             case 11:
-                if (menuCon.terCon.rbdata[8, 8] == -1)//上にあるロボットの破壊を判定
+                if (menuCon.terCon.rbdata[9, 8] == -1)//上にあるロボットの破壊を判定
                 {
                     SetFilterActive(true);
                     ClickFilter();

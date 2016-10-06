@@ -8,6 +8,7 @@ public class PanelController : MonoBehaviour {
     public int targetNo;
     bool process = false;
     public Sprite s;
+    public string description;
     GameObject ef;
 
     // Use this for initialization

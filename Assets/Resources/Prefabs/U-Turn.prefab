@@ -141,6 +141,7 @@ MonoBehaviour:
   turnable: 0
   targetNo: 0
   s: {fileID: 0}
+  description: "U\u30BF\u30FC\u30F3"
 --- !u!212 &21254066
 SpriteRenderer:
   m_ObjectHideFlags: 1
