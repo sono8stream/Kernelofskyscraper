@@ -184,11 +184,12 @@ public class RobotController : MonoBehaviour {
                         {
                             AI();
                         }
-                        CheckDot();
+                        CheckDot();//パネル、カーネル、アイテムと接触処理
                     }
                 }
                 #endregion
-                else//停止し、パネル、カーネルと接触処理
+                #region 通行判定
+                else
                 {
                     Vector2 sub =
                         new Vector2(Mathf.Floor(menCon.terCon.rbdata.GetLength(0) / 2), Mathf.Floor(menCon.terCon.rbdata.GetLength(1) / 2));
@@ -196,7 +197,8 @@ public class RobotController : MonoBehaviour {
                     int posX, posY;
                     posX = (int)(sub.x + tarPos.x);
                     posY = (int)(sub.y + tarPos.y);
-                    if (0 <= posX && posX < menCon.terCon.rbdata.GetLength(0) && 0 <= posY && posY < menCon.terCon.rbdata.GetLength(1))//前進を試みる
+                    if (0 <= posX && posX < menCon.terCon.rbdata.GetLength(0) 
+                        && 0 <= posY && posY < menCon.terCon.rbdata.GetLength(1))//前進を試みる
                     {
                         if (menCon.terCon.rbdata[posX, posY] == -1)//目の前にロボがいない
                         {
@@ -236,6 +238,7 @@ public class RobotController : MonoBehaviour {
                         Break();
                     }
                 }
+                #endregion
                 ln.transform.position = Vector2.zero;
                 pt.transform.position = Vector2.zero;
             }
@@ -274,12 +277,41 @@ public class RobotController : MonoBehaviour {
     }
 
     /// <summary>
-    /// 足元のパネル、カーネルの情報を取得、処理
+    /// 足元のパネル、カーネル、アイテムの情報を取得、処理
     /// </summary>
     void CheckDot()
     {
         Collider2D[] cs = Physics2D.OverlapPointAll(transform.position);//ターゲット
-        Collider2D cp = null;//接触したパネル
+        bool onKernel = false;
+        foreach(Collider2D col in cs)
+        {
+            string tag = col.gameObject.tag;
+            if (mikata && tag == "Panel")
+            {
+                col.GetComponent<PanelController>().Run(this);//パネル効果実行
+            }
+            else if (tag == "Kernel")
+            {
+                onKernel = true;
+                KernelController ker = col.GetComponent<KernelController>();
+                if (mikata != ker.mikata
+                 && Mathf.RoundToInt(ker.transform.position.x - transform.position.x) == 0
+                 && Mathf.RoundToInt(ker.transform.position.y - transform.position.y) == 0)
+                {
+                    at = true;
+                    ker.Intake(gameObject);
+                }
+            }
+            else if (tag == "Item")
+            {
+                col.GetComponent<Animator>().SetTrigger("ItemGet");
+            }
+        }
+        /*if(!onKernel)
+        {
+            menCon.terCon.Generate(transform.position, mikata, gameObject);
+        }*/
+        /*Collider2D cp = null;//接触したパネル
         Collider2D ck = null;//接触したカーネル
         if (mikata)//パネル効果実行
         {
@@ -317,7 +349,7 @@ public class RobotController : MonoBehaviour {
         else
         {
             menCon.terCon.Generate(transform.position, mikata, gameObject);
-        }
+        }*/
     }
 
     public void SetImage()
@@ -547,13 +579,14 @@ public class RobotController : MonoBehaviour {
             ppos = transform.position;
             ex_panels.Add(ppos);
         }
-        Liner(ppos, transform.position, 32);
-        if (t)//ラインで囲まれたエリア内を制圧
+        //Liner(ppos, transform.position, 32);
+        /*if (t)//ラインで囲まれたエリア内を制圧
         {
             Suppresssion();
-        }
+        }*/
     }
 
+    /*
     /// <summary>
     /// 通過したラインを描画
     ///pos1:前
@@ -651,6 +684,7 @@ public class RobotController : MonoBehaviour {
         ppos = new Vector2(-100, -100);
         StartCoroutine(g.GetComponent<TerritoryController>().Refresh(mix, miy, max, may,area));
     }
+    */
 
     void Search(int x, int y, int d/*調査方向*/, ref bool[,] areadata)
     {
