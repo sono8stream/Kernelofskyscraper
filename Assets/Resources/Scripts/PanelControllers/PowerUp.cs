@@ -58,7 +58,7 @@ public class PowerUp : MonoBehaviour {
             rc.Turn(direction);
             /*other.GetComponent<Rigidbody2D>().transform.position
                 = new Vector3(this.transform.position.x, this.transform.position.y);*/
-            rc.Zoning();
+            //rc.Zoning();
             StartCoroutine("Effect");
         }
     }

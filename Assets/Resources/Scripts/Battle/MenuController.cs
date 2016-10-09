@@ -60,11 +60,39 @@ public class MenuController : MonoBehaviour
     [SerializeField]
     int comboWait;//コンボを持続する時間、短いほど難しい
     int comboWaitCount;
+    [SerializeField]
+    GameObject[] items;//マップ上のアイテム
+    bool[] gettedItems;
+    DataManager data;
     #endregion
 
     // Use this for initialization
     void Start()
     {
+        data = GameObject.Find("Loading").GetComponent<DataManager>();
+        if (panels.Length == 0)
+        {
+            panels = data.panels.ToArray();
+        }
+        else//パネル保存
+        {
+            foreach (GameObject panel in panels)
+            {
+                bool exist = false;
+                foreach (GameObject dataP in data.panels)
+                {
+                    if (dataP == panel)
+                    {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist)
+                {
+                    data.panels.Add(panel);
+                }
+            }
+        }
         #region 各コマンド初期化
         Transform robotList = transform.FindChild("RobotList");
         GameObject bt;
@@ -153,7 +181,9 @@ public class MenuController : MonoBehaviour
         comboCount = 0;
         comboCountMax = 0;
         comboWaitCount = 0;
+        gettedItems = new bool[items.Length];
         SetCombo();
+        SetGetItem();
     }
 
     // Update is called once per frame
@@ -586,7 +616,7 @@ public class MenuController : MonoBehaviour
         return worldObject_ScreenPosition;
     }
 
-    public void WriteMessage(string text, bool on, Color textColor, float x = 300, float y = 400,
+    public void WriteMessage(string text, bool on, Color textColor, bool wait = true, float x = 300, float y = 400,
         float width = 1200, float height = 220)
     {
         Transform messageBox = transform.FindChild("MessageBox");
@@ -600,6 +630,7 @@ public class MenuController : MonoBehaviour
         {
             messageBox.GetComponent<Animator>().SetTrigger("On");
         }
+        messageBox.FindChild("Next").gameObject.SetActive(wait);
     }
 
     public void CloseMessage()
@@ -630,12 +661,47 @@ public class MenuController : MonoBehaviour
     void SetScore()
     {
         int panelCount = GameObject.FindGameObjectsWithTag("Panel").Length;
-        transform.FindChild("EndMessage").FindChild("PanelCount").GetComponent<Text>().text
-            = "Panel Count     =  -1000×" + panelCount.ToString();
+        int score = 1000 * comboCountMax - 200 * panelCount;
         transform.FindChild("EndMessage").FindChild("ComboCount").GetComponent<Text>().text
             = "Combo Count   =   1000×" + comboCountMax.ToString();
+        transform.FindChild("EndMessage").FindChild("PanelCount").GetComponent<Text>().text
+            = "Panel Count     =  -200×" + panelCount.ToString();
         transform.FindChild("EndMessage").FindChild("TotalScore").GetComponent<Text>().text
-            = "Total Score      =   " + ((comboCountMax - panelCount) * 1000).ToString();
+            = "Total Score      =   " + score.ToString();
+        Transform item = transform.FindChild("EndMessage").FindChild("Item");
+        int count = 0;
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (gettedItems[i])
+            {
+                GameObject itButton = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"));//新たなパネル
+                itButton.transform.SetParent(item);
+                itButton.transform.localPosition = new Vector2(-170 * count, 0);
+                itButton.GetComponent<Image>().sprite = items[i].GetComponent<SpriteRenderer>().sprite;
+                itButton.transform.localScale = Vector3.one;
+                count++;
+                bool exist = false;
+                foreach (GameObject g in data.panels)
+                {
+                    if (g == items[i])
+                    {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist)
+                {
+                    data.panels.Add(items[i]);
+                }
+            }
+        }
+        if (count == 0)
+        {
+            GameObject itButton = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"));//新たなパネル
+            itButton.transform.SetParent(item);
+            itButton.transform.localPosition = new Vector2(0, 0);
+            itButton.transform.localScale = Vector3.one;
+        }
         GetComponent<AudioSource>().clip = result;
         GetComponent<AudioSource>().Play();
     }
@@ -650,19 +716,34 @@ public class MenuController : MonoBehaviour
         comboCounter.GetComponent<Animator>().SetTrigger("Update");
     }
 
+    public void SetGetItem()
+    {
+        Transform comboCounter = transform.FindChild("ComboCounter");
+        int itemCount = 0;
+        foreach (bool f in gettedItems)
+        {
+            if (f)
+            {
+                itemCount++;
+            }
+        }
+        comboCounter.FindChild("ItemCount").GetComponent<Text>().text
+            = itemCount.ToString();
+        comboCounter.GetComponent<Animator>().SetTrigger("GetItem");
+    }
+
     public void DestroyPanel()
     {
-        /*foreach(GameObject g in GameObject.FindGameObjectsWithTag("Robot"))
-        {
-            if (g.GetComponent<RobotController>().Mikata)
-            {
-                return;
-            }
-        }*/
         if (myRobotCount == 0 && sObject != null && sObject.tag == "Panel")
         {
             sObject.GetComponent<Animator>().SetTrigger("PanelBreak");
             SetStatus(null);
         }
+    }
+
+    public void GetItem(int no)
+    {
+        gettedItems[no] = true;
+        SetGetItem();
     }
 }

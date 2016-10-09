@@ -560,6 +560,7 @@ public class RobotController : MonoBehaviour {
         return t;
     }
 
+    /*
     /// <summary>
     /// エリア選択、制圧メソッド
     /// </summary>
@@ -583,8 +584,8 @@ public class RobotController : MonoBehaviour {
         /*if (t)//ラインで囲まれたエリア内を制圧
         {
             Suppresssion();
-        }*/
-    }
+        }
+    }*/
 
     /*
     /// <summary>

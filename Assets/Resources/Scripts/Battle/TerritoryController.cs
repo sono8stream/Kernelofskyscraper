@@ -34,8 +34,6 @@ public class TerritoryController : MonoBehaviour
         w = trdata.GetLength(0);
         h = trdata.GetLength(1);
         rbdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
-        Debug.Log(rbdata.GetLength(0));
-        Debug.Log(rbdata.GetLength(1));
         rCount = 0;
         t = new Texture2D(trdata.GetLength(0) * size, trdata.GetLength(1) * size, TextureFormat.RGBA32, false);
         ar = (GameObject)Instantiate(Resources.Load("Prefabs/area"), Vector2.zero, transform.rotation);//ライン生成

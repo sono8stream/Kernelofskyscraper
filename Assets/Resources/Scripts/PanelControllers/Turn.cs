@@ -42,7 +42,7 @@ public class Turn : MonoBehaviour
         }
         Debug.Log("方向" + direction);
         rc.Turn(direction);
-        rc.Zoning();
+        //rc.Zoning();
         //StartCoroutine("Effect");
     }
 
