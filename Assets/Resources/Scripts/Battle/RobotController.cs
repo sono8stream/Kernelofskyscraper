@@ -423,7 +423,7 @@ public class RobotController : MonoBehaviour {
             Collider target = null;
             foreach (Collider t in targets)
             {
-                if (t.tag == "Robot")
+                if (t.tag == "Robot"&&t.gameObject!=gameObject)
                 {
                     target = t;
                     break;
@@ -435,6 +435,7 @@ public class RobotController : MonoBehaviour {
                 return;
             }
             tarCon = target.GetComponent<RobotController>();
+            Debug.Log(name+"のターゲットは" + target.name);
         }
         else
         {

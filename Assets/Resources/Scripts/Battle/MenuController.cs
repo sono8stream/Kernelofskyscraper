@@ -69,30 +69,39 @@ public class MenuController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        data = GameObject.Find("Loading").GetComponent<DataManager>();
-        if (panels.Length == 0)
+        try
         {
-            panels = data.panels.ToArray();
-        }
-        else//パネル保存
-        {
-            foreach (GameObject panel in panels)
+            data = GameObject.Find("Loading").GetComponent<DataManager>();
+            if (panels.Length == 0)
             {
-                bool exist = false;
-                foreach (GameObject dataP in data.panels)
+                panels = data.panels.ToArray();
+            }
+            else//パネル保存
+            {
+                foreach (GameObject panel in panels)
                 {
-                    if (dataP == panel)
+                    bool exist = false;
+                    foreach (GameObject dataP in data.panels)
                     {
-                        exist = true;
-                        break;
+                        if (dataP == panel)
+                        {
+                            exist = true;
+                            break;
+                        }
                     }
-                }
-                if (!exist)
-                {
-                    data.panels.Add(panel);
+                    if (!exist)
+                    {
+                        data.panels.Add(panel);
+                    }
                 }
             }
         }
+        catch { }
+        g = GameObject.Find("ObjectExpectation");
+        kerCon
+            = GameObject.FindGameObjectWithTag("Kernel").GetComponent<KernelController>();
+        terCon = GameObject.Find("Territory").GetComponent<TerritoryController>();
+        camera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         #region 各コマンド初期化
         Transform robotList = transform.FindChild("RobotList");
         GameObject bt;
@@ -170,9 +179,6 @@ public class MenuController : MonoBehaviour
             }
         }
         #endregion
-        g = GameObject.Find("ObjectExpectation");
-        kerCon = GameObject.Find("Kernel").GetComponent<KernelController>();
-        terCon = GameObject.Find("Territory").GetComponent<TerritoryController>();
         setDire.SetActive(false);
         //ChangeTab();
         OnMenu();
