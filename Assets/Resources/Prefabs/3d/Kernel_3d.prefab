@@ -26,7 +26,7 @@ GameObject:
   - 114: {fileID: 114000011529318286}
   m_Layer: 0
   m_Name: Kernel_3d
-  m_TagString: Untagged
+  m_TagString: Kernel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -79,7 +79,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010192214114}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: c0bff49b4f4238943af15c383155099b, type: 3}
 --- !u!54 &54000013689771986
 Rigidbody:
   m_ObjectHideFlags: 1
@@ -102,7 +102,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010192214114}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 3, y: 3, z: 1}

@@ -66,7 +66,7 @@ public class RobotController : MonoBehaviour {
         }
     }
     RobotController tarCon;//攻撃対象のスクリプト
-    bool breaking = false;
+    public bool breaking = false;
     public bool CheckBreaking
     {
         get
@@ -106,19 +106,23 @@ public class RobotController : MonoBehaviour {
         paneling = false;
         ef = transform.FindChild("effect").gameObject;//エフェクトオブジェ取得
         bar = transform.FindChild("HpBar").gameObject;
-        if (!is3d)
+        generated = false;
+        if (is3d)
+        {
+            generated = true;
+        }
+        else
         {
             bar.transform.localPosition = new Vector3(-0.5f, -0.3f, 0);
         }
         bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         ex_panels = new List<Vector2>();
         //at = false;
-        generated = false;
         mp_lay2 = GameObject.Find("MapLayer2");
-        ln = transform.FindChild("line").gameObject;
+        /*ln = transform.FindChild("line").gameObject;
         ln.GetComponent<SpriteRenderer>().sprite = null;
         pt = transform.FindChild("point").gameObject;
-        pt.GetComponent<SpriteRenderer>().sprite = null;
+        pt.GetComponent<SpriteRenderer>().sprite = null;*/
         ppos = new Vector2(-100, -100);
         dst_lt = new List<Vector2>();
         dst_lt.AddRange(dst);
@@ -239,8 +243,8 @@ public class RobotController : MonoBehaviour {
                     }
                 }
                 #endregion
-                ln.transform.position = Vector2.zero;
-                pt.transform.position = Vector2.zero;
+                /*ln.transform.position = Vector2.zero;
+                pt.transform.position = Vector2.zero;*/
             }
             else if (!at)//フィギュリンタイプの攻撃
             {
@@ -282,7 +286,6 @@ public class RobotController : MonoBehaviour {
     void CheckDot()
     {
         Collider2D[] cs = Physics2D.OverlapPointAll(transform.position);//ターゲット
-        bool onKernel = false;
         foreach(Collider2D col in cs)
         {
             string tag = col.gameObject.tag;
@@ -292,7 +295,6 @@ public class RobotController : MonoBehaviour {
             }
             else if (tag == "Kernel")
             {
-                onKernel = true;
                 KernelController ker = col.GetComponent<KernelController>();
                 if (mikata != ker.mikata
                  && Mathf.RoundToInt(ker.transform.position.x - transform.position.x) == 0
@@ -419,7 +421,7 @@ public class RobotController : MonoBehaviour {
         at = false;
         if (is3d)
         {
-            Collider[] targets = Physics.OverlapSphere(transform.position + DtoV(), 1);
+            Collider[] targets = Physics.OverlapSphere(transform.position + DtoV(), 0.4f);
             Collider target = null;
             foreach (Collider t in targets)
             {

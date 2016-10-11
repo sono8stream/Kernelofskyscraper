@@ -283,7 +283,7 @@ public class MenuController : MonoBehaviour
         if (isRobot)
         {
             s = br[generateNo].GetComponent<Image>().sprite;
-            setPos = GameObject.Find("Kernel").transform.position;
+            setPos = kerCon.transform.position;
             if (kerCon.genRobots[generateNo].GetComponent<RobotController>().typeNo == (int)RobotType.Figurine)
             {
                 isSetting = true;

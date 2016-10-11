@@ -1452,7 +1452,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 806e8d40987278d4d9534b5ca21255f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panels: []
+  panels:
+  - {fileID: 183512, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
+  - {fileID: 183512, guid: 8fb6564c88f30c743a3e60fac3c82566, type: 2}
+  - {fileID: 183512, guid: e5cd7069f4ce5d14cab8171878dfe2f9, type: 2}
   isRobot: 0
   eCount: 0
   myRobotCount: 0
@@ -1471,7 +1474,6 @@ MonoBehaviour:
   comboCountMax: 0
   comboWait: 0
   items: []
-  data: {fileID: 0}
 --- !u!114 &11446680
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2778,8 +2780,8 @@ RectTransform:
   m_RootOrder: 4
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -300, y: 400}
-  m_SizeDelta: {x: 1200, y: 220}
+  m_AnchoredPosition: {x: -400, y: 400}
+  m_SizeDelta: {x: 1000, y: 220}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &22472176
 RectTransform:

@@ -43,6 +43,7 @@ public class TutorialManager : MonoBehaviour {
                 Tutorial2();
                 break;
             case 3:
+                Tutorial3();
                 break;
         }
     }
@@ -285,6 +286,33 @@ public class TutorialManager : MonoBehaviour {
                 menuCon.CloseMessage();
                 SetFilterActive(false);
                 phase++;
+                break;
+        }
+    }
+
+    void Tutorial3()
+    {
+        switch(phase)
+        {
+            case 0:
+                menuCon.WriteMessage("嬉しいことに、\n解説つきフロアはここまで。",
+                    true, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 1:
+                menuCon.WriteMessage("次のマップからは\nいよいよ摩天楼に挑もう。",
+                    false, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 2:
+                menuCon.WriteMessage("最後に、ここでは\n「アイテム」と「スコア」について\nお教えしよう。",
+                    false, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 3:
+                menuCon.WriteMessage("まず、このようにマップ上に\n配置されているのが\nアイテムだ。",
+                    false, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 4:
+                menuCon.WriteMessage("まず、このようにマップ上に\n配置されているのが\nアイテムだ。",
+                    false, Color.white, true, -400, 400, 1000, 220);
                 break;
         }
     }
