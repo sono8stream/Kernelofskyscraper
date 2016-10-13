@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: c0bff49b4f4238943af15c383155099b
-timeCreated: 1476117705
+guid: f002d35b787db3b45a7b5c19114cee69
+timeCreated: 1476206107
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: kernel
+    4300000: kernel_ab00_mod
   materials:
     importMaterials: 1
     materialName: 0
