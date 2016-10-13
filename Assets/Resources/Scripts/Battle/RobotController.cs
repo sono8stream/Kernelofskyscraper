@@ -149,6 +149,22 @@ public class RobotController : MonoBehaviour {
             Debug.Log(name);
             menCon.eCount++;
         }
+        if (is3d)
+        {
+            int angle = dire * 45;
+            if(1<dire)
+            {
+                angle += 90 * (dire - 1);
+            }
+            foreach(Transform t in transform)
+            {
+                if(t.tag=="3D_Model")
+                {
+                    t.eulerAngles -= new Vector3(0, angle, 0);
+                    break;
+                }
+            }
+        }
     }
 
     // Update is called once per frame
@@ -410,6 +426,35 @@ public class RobotController : MonoBehaviour {
     /// <param name="direction"></param>
     public void Turn(int direction)
     {
+        if(is3d)
+        {
+            int angle = dire * 45;
+            if (1 < dire)
+            {
+                angle += 90 * (dire - 1);
+            }
+            foreach (Transform t in transform)
+            {
+                if (t.tag == "3D_Model")
+                {
+                    t.eulerAngles += new Vector3(0, angle, 0);
+                    break;
+                }
+            }
+            angle = direction * 45;
+            if (1 < direction)
+            {
+                angle += 90 * (direction - 1);
+            }
+            foreach (Transform t in transform)
+            {
+                if (t.tag == "3D_Model")
+                {
+                    t.eulerAngles -= new Vector3(0, angle, 0);
+                    break;
+                }
+            }
+        }
         dire = direction;
     }
 
@@ -465,7 +510,7 @@ public class RobotController : MonoBehaviour {
         }
         at = true;
         Debug.Log("攻撃するぜ！" + name);
-        ef.transform.position = tarCon.transform.position;
+        ef.transform.position = tarCon.transform.position + Vector3.back;
         if (typeNo == (int)RobotType.Bomb)
         {
             Break();
@@ -505,7 +550,7 @@ public class RobotController : MonoBehaviour {
         menCon.SetCombo();
         breaking = true;
         at = true;
-        ef.transform.position = transform.position;
+        ef.transform.position = transform.position + Vector3.back;
         if (!is3d)
         {
             GetComponent<BoxCollider2D>().isTrigger = true;
@@ -549,7 +594,7 @@ public class RobotController : MonoBehaviour {
         return breaking;
     }
 
-    Texture2D SetEffect(Sprite s, int num, Vector2 targetpos)
+    /*Texture2D SetEffect(Sprite s, int num, Vector2 targetpos)
     {
         Texture2D t = new Texture2D(120, 120, TextureFormat.RGBA32, false);
         if (targetpos != (Vector2)transform.position)
@@ -561,7 +606,7 @@ public class RobotController : MonoBehaviour {
         t.Apply();
         ef.GetComponent<SpriteRenderer>().sprite = Sprite.Create(t, new Rect(0, 0, 120, 120), new Vector2(0.5f, 0.5f), 90);
         return t;
-    }
+    }*/
 
     /*
     /// <summary>

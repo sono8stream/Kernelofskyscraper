@@ -179,11 +179,6 @@ public class KernelController : MonoBehaviour {
             rc.auto = false;
             rc.number = t.SetRobotNumber();
             rc.dire = direction != -1 ? direction : rc.dire;
-            if(rc.is3d)
-            {
-                ob.transform.eulerAngles=new Vector3(90, 180, 0);
-                ob.transform.position += new Vector3(0, 0, -2);
-            }
             t.rbdata[t.rbdata.GetLength(0) / 2 + (int)rc.transform.position.x,
                 t.rbdata.GetLength(1) / 2 + (int)rc.transform.position.y] = rc.number;
             if (t_pos.GetLength(0) > 0)

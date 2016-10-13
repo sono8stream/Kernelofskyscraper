@@ -299,19 +299,62 @@ public class TutorialManager : MonoBehaviour {
                     true, Color.white, true, -400, 400, 1000, 220);
                 break;
             case 1:
-                menuCon.WriteMessage("次のマップからは\nいよいよ摩天楼に挑もう。",
+                menuCon.WriteMessage("次のマップからは\nいよいよ摩天楼に挑んでいこう。",
                     false, Color.white, true, -400, 400, 1000, 220);
                 break;
             case 2:
-                menuCon.WriteMessage("最後に、ここでは\n「アイテム」と「スコア」について\nお教えしよう。",
+                menuCon.WriteMessage("ここでは最後に、\n「アイテム」と「スコア」について\nお教えしよう。",
                     false, Color.white, true, -400, 400, 1000, 220);
                 break;
             case 3:
-                menuCon.WriteMessage("まず、このようにマップ上に\n配置されているのが\nアイテムだ。",
+                menuCon.WriteMessage("まず、このようにマップ上に\n配置されているのがアイテムだ。",
                     false, Color.white, true, -400, 400, 1000, 220);
+                menuCon.SetCautionCursor(-1, 0);
                 break;
             case 4:
-                menuCon.WriteMessage("まず、このようにマップ上に\n配置されているのが\nアイテムだ。",
+                menuCon.WriteMessage("アイテムはロボで触れるとゲットでき、\nクリア時に中身が判明する。\n非常にシンプルだ。",
+                    false, Color.yellow, true, -400, 400, 1000, 220);
+                break;
+            case 5:
+                menuCon.WriteMessage("しかし、フロアをクリアする前でなければ\nアイテムはゲットできないので、\n注意が必要だ。",
+                    false, Color.yellow, true, -400, 400, 1000, 220);
+                break;
+            case 6:
+                menuCon.WriteMessage("早速ロボを右方向に生成し、\nアイテムをゲットしてみよう。",
+                    false, Color.green, false, -400, 400, 1000, 220);
+                menuCon.RemoveCautionCursor();
+                SetFilterActive(false);
+                phase++;
+                break;
+            case 7:
+                if (menuCon.terCon.rCount == 5)
+                {
+                    SetFilterActive(true);
+                    ClickFilter();
+                }
+                break;
+            case 8:
+                menuCon.WriteMessage("これでアイテムゲットだ。\nアイテムは今後の攻略に役立つので、\n積極的にゲットしていこう。",
+                    false, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 9:
+                menuCon.WriteMessage("次は、「スコア」について。\nスコアはフロアのクリア時に\n算出されるポイントだ。",
+                    false, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 10:
+                menuCon.WriteMessage("高いスコアを獲得するほど\nロボットの性能がレベルアップするため、\nこれも無視できない要素だ。",
+                    false, Color.yellow, true, -400, 400, 1000, 220);
+                break;
+            case 11:
+                menuCon.WriteMessage("高いスコアをとるための基本は\nロボが壊れる前に、より沢山のエネミーを倒すこと。\nこれだけだ。",
+                    false, Color.yellow, true, -400, 400, 1000, 220);
+                break;
+            case 12:
+                menuCon.WriteMessage("「コンボ」が蓄積され、高いスコアを獲得できる。\nまた、その際には使用するパネルを\n最小限にすることも重要だ。",
+                    false, Color.yellow, true, -400, 400, 1000, 220);
+                break;
+            case 13:
+                menuCon.WriteMessage("つまり、より少ない手数で\nスマートにフロアをクリアすればいい。",
                     false, Color.white, true, -400, 400, 1000, 220);
                 break;
         }

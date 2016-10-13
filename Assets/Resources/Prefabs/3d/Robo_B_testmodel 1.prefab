@@ -58,7 +58,7 @@ GameObject:
   - 23: {fileID: 23000010251915960}
   m_Layer: 0
   m_Name: Robo_b00_mod
-  m_TagString: Untagged
+  m_TagString: 3D_Model
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -103,7 +103,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010750184436}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0, z: -2}
+  m_LocalPosition: {x: -1, y: 3, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
@@ -132,10 +132,10 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000011642078662}
-  m_LocalRotation: {x: -0.7071069, y: -0, z: 0.00000022863969, w: 0.70710677}
-  m_LocalPosition: {x: -0.06391287, y: -1.3251414, z: -0.13181376}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 4000010618364022}
   m_RootOrder: 1
@@ -145,10 +145,10 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012071756466}
-  m_LocalRotation: {x: -0.018076532, y: 0.3823267, z: -0.020845074, w: 0.9236152}
+  m_LocalRotation: {x: -0.013136348, y: 0.1733571, z: -0.024263443, w: 0.9844725}
   m_LocalPosition: {x: 0, y: -0.7165133, z: 0.3707689}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: -1, y: 45, z: -3}
+  m_LocalEulerAnglesHint: {x: -1, y: 20, z: -3}
   m_Children: []
   m_Father: {fileID: 4000010618364022}
   m_RootOrder: 0
@@ -330,7 +330,7 @@ ParticleSystem:
   moveWithTransform: 1
   autoRandomSeed: 1
   scalingMode: 1
-  randomSeed: -1793450919
+  randomSeed: 1374088233
   InitialModule:
     serializedVersion: 2
     enabled: 1
