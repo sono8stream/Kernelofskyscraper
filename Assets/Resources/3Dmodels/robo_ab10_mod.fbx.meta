@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 014e52ed37969fd4aaf427b615f7be31
-timeCreated: 1476979026
+guid: e2ed86160b42f1b4e9716b5fda0f0ae0
+timeCreated: 1476981874
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: robo_ab00_mod_wait
+    4300000: robo_ab10_mod
   materials:
     importMaterials: 1
     materialName: 0
