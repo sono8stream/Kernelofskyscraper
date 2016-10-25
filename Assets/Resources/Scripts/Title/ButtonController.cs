@@ -4,6 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class ButtonController : MonoBehaviour {
 
+    [SerializeField]
+    GameObject stageSelect;
+
     // Use this for initialization
     void Start()
     {
@@ -13,18 +16,29 @@ public class ButtonController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (Application.platform == RuntimePlatform.Android)
+        if (Input.GetKey(KeyCode.Home) || Input.GetKey(KeyCode.Escape))
         {
-            if (Input.GetKey(KeyCode.Home) || Input.GetKey(KeyCode.Escape))
-            {
-                Application.Quit();
-                return;
-            }
+            EndGame();
         }
     }
 
-    public void OnClick(int levelNo)
+    public void OnClick()
     {
-        StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(levelNo));
+        GetComponent<Animator>().SetTrigger("FadeOut");
+    }
+
+    public void SelectStage()
+    {
+        gameObject.SetActive(false);
+        stageSelect.SetActive(true);
+    }
+
+    public void EndGame()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            Application.Quit();
+            return;
+        }
     }
 }

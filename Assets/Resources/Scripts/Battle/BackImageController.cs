@@ -14,7 +14,7 @@ public class BackImageController : MonoBehaviour {
         transform.Translate(new Vector3(sp, 0, 0));
         if(transform.localPosition.x<-boundary)
         {
-            transform.localPosition = new Vector3(boundary, 0,10);
+            transform.localPosition += new Vector3(boundary * 2, 0, 0);
         }
 	}
 }

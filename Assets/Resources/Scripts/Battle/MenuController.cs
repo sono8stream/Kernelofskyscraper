@@ -57,13 +57,13 @@ public class MenuController : MonoBehaviour
     #endregion
     public int comboCount;
     public int comboCountMax;
+    public int providedScore;
     [SerializeField]
     int comboWait;//コンボを持続する時間、短いほど難しい
     int comboWaitCount;
     [SerializeField]
     GameObject[] items;//マップ上のアイテム
     bool[] gettedItems;
-    DataManager data;
     #endregion
 
     // Use this for initialization
@@ -71,17 +71,17 @@ public class MenuController : MonoBehaviour
     {
         try
         {
-            data = GameObject.Find("Loading").GetComponent<DataManager>();
+            DataManager.dataInstance = GameObject.Find("Loading").GetComponent<DataManager>();
             if (panels.Length == 0)
             {
-                panels = data.panels.ToArray();
+                panels = DataManager.dataInstance.panels.ToArray();
             }
             else//パネル保存
             {
                 foreach (GameObject panel in panels)
                 {
                     bool exist = false;
-                    foreach (GameObject dataP in data.panels)
+                    foreach (GameObject dataP in DataManager.dataInstance.panels)
                     {
                         if (dataP == panel)
                         {
@@ -91,7 +91,7 @@ public class MenuController : MonoBehaviour
                     }
                     if (!exist)
                     {
-                        data.panels.Add(panel);
+                        DataManager.dataInstance.panels.Add(panel);
                     }
                 }
             }
@@ -255,18 +255,6 @@ public class MenuController : MonoBehaviour
                 windowClosing = false;
             }
         }
-        /*if (0 < comboWaitCount)
-        {
-            comboWaitCount--;
-            if (comboWaitCount == 0)
-            {
-                if (comboCountMax < comboCount)
-                {
-                    comboCountMax = comboCount;
-                }
-                comboCount = 0;
-            }
-        }*/
     }
 
     //ロボ・パネルの種類と生成する番号をセット
@@ -490,8 +478,8 @@ public class MenuController : MonoBehaviour
             RobotController robot = target.GetComponent<RobotController>();
             status.transform.FindChild("hp").GetComponent<Text>().text
                 = robot.hp.ToString() + "/" + robot.mhp.ToString();
-            status.transform.FindChild("atk").GetComponent<Text>().text = robot.attack.ToString();
-            status.transform.FindChild("def").GetComponent<Text>().text = robot.defence.ToString();
+            status.transform.FindChild("atk").GetComponent<Text>().text = robot.attackCurrent.ToString();
+            status.transform.FindChild("def").GetComponent<Text>().text = robot.defenceCurrent.ToString();
             status.transform.FindChild("spd").GetComponent<Text>().text = robot.speed.ToString();
             status.transform.FindChild("HP").GetComponent<Text>().text = "HP";
             status.transform.FindChild("Attack").GetComponent<Text>().text = "AT";
@@ -666,6 +654,11 @@ public class MenuController : MonoBehaviour
 
     void SetScore()
     {
+        if(comboCountMax<comboCount)
+        {
+            comboCountMax = comboCount;
+            SetCombo();
+        }
         int panelCount = GameObject.FindGameObjectsWithTag("Panel").Length;
         int score = 1000 * comboCountMax - 200 * panelCount;
         transform.FindChild("EndMessage").FindChild("ComboCount").GetComponent<Text>().text
@@ -674,6 +667,23 @@ public class MenuController : MonoBehaviour
             = "Panel Count     =  -200×" + panelCount.ToString();
         transform.FindChild("EndMessage").FindChild("TotalScore").GetComponent<Text>().text
             = "Total Score      =   " + score.ToString();
+        //レベルアップ
+        int currentScore 
+            = DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 1]*1000
+            -DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 1] * 200;//現在のスコア
+        if (currentScore < score)
+        {
+            int currentLevel = DataManager.dataInstance.level;//現在レベル
+            DataManager.dataInstance.level -= Mathf.FloorToInt(currentScore / 1000);
+            DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 1]
+                = comboCountMax;
+            DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 1]
+                = panelCount;
+            DataManager.dataInstance.level += Mathf.FloorToInt(score / 1000);
+            Debug.Log(currentLevel + "and" + DataManager.dataInstance.level);
+            transform.FindChild("EndMessage").FindChild("LevelUp").GetComponent<Text>().text
+                = currentLevel < DataManager.dataInstance.level ? "Level Up !!" : "";
+        }
         Transform item = transform.FindChild("EndMessage").FindChild("Item");
         int count = 0;
         for (int i = 0; i < items.Length; i++)
@@ -684,10 +694,10 @@ public class MenuController : MonoBehaviour
                 itButton.transform.SetParent(item);
                 itButton.transform.localPosition = new Vector2(-170 * count, 0);
                 itButton.GetComponent<Image>().sprite = items[i].GetComponent<SpriteRenderer>().sprite;
-                itButton.transform.localScale = Vector3.one;
+                itButton.transform.localScale = Vector3.one * 0.6f;
                 count++;
                 bool exist = false;
-                foreach (GameObject g in data.panels)
+                foreach (GameObject g in DataManager.dataInstance.panels)
                 {
                     if (g == items[i])
                     {
@@ -697,7 +707,7 @@ public class MenuController : MonoBehaviour
                 }
                 if (!exist)
                 {
-                    data.panels.Add(items[i]);
+                    DataManager.dataInstance.panels.Add(items[i]);
                 }
             }
         }
@@ -706,7 +716,7 @@ public class MenuController : MonoBehaviour
             GameObject itButton = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"));//新たなパネル
             itButton.transform.SetParent(item);
             itButton.transform.localPosition = new Vector2(0, 0);
-            itButton.transform.localScale = Vector3.one;
+            itButton.transform.localScale = Vector3.one * 0.6f;
         }
         GetComponent<AudioSource>().clip = result;
         GetComponent<AudioSource>().Play();

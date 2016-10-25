@@ -103,7 +103,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010750184436}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: 3, z: -2}
+  m_LocalPosition: {x: 2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
@@ -237,7 +237,7 @@ Animator:
   m_GameObject: {fileID: 1000010750184436}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3206f9df3a2734847a6edbd1e7791185, type: 2}
+  m_Controller: {fileID: 9100000, guid: 61217bded8978c4488e032cd316f7cc0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -259,7 +259,7 @@ MonoBehaviour:
   number: 0
   image_all: {fileID: 21300000, guid: 40266de7712938a4d97689ac493985e6, type: 3}
   im_num: 3
-  dire: 0
+  dire: 3
   attEffectPat: 9
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   cost: 3

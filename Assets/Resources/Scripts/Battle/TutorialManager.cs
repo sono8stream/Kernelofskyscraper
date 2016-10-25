@@ -19,8 +19,15 @@ public class TutorialManager : MonoBehaviour {
         menuCon = menu.GetComponent<MenuController>();
         filter = transform.FindChild("Filter").gameObject;
         phase = 0;
-        SelectTutorial();
-        filterOn = true;
+        if (DataManager.dataInstance.onTutorial)
+        {
+            SelectTutorial();
+            filterOn = true;
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -342,11 +349,11 @@ public class TutorialManager : MonoBehaviour {
                     false, Color.white, true, -400, 400, 1000, 220);
                 break;
             case 10:
-                menuCon.WriteMessage("高いスコアを獲得するほど\nロボットの性能がレベルアップするため、\nこれも無視できない要素だ。",
+                menuCon.WriteMessage("高いスコアを獲得するほど\nロボットの性能がレベルアップする。\nこれも無視できない要素だ。",
                     false, Color.yellow, true, -400, 400, 1000, 220);
                 break;
             case 11:
-                menuCon.WriteMessage("高いスコアをとるための基本は\nロボが壊れる前に、より沢山のエネミーを倒すこと。\nこれだけだ。",
+                menuCon.WriteMessage("スコアを稼ぐ基本は、\nロボが壊れる前に\nより沢山のエネミーを倒すこと。",
                     false, Color.yellow, true, -400, 400, 1000, 220);
                 break;
             case 12:
@@ -356,6 +363,15 @@ public class TutorialManager : MonoBehaviour {
             case 13:
                 menuCon.WriteMessage("つまり、より少ない手数で\nスマートにフロアをクリアすればいい。",
                     false, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 14:
+                menuCon.WriteMessage("それでは、高いスコアを狙って\nこのフロアを攻略してみよう。",
+                    false, Color.white, true, -400, 400, 1000, 220);
+                break;
+            case 15:
+                menuCon.CloseMessage();
+                SetFilterActive(false);
+                phase++;
                 break;
         }
     }

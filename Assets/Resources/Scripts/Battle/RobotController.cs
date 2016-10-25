@@ -27,10 +27,15 @@ public class RobotController : MonoBehaviour {
     public int attEffectPat;
     public Sprite br_effect;
     public int cost;//召喚コスト
-    public int mhp;
+    public int mhp;//最大体力
+    public int mhpCurrent;//実際体力
     public int hp;
-    public int attack;
-    public int defence;
+    public int attack;//攻撃力
+    public int attackCurrent;
+    public int defence;//防御力
+    public int defenceCurrent;
+    public int speed;//移動スピード
+    public int spCount;
     GameObject ef;
     public GameObject EffectObject
     {
@@ -45,15 +50,7 @@ public class RobotController : MonoBehaviour {
     #region 行動用(移動、攻撃)
     bool generated;//生成完了かどうか
     public bool paneling;//パネル上の処理を実行中か
-    public int speed;//移動スピード
-    public int spCount;
-    public bool move;
-    public bool Move
-    {
-        get { return move; }
-        set { move = value; }
-    }
-    public bool at;
+    public bool at;//攻撃中かどうか
     public bool CheckAttack
     {
         get
@@ -64,6 +61,12 @@ public class RobotController : MonoBehaviour {
         {
             at = value;
         }
+    }
+    public bool move;
+    public bool Move
+    {
+        get { return move; }
+        set { move = value; }
     }
     RobotController tarCon;//攻撃対象のスクリプト
     public bool breaking = false;
@@ -104,14 +107,17 @@ public class RobotController : MonoBehaviour {
         image = new Texture2D(SIZE, SIZE, TextureFormat.RGBA32, false);
         SetImage();
         paneling = false;
+        #region ステータス設定
+        int lv = DataManager.dataInstance.level;
+        mhpCurrent = mhp + lv * 5;
+        attackCurrent = attack + lv * 4;
+        defenceCurrent = defence + lv * 4;
+        hp = mhpCurrent;
+        #endregion
         ef = transform.FindChild("effect").gameObject;//エフェクトオブジェ取得
         bar = transform.FindChild("HpBar").gameObject;
         generated = false;
-        if (is3d)
-        {
-            generated = true;
-        }
-        else
+        if(!is3d)
         {
             bar.transform.localPosition = new Vector3(-0.5f, -0.3f, 0);
         }
@@ -190,10 +196,6 @@ public class RobotController : MonoBehaviour {
                         spCount = 0;
                         transform.position =
                             new Vector2((int)Math.Round(transform.position.x), (int)Math.Round(transform.position.y));
-                        if(is3d)
-                        {
-                            transform.position += new Vector3(0, 0, -2);
-                        }
                         Vector2 sub = transform.position - DtoV()
                             + new Vector3(Mathf.Floor(menCon.terCon.rbdata.GetLength(0) / 2), Mathf.Floor(menCon.terCon.rbdata.GetLength(1) / 2));
                         if (0 <= sub.x && sub.x < menCon.terCon.rbdata.GetLength(0) && 0 <= sub.y && sub.y < menCon.terCon.rbdata.GetLength(1))
@@ -523,7 +525,7 @@ public class RobotController : MonoBehaviour {
 
     public void EndAttack()
     {
-        tarCon.Damage(attack);
+        tarCon.Damage(attackCurrent);
         tarCon = null;
         at = false;
     }
@@ -571,7 +573,7 @@ public class RobotController : MonoBehaviour {
                     RobotController rCon = c.GetComponent<RobotController>();
                     if (rCon.mikata != mikata && !rCon.CheckBreaking)
                     {
-                        rCon.Damage(attack);
+                        rCon.Damage(attackCurrent);
                     }
                 }
             }
@@ -580,7 +582,7 @@ public class RobotController : MonoBehaviour {
 
     public bool Damage(int Attack)
     {
-        hp -= Attack - defence;
+        hp -= Attack - defenceCurrent;
         if (hp <= 0)
         {
             hp = 0;
@@ -855,9 +857,12 @@ public class RobotController : MonoBehaviour {
 
     public void CompleteGeneration()
     {
-        //GetComponent<Animator>().SetBool("Generated", true);
+        GetComponent<Animator>().SetBool("Generated", true);
         generated = true;
-        //GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
+        if (!is3d)
+        {
+            GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
+        }
     }
 }
 

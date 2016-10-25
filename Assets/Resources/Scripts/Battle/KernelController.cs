@@ -53,10 +53,14 @@ public class KernelController : MonoBehaviour {
     {
         ef = transform.FindChild("effect").gameObject;//エフェクトオブジェ取得
         bar = transform.FindChild("HpBar").gameObject;
-        bar.transform.localPosition = new Vector3(-1, 0.6f, 0);
+        bar.transform.localPosition = new Vector3(-1f, -1.5f, -3f);
         bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         sp_s = sp;
         sp_cn = sp;
+        foreach(Transform robots in transform.FindChild("Robots"))
+        {
+            robots.gameObject.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -115,7 +119,7 @@ public class KernelController : MonoBehaviour {
         Debug.Log("Start Break");
         other.GetComponent<RobotController>().Break();
         //yield return new WaitForSeconds(0.1f);
-        Damage(other.GetComponent<RobotController>().attack);
+        Damage(other.GetComponent<RobotController>().attackCurrent);
         sr.color = c;
         intake = false;
         damaged = true;
