@@ -95,6 +95,10 @@ public class RobotController : MonoBehaviour {
     public bool isReady;//生成可能か（主に生成に条件があるとき）
     public int triggerNo;//破壊時にセットするロボの番号
     public bool is3d;
+    #region Sound
+    [SerializeField]
+    AudioClip genSE, destSE;
+    #endregion
     #endregion
 
     // Use this for initialization
@@ -108,7 +112,7 @@ public class RobotController : MonoBehaviour {
         SetImage();
         paneling = false;
         #region ステータス設定
-        int lv = DataManager.dataInstance.level;
+        int lv = (mikata && DataManager.dataInstance != null) ? DataManager.dataInstance.level : 0;
         mhpCurrent = mhp + lv * 5;
         attackCurrent = attack + lv * 4;
         defenceCurrent = defence + lv * 4;
@@ -155,22 +159,10 @@ public class RobotController : MonoBehaviour {
             Debug.Log(name);
             menCon.eCount++;
         }
-        if (is3d)
-        {
-            int angle = dire * 45;
-            if(1<dire)
-            {
-                angle += 90 * (dire - 1);
-            }
-            foreach(Transform t in transform)
-            {
-                if(t.tag=="3D_Model")
-                {
-                    t.eulerAngles -= new Vector3(0, angle, 0);
-                    break;
-                }
-            }
-        }
+        Turn(dire);
+        genSE = Resources.Load<AudioClip>("Sound/SE/roboGenSE");
+        destSE = Resources.Load<AudioClip>("Sound/SE/roboDestroySE");
+        menCon.GetComponent<AudioSource>().PlayOneShot(genSE);
     }
 
     // Update is called once per frame
@@ -279,7 +271,7 @@ public class RobotController : MonoBehaviour {
                 }
             }
         }
-        bar.transform.localScale = new Vector3(hp / (float)mhp, 1, 1);
+        bar.transform.localScale = new Vector3(hp / (float)mhpCurrent, 1, 1);
     }
 
     void FixedUpdate()
@@ -430,7 +422,7 @@ public class RobotController : MonoBehaviour {
     {
         if(is3d)
         {
-            int angle = dire * 45;
+            /*int angle = dire * 45;
             if (1 < dire)
             {
                 angle += 90 * (dire - 1);
@@ -455,7 +447,19 @@ public class RobotController : MonoBehaviour {
                     t.eulerAngles -= new Vector3(0, angle, 0);
                     break;
                 }
+            }*/
+            float xzRadius = 30;
+            foreach (Transform t in transform)
+            {
+                if (t.tag == "3D_Model")
+                {
+                    float angle = -90 * direction;
+                    t.eulerAngles = new Vector3(-xzRadius * Mathf.Cos(angle / 180.0f * Mathf.PI), angle,
+                        -xzRadius * Mathf.Sin(angle / 180 * Mathf.PI));
+                    break;
+                }
             }
+
         }
         dire = direction;
     }
@@ -578,6 +582,7 @@ public class RobotController : MonoBehaviour {
                 }
             }
         }
+        menCon.GetComponent<AudioSource>().PlayOneShot(destSE);
     }
 
     public bool Damage(int Attack)

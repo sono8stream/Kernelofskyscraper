@@ -145,10 +145,10 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012071756466}
-  m_LocalRotation: {x: -0.013136348, y: 0.1733571, z: -0.024263443, w: 0.9844725}
-  m_LocalPosition: {x: 0, y: -0.7165133, z: 0.3707689}
+  m_LocalRotation: {x: -0.258819, y: 0, z: 0, w: 0.9659259}
+  m_LocalPosition: {x: 0, y: -0.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: -1, y: 20, z: -3}
+  m_LocalEulerAnglesHint: {x: -30, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 4000010618364022}
   m_RootOrder: 0
@@ -178,7 +178,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 59040fc83ddde9f42bf15d35f6cb38f9, type: 2}
+  - {fileID: 2100000, guid: 327aaa9db5c50ab4a86f315b8c15548e, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_ProbeAnchor: {fileID: 0}
@@ -200,7 +200,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012071756466}
-  m_Mesh: {fileID: 4300000, guid: ae0eecc92d187e141985c6587fb9f917, type: 3}
+  m_Mesh: {fileID: 4300000, guid: e2ed86160b42f1b4e9716b5fda0f0ae0, type: 3}
 --- !u!54 &54000011378239632
 Rigidbody:
   m_ObjectHideFlags: 1
@@ -264,14 +264,17 @@ MonoBehaviour:
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   cost: 3
   mhp: 5
+  mhpCurrent: 0
   hp: 5
   attack: 3
+  attackCurrent: 0
   defence: 0
-  paneling: 0
+  defenceCurrent: 0
   speed: 20
   spCount: 0
-  move: 0
+  paneling: 0
   at: 0
+  move: 0
   breaking: 0
   dst: []
   auto: 1
@@ -280,6 +283,8 @@ MonoBehaviour:
   isReady: 0
   triggerNo: -1
   is3d: 1
+  genSE: {fileID: 8300000, guid: 852fc9efc9f2c5a42b6aec0a6df09e4a, type: 3}
+  destSE: {fileID: 8300000, guid: 5d8b67986f8c3c74383f7c0df5002c59, type: 3}
 --- !u!198 &198000014154035750
 ParticleSystem:
   m_ObjectHideFlags: 1

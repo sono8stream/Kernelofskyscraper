@@ -45,6 +45,7 @@ public class KernelController : MonoBehaviour {
         for (int i = 0; i < count; i ++)
         {
             genRobots[i] = robots.GetChild(i).gameObject;
+            genRobots[i].SetActive(false);
         }
     }
 
@@ -57,10 +58,6 @@ public class KernelController : MonoBehaviour {
         bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         sp_s = sp;
         sp_cn = sp;
-        foreach(Transform robots in transform.FindChild("Robots"))
-        {
-            robots.gameObject.SetActive(false);
-        }
     }
 
     // Update is called once per frame

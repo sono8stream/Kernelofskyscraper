@@ -369,7 +369,7 @@ public class MenuController : MonoBehaviour
                 }
             }
             GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
-            ob.transform.position += new Vector3(0, 0, -5);
+            ob.transform.position += new Vector3(0, 0, 1);
         }
     }
 
@@ -477,7 +477,7 @@ public class MenuController : MonoBehaviour
         {
             RobotController robot = target.GetComponent<RobotController>();
             status.transform.FindChild("hp").GetComponent<Text>().text
-                = robot.hp.ToString() + "/" + robot.mhp.ToString();
+                = robot.hp.ToString() + "/" + robot.mhpCurrent.ToString();
             status.transform.FindChild("atk").GetComponent<Text>().text = robot.attackCurrent.ToString();
             status.transform.FindChild("def").GetComponent<Text>().text = robot.defenceCurrent.ToString();
             status.transform.FindChild("spd").GetComponent<Text>().text = robot.speed.ToString();
@@ -541,7 +541,7 @@ public class MenuController : MonoBehaviour
 
     public void ToTitle()//タイトルへ戻る処理
     {
-        StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(0));
+        StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(1));
     }
 
     public void Retry()
@@ -667,23 +667,27 @@ public class MenuController : MonoBehaviour
             = "Panel Count     =  -200×" + panelCount.ToString();
         transform.FindChild("EndMessage").FindChild("TotalScore").GetComponent<Text>().text
             = "Total Score      =   " + score.ToString();
-        //レベルアップ
-        int currentScore 
-            = DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 1]*1000
-            -DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 1] * 200;//現在のスコア
-        if (currentScore < score)
+        #region レベルアップ
+        if (DataManager.dataInstance != null)
         {
-            int currentLevel = DataManager.dataInstance.level;//現在レベル
-            DataManager.dataInstance.level -= Mathf.FloorToInt(currentScore / 1000);
-            DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 1]
-                = comboCountMax;
-            DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 1]
-                = panelCount;
-            DataManager.dataInstance.level += Mathf.FloorToInt(score / 1000);
-            Debug.Log(currentLevel + "and" + DataManager.dataInstance.level);
-            transform.FindChild("EndMessage").FindChild("LevelUp").GetComponent<Text>().text
-                = currentLevel < DataManager.dataInstance.level ? "Level Up !!" : "";
+            int currentScore
+                = DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2] * 1000
+                - DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2] * 200;//現在のスコア
+            if (currentScore < score)
+            {
+                int currentLevel = DataManager.dataInstance.level;//現在レベル
+                DataManager.dataInstance.level -= Mathf.FloorToInt(currentScore / 1000);
+                DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2]
+                    = comboCountMax;
+                DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2]
+                    = panelCount;
+                DataManager.dataInstance.level += Mathf.FloorToInt(score / 1000);
+                Debug.Log(currentLevel + "and" + DataManager.dataInstance.level);
+                transform.FindChild("EndMessage").FindChild("LevelUp").GetComponent<Text>().text
+                    = currentLevel < DataManager.dataInstance.level ? "Level Up !!" : "";
+            }
         }
+        #endregion
         Transform item = transform.FindChild("EndMessage").FindChild("Item");
         int count = 0;
         for (int i = 0; i < items.Length; i++)
@@ -760,6 +764,7 @@ public class MenuController : MonoBehaviour
     public void GetItem(int no)
     {
         gettedItems[no] = true;
+        GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("Sound/SE/itemGetSE"));
         SetGetItem();
     }
 }

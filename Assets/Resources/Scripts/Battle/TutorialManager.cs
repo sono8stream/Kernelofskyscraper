@@ -19,7 +19,7 @@ public class TutorialManager : MonoBehaviour {
         menuCon = menu.GetComponent<MenuController>();
         filter = transform.FindChild("Filter").gameObject;
         phase = 0;
-        if (DataManager.dataInstance.onTutorial)
+        if (DataManager.dataInstance != null && DataManager.dataInstance.onTutorial)
         {
             SelectTutorial();
             filterOn = true;

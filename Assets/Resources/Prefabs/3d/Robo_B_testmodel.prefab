@@ -174,7 +174,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 170796}
   m_LocalRotation: {x: -0.000000115202326, y: 0.7071067, z: -0.7071068, w: -0.00000011520231}
-  m_LocalPosition: {x: -4, y: 0, z: -2}
+  m_LocalPosition: {x: -4, y: -0.2, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0}
   m_Children:
@@ -257,7 +257,7 @@ Animator:
   m_GameObject: {fileID: 170796}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3206f9df3a2734847a6edbd1e7791185, type: 2}
+  m_Controller: {fileID: 9100000, guid: 61217bded8978c4488e032cd316f7cc0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -284,14 +284,17 @@ MonoBehaviour:
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   cost: 3
   mhp: 5
+  mhpCurrent: 0
   hp: 5
   attack: 3
+  attackCurrent: 0
   defence: 0
-  paneling: 0
+  defenceCurrent: 0
   speed: 20
   spCount: 0
-  move: 0
+  paneling: 0
   at: 0
+  move: 0
   breaking: 0
   dst: []
   auto: 1
@@ -300,6 +303,8 @@ MonoBehaviour:
   isReady: 0
   triggerNo: -1
   is3d: 1
+  genSE: {fileID: 8300000, guid: 852fc9efc9f2c5a42b6aec0a6df09e4a, type: 3}
+  destSE: {fileID: 8300000, guid: 5d8b67986f8c3c74383f7c0df5002c59, type: 3}
 --- !u!198 &19897842
 ParticleSystem:
   m_ObjectHideFlags: 1

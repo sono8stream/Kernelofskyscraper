@@ -26,7 +26,7 @@ public class DataManager : MonoBehaviour {
         {
             dataInstance = this;
             DontDestroyOnLoad(gameObject);
-            combos = new int[SceneManager.sceneCountInBuildSettings - 1];
+            combos = new int[SceneManager.sceneCountInBuildSettings - 2];
             panelCounts = new int[combos.Length];
             stageNames = new string[combos.Length];
             stageNames[0] = "異空間-第1階";
@@ -42,7 +42,9 @@ public class DataManager : MonoBehaviour {
             hasTutorial[2] = true;
             level = 1;
             stageList = new List<int>();
-            stageList.Add(1);
+            stageList.Add(2);
+            stageList.Add(3);
+            stageList.Add(4);
         }
         else
         {
