@@ -1,9 +1,19 @@
 fileFormatVersion: 2
 guid: 40fff086680bf0b4498bb5c1e6f2faf0
-timeCreated: 1477744545
+timeCreated: 1477823983
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: UI_title_0
+    21300002: UI_title_1
+    21300004: UI_title_2
+    21300006: UI_title_3
+    21300008: UI_title_4
+    21300010: UI_title_5
+    21300012: UI_title_6
+    21300014: UI_title_7
+    21300016: UI_title_8
+    21300018: UI_title_9
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -30,7 +40,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     filterMode: -1
-    aniso: -1
+    aniso: 16
     mipBias: -1
     wrapMode: 1
   nPOTScale: 0
@@ -38,7 +48,7 @@ TextureImporter:
   rGBM: 0
   compressionQuality: 50
   allowsAlphaSplitting: 0
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -51,7 +61,137 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: UI_title_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 540
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 480
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 420
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 360
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 300
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 240
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 180
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 120
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 60
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: UI_title_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 500
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
     outline: []
   spritePackingTag: 
   userData: 

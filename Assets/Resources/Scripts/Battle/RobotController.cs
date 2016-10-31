@@ -317,6 +317,8 @@ public class RobotController : MonoBehaviour {
             else if (tag == "Item")
             {
                 col.GetComponent<Animator>().SetTrigger("ItemGet");
+                menCon.GetComponent<AudioSource>().PlayOneShot(
+                    Resources.Load<AudioClip>("Sound/SE/itemGetSE"));
             }
         }
         /*if(!onKernel)

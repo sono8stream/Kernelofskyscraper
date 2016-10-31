@@ -165,8 +165,10 @@ public class MenuController : MonoBehaviour
                 bp.Add(bt.GetComponent<Button>());
                 bp[panelCount].transform.SetParent(panelList, true);
                 bp[panelCount].transform.localPosition = new Vector2(0, 300 - 200 * (i % 5));
-                bp[panelCount].transform.localScale = Vector3.one;
-                bp[panelCount].GetComponent<Image>().sprite = panels[i].GetComponent<SpriteRenderer>().sprite;
+                bp[panelCount].transform.localScale
+                    = panels[i].transform.FindChild("Icon").localScale;
+                bp[panelCount].GetComponent<Image>().sprite 
+                    = panels[i].transform.FindChild("Icon").GetComponent<SpriteRenderer>().sprite;
                 bp[panelCount].transform.FindChild("Text").gameObject.SetActive(false);
                 //bp[panelCount].onClick.AddListener(() => SetNumber(i, false, j));
                 trigger = bp[panelCount].GetComponent<EventTrigger>();
@@ -199,7 +201,7 @@ public class MenuController : MonoBehaviour
         if ((kerCon == null || eCount == 0) && !gameStop)
         {
             SetScore();
-            transform.FindChild("EndMessage").gameObject.SetActive(true);
+            transform.FindChild("Result").gameObject.SetActive(true);
             if (kerCon == null)//敗北時
             {
             }
@@ -435,15 +437,13 @@ public class MenuController : MonoBehaviour
         isOnMenu = !isOnMenu;
         transform.FindChild("RobotList").gameObject.SetActive(isOnMenu);
         transform.FindChild("PanelList").gameObject.SetActive(isOnMenu);
-        transform.FindChild("MenuSwitch").FindChild("Text").GetComponent<Text>().text
-            = isOnMenu ? "OFF" : "ON";
     }
 
     public void TimeHandle()
     {
         SetPause(gameStop);
         gameStop = !gameStop;
-        Text t = transform.FindChild("TimeSwitch").FindChild("Text").GetComponent<Text>();
+        /*Text t = transform.FindChild("TimeSwitch").FindChild("Text").GetComponent<Text>();
         if (gameStop)
         {
             t.text = "▼";
@@ -453,6 +453,16 @@ public class MenuController : MonoBehaviour
         {
             t.text = "||";
             t.transform.eulerAngles = Vector3.zero;
+        }*/
+        Image i = transform.FindChild("TimeSwitch").GetComponent<Image>();
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/Battle/timeswitch");
+        if (gameStop)
+        {
+            i.sprite = sprites[0];
+        }
+        else
+        {
+            i.sprite = sprites[1];
         }
         transform.FindChild("RobotList").gameObject.SetActive(!gameStop);
         transform.FindChild("PanelList").gameObject.SetActive(!gameStop);
@@ -661,11 +671,12 @@ public class MenuController : MonoBehaviour
         }
         int panelCount = GameObject.FindGameObjectsWithTag("Panel").Length;
         int score = 1000 * comboCountMax - 200 * panelCount;
-        transform.FindChild("EndMessage").FindChild("ComboCount").GetComponent<Text>().text
+        Transform res = transform.FindChild("Result");
+        res.FindChild("ComboCount").GetComponent<Text>().text
             = "Combo Count   =   1000×" + comboCountMax.ToString();
-        transform.FindChild("EndMessage").FindChild("PanelCount").GetComponent<Text>().text
+        res.FindChild("PanelCount").GetComponent<Text>().text
             = "Panel Count     =  -200×" + panelCount.ToString();
-        transform.FindChild("EndMessage").FindChild("TotalScore").GetComponent<Text>().text
+        res.FindChild("TotalScore").GetComponent<Text>().text
             = "Total Score      =   " + score.ToString();
         #region レベルアップ
         if (DataManager.dataInstance != null)
@@ -683,12 +694,12 @@ public class MenuController : MonoBehaviour
                     = panelCount;
                 DataManager.dataInstance.level += Mathf.FloorToInt(score / 1000);
                 Debug.Log(currentLevel + "and" + DataManager.dataInstance.level);
-                transform.FindChild("EndMessage").FindChild("LevelUp").GetComponent<Text>().text
+                res.FindChild("LevelUp").GetComponent<Text>().text
                     = currentLevel < DataManager.dataInstance.level ? "Level Up !!" : "";
             }
         }
         #endregion
-        Transform item = transform.FindChild("EndMessage").FindChild("Item");
+        Transform item = res.FindChild("Item");
         int count = 0;
         for (int i = 0; i < items.Length; i++)
         {
@@ -715,13 +726,15 @@ public class MenuController : MonoBehaviour
                 }
             }
         }
-        if (count == 0)
+        /*if (count == 0)
         {
             GameObject itButton = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"));//新たなパネル
             itButton.transform.SetParent(item);
             itButton.transform.localPosition = new Vector2(0, 0);
             itButton.transform.localScale = Vector3.one * 0.6f;
-        }
+        }*/
+        res.FindChild("Get").gameObject.SetActive(0<count);
+        res.FindChild("Item").gameObject.SetActive(0<count);
         GetComponent<AudioSource>().clip = result;
         GetComponent<AudioSource>().Play();
     }
@@ -764,7 +777,6 @@ public class MenuController : MonoBehaviour
     public void GetItem(int no)
     {
         gettedItems[no] = true;
-        GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("Sound/SE/itemGetSE"));
         SetGetItem();
     }
 }

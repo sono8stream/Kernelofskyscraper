@@ -30,10 +30,13 @@ public class LoadManager : MonoBehaviour {
 
     public IEnumerator LoadScene(int index)
     {
+        if (sceneIndex == index)
+        {
+            sceneIndex = -1;
+        }
         AsyncOperation async = SceneManager.LoadSceneAsync(index);
         async.allowSceneActivation = false;    // シーン遷移をしない
-        GameObject canvas = transform.FindChild("Canvas").gameObject;
-        canvas.SetActive(true);
+        transform.FindChild("Canvas").gameObject.SetActive(true);
         GetComponent<Animator>().SetTrigger("FadeIn");
 
         while (async.progress < 0.9f)
@@ -41,7 +44,7 @@ public class LoadManager : MonoBehaviour {
             Debug.Log(async.progress);
             yield return new WaitForEndOfFrame();
         }
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.7f);
         async.allowSceneActivation = true;    // シーン遷移許可
         fadeIn = true;
     }
