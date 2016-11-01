@@ -53,7 +53,7 @@ public class MenuController : MonoBehaviour
     #endregion
     #region サウンド
     [SerializeField]
-    AudioClip result;
+    AudioClip result, decisionSE, panelSE;
     #endregion
     public int comboCount;
     public int comboCountMax;
@@ -372,6 +372,7 @@ public class MenuController : MonoBehaviour
             }
             GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
             ob.transform.position += new Vector3(0, 0, 1);
+            GetComponent<AudioSource>().PlayOneShot(panelSE);
         }
     }
 
@@ -552,6 +553,7 @@ public class MenuController : MonoBehaviour
     public void ToTitle()//タイトルへ戻る処理
     {
         StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(1));
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
     public void Retry()
@@ -559,6 +561,7 @@ public class MenuController : MonoBehaviour
         StartCoroutine(
             GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(
                 SceneManager.GetActiveScene().buildIndex));
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
     void LimitScroll(int sizeX, int sizeY, bool bound = true)
@@ -770,6 +773,7 @@ public class MenuController : MonoBehaviour
         if (myRobotCount == 0 && sObject != null && sObject.tag == "Panel")
         {
             sObject.GetComponent<Animator>().SetTrigger("PanelBreak");
+            GetComponent<AudioSource>().PlayOneShot(panelSE);
             SetStatus(null);
         }
     }

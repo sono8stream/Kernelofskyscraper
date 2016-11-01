@@ -9,6 +9,8 @@ public class ButtonController : MonoBehaviour {
     GameObject stageSelect;
     [SerializeField]
     GameObject stgButtons;
+    [SerializeField]
+    AudioClip decisionSE;
     bool stageOn;
 
     // Use this for initialization
@@ -65,28 +67,33 @@ public class ButtonController : MonoBehaviour {
     {
         stageOn = true;
         GetComponent<Animator>().SetTrigger("ChangeSelect");
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
     public void OnBack()
     {
         stageOn = false;
         GetComponent<Animator>().SetTrigger("ReturnTitle");
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
     public void OnEnd()
     {
         transform.FindChild("PopUp").gameObject.SetActive(true);
         GetComponent<Animator>().SetTrigger("OnPopUp");
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
     public void OnPopUpN()
     {
         GetComponent<Animator>().SetTrigger("OffPopUp");
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
     public void DisablePopUp()
     {
         transform.FindChild("PopUp").gameObject.SetActive(false);
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
     public void LoadLevel(int stageNo)
