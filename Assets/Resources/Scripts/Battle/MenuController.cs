@@ -115,30 +115,29 @@ public class MenuController : MonoBehaviour
                 transform.position, transform.rotation);//新たなロボボタン 
             br.Add(bt.GetComponent<Button>());
             br[i].transform.SetParent(robotList, true);
-            br[i].transform.localPosition = new Vector2(-400 + 200 * (i % 5), 0);
+            br[i].transform.localPosition = new Vector2(-400 + 160 * (i % 5), 0);
             br[i].transform.localScale = Vector3.one;
             RobotController r = robots[i].GetComponent<RobotController>();
             int SIZE = 32;
-            Texture2D image = new Texture2D(SIZE, SIZE, TextureFormat.ARGB32, false);
             Color[] c;
+            Sprite iconSprite;
             if (r.is3d)
             {
-                c = r.image_all.texture.GetPixels(
-                SIZE * (1 + (r.im_num % 4) * 3),
-                SIZE * (7 - 4 * (r.im_num / 4) - r.dire),
-                SIZE, SIZE);
+                iconSprite = r.image_all;
             }
             else
             {
+                Texture2D image = new Texture2D(SIZE, SIZE, TextureFormat.ARGB32, false);
                 c = robots[i].GetComponent<SpriteRenderer>().sprite.texture.GetPixels(
                    SIZE * (1 + (r.im_num % 4) * 3),
                    SIZE * (7 - 4 * (r.im_num / 4) - r.dire),
                    SIZE, SIZE);
-            }
-            image.SetPixels(0, 0, SIZE, SIZE, c);
-            image.Apply();
-            br[i].GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0, 0, SIZE, SIZE),
+                image.SetPixels(0, 0, SIZE, SIZE, c);
+                image.Apply();
+                iconSprite = Sprite.Create(image, new Rect(0, 0, SIZE, SIZE),
                 new Vector2(0.5f, 0.5f), SIZE);
+            }
+            br[i].GetComponent<Image>().sprite = iconSprite;
             br[i].transform.FindChild("Text").gameObject.SetActive(false);
             //br[i].onClick.AddListener(() => SetNumber(i, true, 0));
             trigger = br[i].GetComponent<EventTrigger>();
@@ -164,9 +163,12 @@ public class MenuController : MonoBehaviour
                     transform.position, Quaternion.Euler(0, 0, 90 * j));//新たなパネルボタン
                 bp.Add(bt.GetComponent<Button>());
                 bp[panelCount].transform.SetParent(panelList, true);
-                bp[panelCount].transform.localPosition = new Vector2(0, 300 - 200 * (i % 5));
+                bp[panelCount].GetComponent<RectTransform>().anchoredPosition
+                    = new Vector2(0, -100 - 160 * i);
                 bp[panelCount].transform.localScale
                     = panels[i].transform.FindChild("Icon").localScale;
+                bp[panelCount].transform.localEulerAngles
+                    = panels[i].transform.FindChild("Icon").localEulerAngles;
                 bp[panelCount].GetComponent<Image>().sprite 
                     = panels[i].transform.FindChild("Icon").GetComponent<SpriteRenderer>().sprite;
                 bp[panelCount].transform.FindChild("Text").gameObject.SetActive(false);
@@ -176,14 +178,19 @@ public class MenuController : MonoBehaviour
                 entryDown.eventID = EventTriggerType.PointerDown;
                 int genNo = i, dire = j, panelNo = panelCount;
                 entryDown.callback.AddListener((x) => SetNumber(genNo, false, dire, panelNo));
+                entryDown.callback.AddListener((x) => TouchDownScreen());
+                entryDrag= new EventTrigger.Entry();
+                entryDrag.eventID = EventTriggerType.Drag;
+                entryDrag.callback.AddListener((x) => TouchingPanelList());
                 trigger.triggers.Add(entryDown);
+                trigger.triggers.Add(entryDrag);
                 panelCount++;
             }
         }
         #endregion
         setDire.SetActive(false);
         //ChangeTab();
-        OnMenu();
+        //OnMenu();
         LimitScroll(mapSizeX, mapSizeY, false);
         cautionCursors = new List<GameObject>();
         comboCount = 0;
@@ -211,8 +218,8 @@ public class MenuController : MonoBehaviour
             /*if (!gameStop)
             {*/
             TimeHandle();
-            isOnMenu = true;
-            OnMenu();
+            //isOnMenu = true;
+            //OnMenu();
             transform.FindChild("Selecting").gameObject.SetActive(false);
             //}
         }
@@ -230,10 +237,6 @@ public class MenuController : MonoBehaviour
         if (sObject != null)//ステータス表示中、ロボを追従
         {
             RectTransform canvasRect = GetComponent<RectTransform>();
-            /*Vector2 viewportPosition = camera.WorldToViewportPoint(sRobo.transform.position);
-            Vector2 worldObject_ScreenPosition = new Vector2(
-                ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
-                ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));*/
             transform.FindChild("SelectingRobot").GetComponent<RectTransform>().anchoredPosition
                 = SetToScreenPos(sObject.transform.position);
         }
@@ -262,6 +265,7 @@ public class MenuController : MonoBehaviour
     //ロボ・パネルの種類と生成する番号をセット
     public void SetNumber(int generateNo, bool isRobot, int panelDire, int panelCount)
     {
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
         this.generateNo = generateNo;
         this.isRobot = isRobot;
         GameObject selecting = transform.FindChild("Selecting").gameObject;
@@ -290,7 +294,7 @@ public class MenuController : MonoBehaviour
             }
             panelDire = 0;
             selecting.transform.localPosition
-                = new Vector2(-190 + 200 * (panelCount % 5), -430);
+                = new Vector2(-190 + 160 * (panelCount % 5), -430);
             SetStatus(kerCon.genRobots[generateNo]);
         }
         else
@@ -299,8 +303,9 @@ public class MenuController : MonoBehaviour
             s = panels[generateNo].GetComponent<SpriteRenderer>().sprite;
             setPos = Vector2.zero;
             isSetting = true;
-            selecting.transform.localPosition
-                = new Vector2(840, 400 - 200 * (panelCount % 5));
+            /*selecting.transform.localPosition
+                = new Vector2(840, 400 - 160 * (panelCount % 5));*/
+            selecting.transform.position = bp[generateNo].transform.position;
             SetStatus(panels[generateNo]);
         }
         g.transform.eulerAngles = new Vector3(0, 0, 90 * panelDire);
@@ -431,17 +436,18 @@ public class MenuController : MonoBehaviour
         gt.GetComponent<TerritoryController>().enabled = pause;
     }
 
-    public void OnMenu()
+    /*public void OnMenu()
     {
         g.GetComponent<SpriteRenderer>().sprite = null;
         setDire.SetActive(false);
         isOnMenu = !isOnMenu;
         transform.FindChild("RobotList").gameObject.SetActive(isOnMenu);
         transform.FindChild("PanelList").gameObject.SetActive(isOnMenu);
-    }
+    }*/
 
     public void TimeHandle()
     {
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
         SetPause(gameStop);
         gameStop = !gameStop;
         /*Text t = transform.FindChild("TimeSwitch").FindChild("Text").GetComponent<Text>();
@@ -467,6 +473,7 @@ public class MenuController : MonoBehaviour
         }
         transform.FindChild("RobotList").gameObject.SetActive(!gameStop);
         transform.FindChild("PanelList").gameObject.SetActive(!gameStop);
+        transform.FindChild("Selecting").gameObject.SetActive(!gameStop);
         transform.FindChild("Status").gameObject.SetActive(!gameStop);
         transform.FindChild("PauseMenu").gameObject.SetActive(gameStop);
     }
@@ -535,16 +542,78 @@ public class MenuController : MonoBehaviour
         {
 
             Vector3 aTapPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Collider2D[] aCollider2d = Physics2D.OverlapPointAll(aTapPoint);
             sObject = null;
+            Collider2D[] aCollider2d = Physics2D.OverlapPointAll(aTapPoint);
             foreach (Collider2D col in aCollider2d)
             {
                 if (col && (col.tag == "Robot" || col.tag == "Panel"))
                 {
                     sObject = col.gameObject;
                 }
-
             }
+            aTapPoint = new Vector3(aTapPoint.x, aTapPoint.y, 0);
+            Collider[] aCollider = Physics.OverlapSphere(aTapPoint, 0.4f);
+            foreach (Collider col in aCollider)
+            {
+                if (col && col.tag == "Robot")
+                {
+                    sObject = col.gameObject;
+                }
+            }
+            Debug.Log(aTapPoint);
+        }
+        SetStatus(sObject);
+        LimitScroll(mapSizeX, mapSizeY);
+    }
+
+    public void TouchingPanelList()
+    {
+        float spY = (keyDownPos.y - Input.mousePosition.y);
+        //accel = velocity / (-10);
+        //camera.transform.position = (Vector2)camera.transform.position + velocity;
+        Debug.Log(spY);
+            foreach (Transform child in transform.FindChild("PanelList"))
+            {
+            child.GetComponent<RectTransform>().transform.localPosition += Vector3.down * spY;
+        }
+        //transform.FindChild("Selecting").localPosition += Vector3.down * spY;
+        Transform selecting = transform.FindChild("Selecting");
+        LimitScrollP();
+        if (selecting.gameObject.activeSelf)
+        {
+            transform.FindChild("Selecting").position = bp[generateNo].transform.position;
+        }
+        keyDownPos = Input.mousePosition;
+    }
+
+    public void TouchUpPanelList()
+    {
+        float bure = 5;
+        Vector2 touchPos = Input.mousePosition;
+        if (keyDownPos.x - bure < touchPos.x && touchPos.x < keyDownPos.x + bure
+            && keyDownPos.y - bure < touchPos.y && touchPos.y < keyDownPos.y + bure)
+        {
+
+            Vector3 aTapPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            sObject = null;
+            Collider2D[] aCollider2d = Physics2D.OverlapPointAll(aTapPoint);
+            foreach (Collider2D col in aCollider2d)
+            {
+                if (col && (col.tag == "Robot" || col.tag == "Panel"))
+                {
+                    sObject = col.gameObject;
+                }
+            }
+            aTapPoint = new Vector3(aTapPoint.x, aTapPoint.y, 0);
+            Collider[] aCollider = Physics.OverlapSphere(aTapPoint, 0.4f);
+            foreach (Collider col in aCollider)
+            {
+                if (col && col.tag == "Robot")
+                {
+                    sObject = col.gameObject;
+                }
+            }
+            Debug.Log(aTapPoint);
         }
         SetStatus(sObject);
         LimitScroll(mapSizeX, mapSizeY);
@@ -564,6 +633,7 @@ public class MenuController : MonoBehaviour
         GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
+    //カメラのスクロール限界
     void LimitScroll(int sizeX, int sizeY, bool bound = true)
     {
         float correctionX = -0.5f;
@@ -611,6 +681,29 @@ public class MenuController : MonoBehaviour
             accel = velocity / (-10);
         }
         setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down);
+    }
+
+    //パネルリストのスクロール限界
+    void LimitScrollP()
+    {
+        if ((bp.Count < 6 && -100 < bp[0].GetComponent<RectTransform>().anchoredPosition.y)
+            || (6 <= bp.Count && bp[4].GetComponent<RectTransform>().anchoredPosition.y < -740))
+        {
+            for (int i = 0; i < bp.Count; i++)
+            {
+                bp[i].GetComponent<RectTransform>().anchoredPosition
+                    = new Vector2(0, -100 - 160 * i);
+            }
+        }
+        else if ((bp.Count < 6 && bp[bp.Count - 1].GetComponent<RectTransform>().anchoredPosition.y < -740)
+            || (6 <= bp.Count && -25 < bp[bp.Count - 5].GetComponent<RectTransform>().anchoredPosition.y))
+        {
+            for (int i = 0; i < bp.Count; i++)
+            {
+                bp[i].GetComponent<RectTransform>().anchoredPosition
+                    = new Vector2(0, -100 - 160 * (i + 5 - bp.Count));
+            }
+        }
     }
 
     Vector2 SetToScreenPos(Vector2 pos)
@@ -712,7 +805,13 @@ public class MenuController : MonoBehaviour
                 itButton.transform.SetParent(item);
                 itButton.transform.localPosition = new Vector2(-170 * count, 0);
                 itButton.GetComponent<Image>().sprite = items[i].GetComponent<SpriteRenderer>().sprite;
-                itButton.transform.localScale = Vector3.one * 0.6f;
+                bp[panelCount].transform.localEulerAngles
+                    = items[i].transform.FindChild("Icon").localEulerAngles;
+                itButton.transform.localScale
+                    = items[i].transform.FindChild("Icon").localScale;
+                itButton.GetComponent<Image>().sprite
+                    = items[i].transform.FindChild("Icon").GetComponent<SpriteRenderer>().sprite;
+                itButton.transform.localScale *= 0.6f;
                 count++;
                 bool exist = false;
                 foreach (GameObject g in DataManager.dataInstance.panels)

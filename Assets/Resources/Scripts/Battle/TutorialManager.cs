@@ -181,7 +181,7 @@ public class TutorialManager : MonoBehaviour {
                 break;
             case 6:
                 menuCon.WriteMessage(
-                    "今回は2段目の「右折パネル」\nを使ってみよう。\nロボの時と同様に、タップして選択だ。",
+                    "今回は1段目の「右向きパネル」\nを使ってみよう。\nロボの時と同様に、タップして選択だ。",
                     false, Color.green, false, -400,400,1000, 220);
                 SetFilterActive(false);
                 phase++;
@@ -189,7 +189,7 @@ public class TutorialManager : MonoBehaviour {
             case 7:
                 if (menuCon.transform.FindChild("Selecting").gameObject.activeSelf)
                 {
-                    if (!menuCon.IsRobot && menuCon.GenNo == 1)
+                    if (!menuCon.IsRobot && menuCon.GenNo == 0)
                     {
                         SetFilterActive(true);
                         ClickFilter();
@@ -197,7 +197,7 @@ public class TutorialManager : MonoBehaviour {
                     else
                     {
                         menuCon.WriteMessage(
-                            "それじゃない、右メニューの\n2段目のパネルを選んでくれ。",
+                            "それじゃない、右メニューの\n1段目のパネルを選んでくれ。",
                             false, Color.green, true, -400,400,1000, 220);
                     }
                 }
@@ -211,7 +211,7 @@ public class TutorialManager : MonoBehaviour {
                 phase++;
                 break;
             case 9:
-                if (!menuCon.IsRobot && menuCon.GenNo == 1)
+                if (!menuCon.IsRobot && menuCon.GenNo == 0)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {

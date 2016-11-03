@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   number: 0
-  image_all: {fileID: 21300000, guid: 237882d0cc1c5964aa46152e94a92241, type: 3}
+  image_all: {fileID: 21300000, guid: d3b541a366cd3084dad1a0cf300d4748, type: 3}
   im_num: 0
   dire: 0
   attEffectPat: 9

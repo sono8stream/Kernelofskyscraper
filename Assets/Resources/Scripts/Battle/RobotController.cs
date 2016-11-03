@@ -274,7 +274,7 @@ public class RobotController : MonoBehaviour {
         bar.transform.localScale = new Vector3(hp / (float)mhpCurrent, 1, 1);
     }
 
-    void FixedUpdate()
+    /*void FixedUpdate()
     {
         if (typeNo != (int)RobotType.Figurine&&generated)
         {
@@ -288,7 +288,7 @@ public class RobotController : MonoBehaviour {
                 SetImage();
             }
         }
-    }
+    }*/
 
     /// <summary>
     /// 足元のパネル、カーネル、アイテムの情報を取得、処理

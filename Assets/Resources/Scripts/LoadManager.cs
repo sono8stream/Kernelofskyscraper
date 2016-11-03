@@ -7,6 +7,8 @@ public class LoadManager : MonoBehaviour {
 
     bool fadeIn;
     int sceneIndex;
+    [SerializeField]
+    AudioClip decisionSE;
 
     // Use this for initialization
     void Start()
@@ -34,6 +36,7 @@ public class LoadManager : MonoBehaviour {
         {
             sceneIndex = -1;
         }
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
         AsyncOperation async = SceneManager.LoadSceneAsync(index);
         async.allowSceneActivation = false;    // シーン遷移をしない
         transform.FindChild("Canvas").gameObject.SetActive(true);

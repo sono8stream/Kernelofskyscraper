@@ -257,7 +257,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   number: 0
-  image_all: {fileID: 21300000, guid: 40266de7712938a4d97689ac493985e6, type: 3}
+  image_all: {fileID: 21300000, guid: 2a96fdf04b88c5744b0ffd8f61021097, type: 3}
   im_num: 3
   dire: 3
   attEffectPat: 9

@@ -13,6 +13,7 @@ GameObject:
   - 61: {fileID: 6195086}
   - 114: {fileID: 11498292}
   - 114: {fileID: 11415640}
+  - 95: {fileID: 95000010633277566}
   m_Layer: 10
   m_Name: Attack
   m_TagString: Panel
@@ -110,7 +111,7 @@ MonoBehaviour:
   turnable: 0
   targetNo: 0
   s: {fileID: 0}
-  description: 
+  description: "\u81EA\u7206"
 --- !u!114 &11498292
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -258,6 +259,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 462644}
   m_RootOrder: 0
+--- !u!95 &95000010633277566
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 120040}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ccb17ab2f0112a844824bd57ac68ee59, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!212 &212000013150763300
 SpriteRenderer:
   m_ObjectHideFlags: 1

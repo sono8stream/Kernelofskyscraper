@@ -112,7 +112,6 @@ public class ButtonController : MonoBehaviour {
         transform.FindChild("StageSelect").GetComponent<Image>().color = c;
         transform.FindChild("StageSelect").GetComponent<Button>().enabled = !stageOn;
         transform.FindChild("Exit").gameObject.SetActive(!stageOn);
-        transform.FindChild("Image").gameObject.SetActive(!stageOn);
     }
 
     public void EndGame()
