@@ -221,6 +221,7 @@ public class MenuController : MonoBehaviour
             //isOnMenu = true;
             //OnMenu();
             transform.FindChild("Selecting").gameObject.SetActive(false);
+            transform.FindChild("SetDirection1").gameObject.SetActive(false);
             //}
         }
         #endregion
@@ -696,7 +697,7 @@ public class MenuController : MonoBehaviour
             }
         }
         else if ((bp.Count < 6 && bp[bp.Count - 1].GetComponent<RectTransform>().anchoredPosition.y < -740)
-            || (6 <= bp.Count && -25 < bp[bp.Count - 5].GetComponent<RectTransform>().anchoredPosition.y))
+            || (6 <= bp.Count && -100 < bp[bp.Count - 5].GetComponent<RectTransform>().anchoredPosition.y))
         {
             for (int i = 0; i < bp.Count; i++)
             {
@@ -805,7 +806,7 @@ public class MenuController : MonoBehaviour
                 itButton.transform.SetParent(item);
                 itButton.transform.localPosition = new Vector2(-170 * count, 0);
                 itButton.GetComponent<Image>().sprite = items[i].GetComponent<SpriteRenderer>().sprite;
-                bp[panelCount].transform.localEulerAngles
+                itButton.transform.localEulerAngles
                     = items[i].transform.FindChild("Icon").localEulerAngles;
                 itButton.transform.localScale
                     = items[i].transform.FindChild("Icon").localScale;
