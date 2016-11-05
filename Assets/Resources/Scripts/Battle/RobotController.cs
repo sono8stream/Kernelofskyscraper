@@ -111,13 +111,7 @@ public class RobotController : MonoBehaviour {
         image = new Texture2D(SIZE, SIZE, TextureFormat.RGBA32, false);
         SetImage();
         paneling = false;
-        #region ステータス設定
-        int lv = (mikata && DataManager.dataInstance != null) ? DataManager.dataInstance.level : 0;
-        mhpCurrent = mhp + lv * 5;
-        attackCurrent = attack + lv * 4;
-        defenceCurrent = defence + lv * 4;
-        hp = mhpCurrent;
-        #endregion
+        SetStatus();
         ef = transform.FindChild("effect").gameObject;//エフェクトオブジェ取得
         bar = transform.FindChild("HpBar").gameObject;
         generated = false;
@@ -366,6 +360,15 @@ public class RobotController : MonoBehaviour {
         }*/
     }
 
+    public void SetStatus()
+    {
+        int lv = (mikata && DataManager.dataInstance != null) ? DataManager.dataInstance.level : 0;
+        mhpCurrent = mhp + lv * 5;
+        attackCurrent = attack + lv * 4;
+        defenceCurrent = defence + lv * 4;
+        hp = mhpCurrent;
+    }
+
     public void SetImage()
     {
         if (!is3d)
@@ -589,6 +592,10 @@ public class RobotController : MonoBehaviour {
 
     public bool Damage(int Attack)
     {
+        if(Attack-defenceCurrent<0)
+        {
+            return false;
+        }
         hp -= Attack - defenceCurrent;
         if (hp <= 0)
         {

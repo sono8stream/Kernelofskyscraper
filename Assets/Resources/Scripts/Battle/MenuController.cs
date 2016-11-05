@@ -10,6 +10,7 @@ public class MenuController : MonoBehaviour
     #region property
     //public GameObject[] robots;//生成するロボ
     public GameObject[] panels;//生成するパネル
+    GameObject[] settedPanels;
     List<Button> br;
     List<Button> bp;
     int generateNo;
@@ -188,6 +189,7 @@ public class MenuController : MonoBehaviour
             }
         }
         #endregion
+        settedPanels = new GameObject[panels.Length];
         setDire.SetActive(false);
         //ChangeTab();
         //OnMenu();
@@ -376,8 +378,22 @@ public class MenuController : MonoBehaviour
                     return;
                 }
             }
-            GameObject ob = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
-            ob.transform.position += new Vector3(0, 0, 1);
+            Collider[] aCollider = Physics.OverlapSphere(setPos, 0.4f);
+            foreach (Collider c in aCollider)
+            {
+                if (c != null && c.tag == "Robot")//すでにパネルが存在していれば、戻る
+                {
+                    return;
+                }
+            }
+            if (settedPanels[generateNo] != null)
+            {
+                sObject = settedPanels[generateNo];
+                DestroyPanel();
+            }
+            settedPanels[generateNo]
+                = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
+            settedPanels[generateNo].transform.position += new Vector3(0, 0, 1);
             GetComponent<AudioSource>().PlayOneShot(panelSE);
         }
     }
@@ -474,7 +490,7 @@ public class MenuController : MonoBehaviour
         }
         transform.FindChild("RobotList").gameObject.SetActive(!gameStop);
         transform.FindChild("PanelList").gameObject.SetActive(!gameStop);
-        transform.FindChild("Selecting").gameObject.SetActive(!gameStop);
+        transform.FindChild("Selecting").gameObject.SetActive(/*!gameStop*/false);
         transform.FindChild("Status").gameObject.SetActive(!gameStop);
         transform.FindChild("PauseMenu").gameObject.SetActive(gameStop);
     }
@@ -872,6 +888,14 @@ public class MenuController : MonoBehaviour
     {
         if (myRobotCount == 0 && sObject != null && sObject.tag == "Panel")
         {
+            for (int i = 0; i < settedPanels.Length; i++)
+            {
+                if (settedPanels[i] == sObject)
+                {
+                    settedPanels[i] = null;
+                    break;
+                }
+            }
             sObject.GetComponent<Animator>().SetTrigger("PanelBreak");
             GetComponent<AudioSource>().PlayOneShot(panelSE);
             SetStatus(null);

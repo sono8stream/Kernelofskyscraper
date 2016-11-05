@@ -45,6 +45,7 @@ public class KernelController : MonoBehaviour {
         for (int i = 0; i < count; i ++)
         {
             genRobots[i] = robots.GetChild(i).gameObject;
+            genRobots[i].GetComponent<RobotController>().SetStatus();
             genRobots[i].SetActive(false);
         }
     }
