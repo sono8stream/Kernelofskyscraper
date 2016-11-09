@@ -2089,7 +2089,7 @@ GameObject:
   - 33: {fileID: 33000012078699480}
   - 23: {fileID: 23000012638131970}
   m_Layer: 0
-  m_Name: Robo_a00_mod
+  m_Name: mod
   m_TagString: 3D_Model
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

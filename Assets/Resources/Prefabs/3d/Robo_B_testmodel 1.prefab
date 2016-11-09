@@ -57,7 +57,7 @@ GameObject:
   - 33: {fileID: 33000010912516586}
   - 23: {fileID: 23000010251915960}
   m_Layer: 0
-  m_Name: Robo_b00_mod
+  m_Name: mod
   m_TagString: 3D_Model
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -103,7 +103,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010750184436}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2, y: 0, z: 0}
+  m_LocalPosition: {x: 2, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
@@ -145,7 +145,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012071756466}
-  m_LocalRotation: {x: -0.258819, y: 0, z: 0, w: 0.9659259}
+  m_LocalRotation: {x: 0.18301271, y: -0.6830127, z: 0.18301271, w: -0.6830127}
   m_LocalPosition: {x: 0, y: -0.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: -30, y: 0, z: 0}
@@ -256,28 +256,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c71eeb4ac2e7c424ba1d6a8a6e1ecbaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  number: 0
+  number: 2
   image_all: {fileID: 21300000, guid: 2a96fdf04b88c5744b0ffd8f61021097, type: 3}
   im_num: 3
-  dire: 3
+  dire: 0
   attEffectPat: 9
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   cost: 3
   mhp: 5
-  mhpCurrent: 0
+  mhpCurrent: 5
   hp: 5
   attack: 3
-  attackCurrent: 0
+  attackCurrent: 3
   defence: 0
   defenceCurrent: 0
   speed: 20
-  spCount: 0
+  spCount: 15
   paneling: 0
   at: 0
   move: 0
   breaking: 0
   dst: []
-  auto: 1
+  auto: 0
   menCon: {fileID: 0}
   typeNo: 2
   isReady: 0
@@ -335,7 +335,7 @@ ParticleSystem:
   moveWithTransform: 1
   autoRandomSeed: 1
   scalingMode: 1
-  randomSeed: 1374088233
+  randomSeed: 981830335
   InitialModule:
     serializedVersion: 2
     enabled: 1
@@ -2141,6 +2141,6 @@ SpriteRenderer:
   m_SortingLayerID: -1289593217
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 08ad5ea0786ede24a83dd6b5dd4cc174, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0

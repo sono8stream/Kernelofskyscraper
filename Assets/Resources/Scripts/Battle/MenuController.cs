@@ -99,8 +99,15 @@ public class MenuController : MonoBehaviour
         }
         catch { }
         g = GameObject.Find("ObjectExpectation");
-        kerCon
-            = GameObject.FindGameObjectWithTag("Kernel").GetComponent<KernelController>();
+        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Kernel"))
+        {
+            if(g.GetComponent<KernelController>().mikata)
+            {
+                kerCon
+                    = GameObject.FindGameObjectWithTag("Kernel").GetComponent<KernelController>();
+            }
+
+        }
         terCon = GameObject.Find("Territory").GetComponent<TerritoryController>();
         camera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         #region 各コマンド初期化
@@ -368,7 +375,7 @@ public class MenuController : MonoBehaviour
             kerCon.genNo = generateNo;
             kerCon.Generate(genPos, !gameStop, setDire);
         }
-        else
+        else if (myRobotCount == 0)
         {
             Collider2D[] aCollider2d = Physics2D.OverlapPointAll(setPos);
             foreach (Collider2D c in aCollider2d)
@@ -386,14 +393,17 @@ public class MenuController : MonoBehaviour
                     return;
                 }
             }
-            if (settedPanels[generateNo] != null)
+            #region パネル1種1枚
+            /*if (settedPanels[generateNo] != null)
             {
                 sObject = settedPanels[generateNo];
                 DestroyPanel();
-            }
+            }*/
+            #endregion
             settedPanels[generateNo]
                 = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
             settedPanels[generateNo].transform.position += new Vector3(0, 0, 1);
+            settedPanels[generateNo].GetComponent<PanelController>().mikata = true;
             GetComponent<AudioSource>().PlayOneShot(panelSE);
         }
     }
@@ -658,7 +668,7 @@ public class MenuController : MonoBehaviour
         float marginX = 1;
         float marginY = 1;
         float rangeX = Mathf.Floor((sizeX - cameraSizeX) / 2) + marginX;
-        float rangeY = Mathf.Floor((sizeY - cameraSizeY) / 2) + marginY;
+        float rangeY = Mathf.Round((sizeY - cameraSizeY) / 2) + marginY;
         float correctionRight = 4;
         float correctionDown = 2;
         if (camera.transform.position.x < correctionX - rangeX)
@@ -782,7 +792,14 @@ public class MenuController : MonoBehaviour
             comboCountMax = comboCount;
             SetCombo();
         }
-        int panelCount = GameObject.FindGameObjectsWithTag("Panel").Length;
+        int panelCount = 0;
+        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Panel"))
+        {
+            if(g.GetComponent<PanelController>().mikata)
+            {
+                panelCount++;
+            }
+        }
         int score = 1000 * comboCountMax - 200 * panelCount;
         Transform res = transform.FindChild("Result");
         res.FindChild("ComboCount").GetComponent<Text>().text
@@ -886,7 +903,8 @@ public class MenuController : MonoBehaviour
 
     public void DestroyPanel()
     {
-        if (myRobotCount == 0 && sObject != null && sObject.tag == "Panel")
+        if (myRobotCount == 0 && sObject != null && sObject.tag == "Panel"
+            &&sObject.GetComponent<PanelController>().mikata)
         {
             for (int i = 0; i < settedPanels.Length; i++)
             {

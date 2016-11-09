@@ -26,7 +26,7 @@ public class KernelController : MonoBehaviour {
         set { ef = value; }
     }
     GameObject bar;
-    bool breaking = false;
+    public bool breaking = false;
     GameObject ot;//接触した敵のロボット
     bool intake;//ロボット取り込み中か
     #region Automation
@@ -47,6 +47,7 @@ public class KernelController : MonoBehaviour {
             genRobots[i] = robots.GetChild(i).gameObject;
             genRobots[i].GetComponent<RobotController>().SetStatus();
             genRobots[i].SetActive(false);
+            genRobots[i].GetComponent<Animator>().enabled = false;
         }
     }
 
@@ -105,7 +106,7 @@ public class KernelController : MonoBehaviour {
         }
         else if (other.tag == "Area")
         {
-            StartCoroutine(Break(effectCount));
+            Break(0);
             return;
         }
 
@@ -123,9 +124,9 @@ public class KernelController : MonoBehaviour {
         damaged = true;
     }
 
-    public IEnumerator Break(int size)
+    public void Break(int times)
     {
-        for (int i = 0; i < size; i++)
+        /*for (int i = 0; i < size; i++)
         {
             SetEffect(br_effect, i, transform.position);
             yield return new WaitForSeconds(0.05f);
@@ -142,8 +143,15 @@ public class KernelController : MonoBehaviour {
         {
             g.GetComponent<KernelController>().energy = 100;
             g.GetComponent<KernelController>().enabled = false;
+        }*/
+        if (times==1)
+        {
+            Destroy(gameObject);
         }
-        Destroy(gameObject);
+        else
+        {
+            GetComponent<Animator>().SetTrigger("Break");
+        }
     }
 
     public bool Damage(int Offence)
@@ -153,7 +161,11 @@ public class KernelController : MonoBehaviour {
         {
             energy = 0;
             breaking = true;
-            StartCoroutine(Break(effectCount));
+            Break(0);
+        }
+        else
+        {
+            GetComponent<Animator>().SetTrigger("Damaged");
         }
         return breaking;
     }
@@ -176,6 +188,7 @@ public class KernelController : MonoBehaviour {
             ob = Instantiate(genRobots[genNo]);
             ob.transform.position = genPos;
             ob.SetActive(true);
+            ob.GetComponent<Animator>().enabled = true;
             RobotController rc = ob.GetComponent<RobotController>();
             rc.Mikata = mikata;
             rc.auto = false;

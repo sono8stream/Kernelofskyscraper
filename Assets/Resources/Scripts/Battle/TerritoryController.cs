@@ -26,6 +26,16 @@ public class TerritoryController : MonoBehaviour
     public KernelController kerConEnemy;
     List<GameObject> ars;
 
+    /*void Awake()
+    {
+        int[,] mpd = GameObject.Find("MapLayer1").GetComponent<MapLoader>().mapdata;
+        trdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
+        w = trdata.GetLength(0);
+        h = trdata.GetLength(1);
+        rbdata = new int[mpd.GetLength(0), mpd.GetLength(1)];
+        rbDataDebug = new string[mpd.GetLength(1)];
+    }*/
+
     // Use this for initialization
     void Start()
     {
@@ -64,6 +74,9 @@ public class TerritoryController : MonoBehaviour
             }
         }
         ars = new List<GameObject>();
+        MenuController menCon = GameObject.Find("Menu").GetComponent<MenuController>();
+        menCon.mapSizeX = w;
+        menCon.mapSizeY = h;
         rbDataDebug = new string[mpd.GetLength(1)];
     }
 
@@ -104,7 +117,7 @@ public class TerritoryController : MonoBehaviour
         if (ker != null)
         {
             KernelController k = ker.GetComponent<KernelController>();
-            k.StartCoroutine(k.Break(k.effectCount));
+            k.Break(0);
         }
     }
 

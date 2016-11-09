@@ -4,6 +4,7 @@ using System.Collections;
 public class PanelController : MonoBehaviour {
 
     public int direction;
+    public bool mikata;
     public bool turnable;
     public int targetNo;
     bool process = false;
@@ -14,6 +15,9 @@ public class PanelController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
+        int spriteNo = mikata ? 0 : 1;
+        GetComponent<SpriteRenderer>().sprite 
+            = Resources.LoadAll<Sprite>("Sprites/Battle/Panel/panel")[spriteNo];
         ef = transform.FindChild("effect").gameObject;
     }
 	
@@ -40,7 +44,7 @@ public class PanelController : MonoBehaviour {
     public void Turn(RobotController other)
     {
         RobotController rc = other;
-        if (rc.Mikata && !process)
+        if (mikata == rc.Mikata && !process)
         {
             process = true;
             /*direction = rc.dire >= 3 ? 0 : rc.dire + 1;

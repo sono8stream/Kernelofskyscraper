@@ -98,6 +98,7 @@ public class ButtonController : MonoBehaviour {
 
     public void LoadLevel(int stageNo)
     {
+        Debug.Log(stageNo);
         StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(
             DataManager.dataInstance.stageList[stageNo]));
         DataManager.dataInstance.onTutorial = DataManager.dataInstance.hasTutorial[stageNo];
