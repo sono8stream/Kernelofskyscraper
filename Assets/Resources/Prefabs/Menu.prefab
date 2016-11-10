@@ -1220,15 +1220,14 @@ MonoBehaviour:
   mapSizeY: 9
   result: {fileID: 8300000, guid: 48270fafc41ac8b4ca886b7655ef9e48, type: 3}
   decisionSE: {fileID: 8300000, guid: 0664dc3957f3d2c4d8c6fd818f6f5fae, type: 3}
-  panelSE: {fileID: 8300000, guid: 6efb3c9a1e19b2847bfe01dec4707413, type: 3}
+  setPanelSE: {fileID: 8300000, guid: 6efb3c9a1e19b2847bfe01dec4707413, type: 3}
+  delPanelSE: {fileID: 8300000, guid: 150c62b97ee08ea4bb383e105fd7e170, type: 3}
+  destSE: {fileID: 8300000, guid: 5d8b67986f8c3c74383f7c0df5002c59, type: 3}
   comboCount: 0
   comboCountMax: 0
   providedScore: 0
   comboWait: 0
-  items:
-  - {fileID: 183512, guid: f395d83eb2f24d341b3748338fccd775, type: 2}
-  - {fileID: 183512, guid: 8fb6564c88f30c743a3e60fac3c82566, type: 2}
-  - {fileID: 183512, guid: e5cd7069f4ce5d14cab8171878dfe2f9, type: 2}
+  items: []
 --- !u!114 &11446680
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2816,7 +2815,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1000011664646746
 GameObject:
   m_ObjectHideFlags: 1
@@ -3857,7 +3856,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Time Count
+  m_Text: 
 --- !u!114 &114000011361438750
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3997,7 +3996,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Panel Count
+  m_Text: Not Cleared
 --- !u!114 &114000011987095308
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4098,7 +4097,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Total Score
+  m_Text: 
 --- !u!114 &114000012182899346
 MonoBehaviour:
   m_ObjectHideFlags: 1

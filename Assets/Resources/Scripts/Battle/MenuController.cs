@@ -54,7 +54,8 @@ public class MenuController : MonoBehaviour
     #endregion
     #region サウンド
     [SerializeField]
-    AudioClip result, decisionSE, panelSE;
+    AudioClip result, decisionSE, setPanelSE, delPanelSE;
+    public AudioClip destSE;
     #endregion
     public int comboCount;
     public int comboCountMax;
@@ -99,12 +100,13 @@ public class MenuController : MonoBehaviour
         }
         catch { }
         g = GameObject.Find("ObjectExpectation");
-        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Kernel"))
+        foreach(GameObject k in GameObject.FindGameObjectsWithTag("Kernel"))
         {
-            if(g.GetComponent<KernelController>().mikata)
+            if(k.GetComponent<KernelController>().mikata)
             {
                 kerCon
-                    = GameObject.FindGameObjectWithTag("Kernel").GetComponent<KernelController>();
+                    = k.GetComponent<KernelController>();
+                break;
             }
 
         }
@@ -218,13 +220,14 @@ public class MenuController : MonoBehaviour
         {
             SetScore();
             transform.FindChild("Result").gameObject.SetActive(true);
-            if (kerCon == null)//敗北時
+            /*if (kerCon == null)//敗北時
             {
+
             }
             else//勝利時
             {
             }
-            /*if (!gameStop)
+            if (!gameStop)
             {*/
             TimeHandle();
             //isOnMenu = true;
@@ -404,7 +407,7 @@ public class MenuController : MonoBehaviour
                 = (GameObject)Instantiate(panels[generateNo], setPos, transform.rotation);
             settedPanels[generateNo].transform.position += new Vector3(0, 0, 1);
             settedPanels[generateNo].GetComponent<PanelController>().mikata = true;
-            GetComponent<AudioSource>().PlayOneShot(panelSE);
+            GetComponent<AudioSource>().PlayOneShot(setPanelSE);
         }
     }
 
@@ -787,90 +790,99 @@ public class MenuController : MonoBehaviour
 
     void SetScore()
     {
-        if(comboCountMax<comboCount)
+        if (eCount == 0)
         {
-            comboCountMax = comboCount;
-            SetCombo();
-        }
-        int panelCount = 0;
-        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Panel"))
-        {
-            if(g.GetComponent<PanelController>().mikata)
+            if (comboCountMax < comboCount)
             {
-                panelCount++;
+                comboCountMax = comboCount;
+                SetCombo();
             }
-        }
-        int score = 1000 * comboCountMax - 200 * panelCount;
-        Transform res = transform.FindChild("Result");
-        res.FindChild("ComboCount").GetComponent<Text>().text
-            = "Combo Count   =   1000×" + comboCountMax.ToString();
-        res.FindChild("PanelCount").GetComponent<Text>().text
-            = "Panel Count     =  -200×" + panelCount.ToString();
-        res.FindChild("TotalScore").GetComponent<Text>().text
-            = "Total Score      =   " + score.ToString();
-        #region レベルアップ
-        if (DataManager.dataInstance != null)
-        {
-            int currentScore
-                = DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2] * 1000
-                - DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2] * 200;//現在のスコア
-            if (currentScore < score)
+            int panelCount = 0;
+            foreach (GameObject g in GameObject.FindGameObjectsWithTag("Panel"))
             {
-                int currentLevel = DataManager.dataInstance.level;//現在レベル
-                DataManager.dataInstance.level -= Mathf.FloorToInt(currentScore / 1000);
-                DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2]
-                    = comboCountMax;
-                DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2]
-                    = panelCount;
-                DataManager.dataInstance.level += Mathf.FloorToInt(score / 1000);
-                Debug.Log(currentLevel + "and" + DataManager.dataInstance.level);
-                res.FindChild("LevelUp").GetComponent<Text>().text
-                    = currentLevel < DataManager.dataInstance.level ? "Level Up !!" : "";
+                if (g.GetComponent<PanelController>().mikata)
+                {
+                    panelCount++;
+                }
             }
-        }
-        #endregion
-        Transform item = res.FindChild("Item");
-        int count = 0;
-        for (int i = 0; i < items.Length; i++)
-        {
-            if (gettedItems[i])
+            int score = 1000 * comboCountMax - 200 * panelCount;
+            Transform res = transform.FindChild("Result");
+            res.FindChild("ComboCount").GetComponent<Text>().text
+                = "Combo Count   =   1000×" + comboCountMax.ToString();
+            res.FindChild("PanelCount").GetComponent<Text>().text
+                = "Panel Count     =  -200×" + panelCount.ToString();
+            res.FindChild("TotalScore").GetComponent<Text>().text
+                = "Total Score      =   " + score.ToString();
+            #region レベルアップ
+            if (DataManager.dataInstance != null)
+            {
+                int currentScore
+                    = DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2] * 1000
+                    - DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2] * 200;//現在のスコア
+                if (currentScore < score)
+                {
+                    int currentLevel = DataManager.dataInstance.level;//現在レベル
+                    DataManager.dataInstance.level -= Mathf.FloorToInt(currentScore / 1000);
+                    DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2]
+                        = comboCountMax;
+                    DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2]
+                        = panelCount;
+                    DataManager.dataInstance.level += Mathf.FloorToInt(score / 1000);
+                    Debug.Log(currentLevel + "and" + DataManager.dataInstance.level);
+                    res.FindChild("LevelUp").GetComponent<Text>().text
+                        = currentLevel < DataManager.dataInstance.level ? "Level Up !!" : "";
+                }
+            }
+            #endregion
+            Transform item = res.FindChild("Item");
+            int count = 0;
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (gettedItems[i])
+                {
+                    GameObject itButton = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"));//新たなパネル
+                    itButton.transform.SetParent(item);
+                    itButton.transform.localPosition = new Vector2(-170 * count, 0);
+                    itButton.GetComponent<Image>().sprite = items[i].GetComponent<SpriteRenderer>().sprite;
+                    itButton.transform.localEulerAngles
+                        = items[i].transform.FindChild("Icon").localEulerAngles;
+                    itButton.transform.localScale
+                        = items[i].transform.FindChild("Icon").localScale;
+                    itButton.GetComponent<Image>().sprite
+                        = items[i].transform.FindChild("Icon").GetComponent<SpriteRenderer>().sprite;
+                    itButton.transform.localScale *= 0.6f;
+                    count++;
+                    bool exist = false;
+                    foreach (GameObject g in DataManager.dataInstance.panels)
+                    {
+                        if (g == items[i])
+                        {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist)
+                    {
+                        DataManager.dataInstance.panels.Add(items[i]);
+                    }
+                }
+            }
+            /*if (count == 0)
             {
                 GameObject itButton = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"));//新たなパネル
                 itButton.transform.SetParent(item);
-                itButton.transform.localPosition = new Vector2(-170 * count, 0);
-                itButton.GetComponent<Image>().sprite = items[i].GetComponent<SpriteRenderer>().sprite;
-                itButton.transform.localEulerAngles
-                    = items[i].transform.FindChild("Icon").localEulerAngles;
-                itButton.transform.localScale
-                    = items[i].transform.FindChild("Icon").localScale;
-                itButton.GetComponent<Image>().sprite
-                    = items[i].transform.FindChild("Icon").GetComponent<SpriteRenderer>().sprite;
-                itButton.transform.localScale *= 0.6f;
-                count++;
-                bool exist = false;
-                foreach (GameObject g in DataManager.dataInstance.panels)
-                {
-                    if (g == items[i])
-                    {
-                        exist = true;
-                        break;
-                    }
-                }
-                if (!exist)
-                {
-                    DataManager.dataInstance.panels.Add(items[i]);
-                }
-            }
+                itButton.transform.localPosition = new Vector2(0, 0);
+                itButton.transform.localScale = Vector3.one * 0.6f;
+            }*/
+            res.FindChild("Get").gameObject.SetActive(0 < count);
+            res.FindChild("Item").gameObject.SetActive(0 < count);
         }
-        /*if (count == 0)
+        else
         {
-            GameObject itButton = (GameObject)Instantiate(Resources.Load("Prefabs/PanButton"));//新たなパネル
-            itButton.transform.SetParent(item);
-            itButton.transform.localPosition = new Vector2(0, 0);
-            itButton.transform.localScale = Vector3.one * 0.6f;
-        }*/
-        res.FindChild("Get").gameObject.SetActive(0<count);
-        res.FindChild("Item").gameObject.SetActive(0<count);
+            Transform res = transform.FindChild("Result");
+            res.FindChild("WinMessage").GetComponent<Text>().text = "Cancelled Explore";
+            res.FindChild("Message").GetComponent<Text>().text = "You failed...";
+        }
         GetComponent<AudioSource>().clip = result;
         GetComponent<AudioSource>().Play();
     }
@@ -915,7 +927,7 @@ public class MenuController : MonoBehaviour
                 }
             }
             sObject.GetComponent<Animator>().SetTrigger("PanelBreak");
-            GetComponent<AudioSource>().PlayOneShot(panelSE);
+            GetComponent<AudioSource>().PlayOneShot(delPanelSE);
             SetStatus(null);
         }
     }

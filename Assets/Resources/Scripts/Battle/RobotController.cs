@@ -21,6 +21,7 @@ public class RobotController : MonoBehaviour {
         get { return mikata; }
         set { mikata = value; }
     }
+    public bool noCombo;
     int ani_count;//歩行パターン切り替えウェイト
     const int SIZE = 32;//画像サイズ
     int aniSpan;//アニメーションの遷移間隔
@@ -48,7 +49,7 @@ public class RobotController : MonoBehaviour {
     GameObject ln;//通過ライン
     GameObject pt;//通過ポイント
     #region 行動用(移動、攻撃)
-    bool generated;//生成完了かどうか
+    public bool generated;//生成完了かどうか
     public bool paneling;//パネル上の処理を実行中か
     public bool at;//攻撃中かどうか
     public bool CheckAttack
@@ -97,7 +98,7 @@ public class RobotController : MonoBehaviour {
     public bool is3d;
     #region Sound
     [SerializeField]
-    AudioClip genSE, destSE;
+    AudioClip genSE, stepPanelSE, attackSE;
     #endregion
     #endregion
 
@@ -148,14 +149,15 @@ public class RobotController : MonoBehaviour {
             Debug.Log(name + "Twice!?");
             menCon.myRobotCount++;
         }
-        else
+        else if(!noCombo)
         {
             Debug.Log(name);
             menCon.eCount++;
         }
         Turn(dire);
         genSE = Resources.Load<AudioClip>("Sound/SE/roboGenSE");
-        destSE = Resources.Load<AudioClip>("Sound/SE/roboDestroySE");
+        stepPanelSE = Resources.Load<AudioClip>("Sound/SE/stepPanelSE");
+        attackSE = Resources.Load<AudioClip>("Sound/SE/katana-slash2");
         menCon.GetComponent<AudioSource>().PlayOneShot(genSE);
     }
 
@@ -167,7 +169,7 @@ public class RobotController : MonoBehaviour {
             if ((typeNo == (int)RobotType.Human || typeNo == (int)RobotType.Bomb)
                 && !breaking)//人間タイプ、ボムタイプなら移動
             {
-                if (0 < menCon.myRobotCount)
+                if (0 <= menCon.myRobotCount/*||!noCombo*/)
                 {
                     #region 実際の移動処理
                     if (move)//実際の移動処理
@@ -214,7 +216,7 @@ public class RobotController : MonoBehaviour {
                             Collider target = null;
                             foreach(Collider c in targets)
                             {
-                                if (c.tag=="Kernel"&&c.GetComponent<KernelController>().mikata!=mikata)
+                                if (c.tag == "Kernel" && c.GetComponent<KernelController>().mikata != mikata)
                                 {
                                     target = c;
                                     break;
@@ -291,10 +293,9 @@ public class RobotController : MonoBehaviour {
         foreach(Collider2D col in cs)
         {
             string tag = col.gameObject.tag;
-            Debug.Log("tyokuzenn"+name);
             if (tag == "Panel" && (col.GetComponent<PanelController>().mikata == mikata))
             {
-                Debug.Log("zikkou" + name);
+                menCon.GetComponent<AudioSource>().PlayOneShot(stepPanelSE);
                 col.GetComponent<PanelController>().Run(this);//パネル効果実行
             }
             else if (tag == "Kernel")
@@ -520,13 +521,17 @@ public class RobotController : MonoBehaviour {
             if (rc.breaking || rc.Mikata == mikata)
             {
                 ef.GetComponent<SpriteRenderer>().sprite = null;
+                if (rc.Mikata == mikata && rc.dire != dire)
+                {
+                    Break();
+                }
                 return;
             }
         }
-        else if(tarCon.tag=="Kernel")
+        else if (tarCon.tag == "Kernel")
         {
             KernelController kc = tarCon.GetComponent<KernelController>();
-            if(kc.breaking||kc.mikata==mikata)
+            if (kc.breaking || kc.mikata == mikata)
             {
                 ef.GetComponent<SpriteRenderer>().sprite = null;
                 return;
@@ -542,6 +547,7 @@ public class RobotController : MonoBehaviour {
         }
         else
         {
+            menCon.GetComponent<AudioSource>().PlayOneShot(attackSE);
             GetComponent<Animator>().SetTrigger("Attack");
         }
     }
@@ -575,7 +581,7 @@ public class RobotController : MonoBehaviour {
             }
             menCon.comboCount = 0;
         }
-        else
+        else if(!noCombo)
         {
             menCon.comboCount++;
         }
@@ -587,16 +593,11 @@ public class RobotController : MonoBehaviour {
         {
             GetComponent<BoxCollider2D>().isTrigger = true;
         }
-        GetComponent<Animator>().SetTrigger("Break");
         if (typeNo == (int)RobotType.Bomb)
         {
-            ef.transform.localScale = Vector3.one * 3;
-        }
-        if (typeNo == (int)RobotType.Bomb)
-        {
-            Collider2D[] targets = Physics2D.OverlapAreaAll(transform.position - Vector3.one,
-                transform.position + Vector3.one);
-            foreach (Collider2D c in targets)
+            ef.transform.localScale = Vector3.one * 5;
+            Collider[] targets = Physics.OverlapSphere(transform.position, 2f);
+            foreach (Collider c in targets)
             {
                 if (c.tag == "Robot")
                 {
@@ -606,9 +607,18 @@ public class RobotController : MonoBehaviour {
                         rCon.Damage(attackCurrent);
                     }
                 }
+                else if(c.tag=="Kernel")
+                {
+                    KernelController kCon = c.GetComponent<KernelController>();
+                    if (kCon.mikata != mikata && !kCon.breaking)
+                    {
+                        kCon.Damage(attackCurrent);
+                    }
+                }
             }
         }
-        menCon.GetComponent<AudioSource>().PlayOneShot(destSE);
+        GetComponent<Animator>().SetTrigger("Break");
+        menCon.GetComponent<AudioSource>().PlayOneShot(menCon.destSE);
     }
 
     public bool Damage(int Attack)
@@ -883,7 +893,7 @@ public class RobotController : MonoBehaviour {
         {
             menCon.myRobotCount--;
         }
-        else
+        else if(!noCombo)
         {
             menCon.eCount--;
         }

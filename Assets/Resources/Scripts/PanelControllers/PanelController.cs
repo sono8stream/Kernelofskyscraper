@@ -31,27 +31,53 @@ public class PanelController : MonoBehaviour {
     /// </summary>
     public void Run(RobotController other)
     {
-        switch (targetNo)
+        if (mikata == other.Mikata && !process)
         {
-            case 0://移動
-                Turn(other);
-                break;
-            case 1:
-                break;
+            switch (targetNo)
+            {
+                case 0://移動
+                    Turn(other);
+                    break;
+                case 1:
+                    Destruct(other);
+                    break;
+                case 2:
+                    Stop(other);
+                    break;
+                case 3:
+                    Recover(other);
+                    break;
+            }
+            process = true;
+            GetComponent<Animator>().SetTrigger("PanelEffect");
         }
     }
 
     public void Turn(RobotController other)
     {
-        RobotController rc = other;
-        if (mikata == rc.Mikata && !process)
-        {
-            process = true;
             /*direction = rc.dire >= 3 ? 0 : rc.dire + 1;
             rc.Turn(direction);
             rc.Zoning();*/
             GetComponent<Turn>().RunPanel(other.gameObject);
-            GetComponent<Animator>().SetTrigger("PanelEffect");
+    }
+
+    public void Stop(RobotController other)
+    {
+        other.typeNo = (int)RobotType.Figurine;
+    }
+
+    public void Destruct(RobotController other)
+    {
+        other.typeNo = (int)RobotType.Bomb;
+        other.Break();
+    }
+
+    public void Recover(RobotController other)
+    {
+        other.hp += 10;
+        if(other.mhpCurrent< other.hp)
+        {
+            other.hp = other.mhpCurrent;
         }
     }
 

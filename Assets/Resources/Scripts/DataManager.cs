@@ -48,6 +48,8 @@ public class DataManager : MonoBehaviour {
             stageList.Add(5);
             stageList.Add(6);
             stageList.Add(7);
+            stageList.Add(8);
+            stageList.Add(9);
         }
         else
         {

@@ -270,7 +270,7 @@ MonoBehaviour:
   attackCurrent: 3
   defence: 0
   defenceCurrent: 0
-  speed: 20
+  speed: 30
   spCount: 15
   paneling: 0
   at: 0
@@ -285,6 +285,7 @@ MonoBehaviour:
   is3d: 1
   genSE: {fileID: 8300000, guid: 852fc9efc9f2c5a42b6aec0a6df09e4a, type: 3}
   destSE: {fileID: 8300000, guid: 5d8b67986f8c3c74383f7c0df5002c59, type: 3}
+  stepPanelSE: {fileID: 0}
 --- !u!198 &198000014154035750
 ParticleSystem:
   m_ObjectHideFlags: 1

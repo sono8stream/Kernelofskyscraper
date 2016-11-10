@@ -310,7 +310,7 @@ Prefab:
     - target: {fileID: 11443834, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
       propertyPath: items.Array.data[0]
       value: 
-      objectReference: {fileID: 120040, guid: 0db40b33bb9c6434aad155f424fdd5be, type: 2}
+      objectReference: {fileID: 120040, guid: 6dfa0afadff27a3478e88ac1a4dfcd93, type: 2}
     - target: {fileID: 11443834, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
       propertyPath: items.Array.data[1]
       value: 
@@ -1001,6 +1001,7 @@ MonoBehaviour:
   auto: 1
   genRobots: []
   genNo: 0
+  genDire: 0
   damaged: 0
 --- !u!1 &1103163081
 GameObject:

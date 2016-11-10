@@ -110,9 +110,9 @@ MonoBehaviour:
   direction: 0
   mikata: 0
   turnable: 0
-  targetNo: 0
+  targetNo: 1
   s: {fileID: 0}
-  description: "\u81EA\u7206"
+  description: "\u81EA\u7206\u653B\u6483(\u5468\u56F22\u30DE\u30B9) "
 --- !u!114 &11498292
 MonoBehaviour:
   m_ObjectHideFlags: 1

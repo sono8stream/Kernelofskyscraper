@@ -33,8 +33,10 @@ public class KernelController : MonoBehaviour {
     public bool auto;//ロボを生成できるか
     public GameObject[] genRobots;//通常生成させるロボ
     public int genNo;
+    public int genDire;
     public bool damaged;
     #endregion
+    MenuController menCon;
     #endregion
 
     void Awake()
@@ -60,26 +62,34 @@ public class KernelController : MonoBehaviour {
         bar.GetComponent<SpriteRenderer>().color = mikata ? Color.blue : Color.red;
         sp_s = sp;
         sp_cn = sp;
+        menCon = GameObject.Find("Menu").GetComponent<MenuController>();
+        if(!mikata)
+        {
+            menCon.eCount++;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (sp_cn <= 0)
+        if (0 < menCon.myRobotCount)
         {
-            sp_cn = sp_s;
-            energy++;
-            if (energy > enmax)
+            if (sp_cn <= 0)
             {
-                energy = enmax;
+                sp_cn = sp_s;
+                energy++;
+                if (energy > enmax)
+                {
+                    energy = enmax;
+                }
+                if (auto)
+                {
+                    AI();
+                }
             }
-            if (auto)
-            {
-                AI();
-            }
+            sp_cn--;
+            bar.transform.localScale = new Vector3(energy / (float)enmax * 2, 2, 2);
         }
-        sp_cn--;
-        bar.transform.localScale = new Vector3(energy / (float)enmax*2, 2, 2);
     }
 
     Texture2D SetEffect(Sprite s, int num, Vector2 targetpos)
@@ -144,13 +154,20 @@ public class KernelController : MonoBehaviour {
             g.GetComponent<KernelController>().energy = 100;
             g.GetComponent<KernelController>().enabled = false;
         }*/
-        if (times==1)
+        if (times == 1)
         {
+            if (!mikata)
+            {
+                menCon.comboCount++;
+            }
+            menCon.SetCombo();
+            menCon.eCount--;
             Destroy(gameObject);
         }
         else
         {
             GetComponent<Animator>().SetTrigger("Break");
+            menCon.GetComponent<AudioSource>().PlayOneShot(menCon.destSE);
         }
     }
 
@@ -194,6 +211,7 @@ public class KernelController : MonoBehaviour {
             rc.auto = false;
             rc.number = t.SetRobotNumber();
             rc.dire = direction != -1 ? direction : rc.dire;
+            rc.noCombo = true;
             t.rbdata[t.rbdata.GetLength(0) / 2 + (int)rc.transform.position.x,
                 t.rbdata.GetLength(1) / 2 + (int)rc.transform.position.y] = rc.number;
             if (t_pos.GetLength(0) > 0)
@@ -204,7 +222,7 @@ public class KernelController : MonoBehaviour {
             energy -= c;
             //rc.Start();
             rc.enabled = enable;
-            if(auto)
+            /*if(auto)
             {
                 do
                 {
@@ -215,7 +233,7 @@ public class KernelController : MonoBehaviour {
                     }
                 }
                 while (!genRobots[genNo].GetComponent<RobotController>().isReady);
-            }
+            }*/
         }
         return ob;
     }
@@ -223,10 +241,10 @@ public class KernelController : MonoBehaviour {
     public void AI()
     {
         if (/*damaged && */energy > enmax / 2 && genRobots.Length > 0 && genRobots[genNo] != null
-            && genRobots[genNo].GetComponent<RobotController>().isReady)
+            /*&& genRobots[genNo].GetComponent<RobotController>().isReady*/)
         {
-            Generate(transform.position, true, -1);
             Debug.Log(genNo);
+            Generate(transform.position + Vector3.back * 3, true, genDire);
         }
     }
 }
