@@ -29,6 +29,7 @@ public class MenuController : MonoBehaviour
     bool isSetting;//ロボ、パネルをセットする状態か
     int panelDire = 0;//パネルの向き、基本値は0
     public int eCount = 0;//敵の数　0になったらゲームクリア
+    public int eCountMax = 0;
     public int myRobotCount = 0;//味方ロボットの生成数
     GameObject g;//オブジェの配置予想
     public GameObject setDire;//方向オブジェ
@@ -237,7 +238,7 @@ public class MenuController : MonoBehaviour
             //}
         }
         #endregion
-        #region 中断処理
+        /*#region 中断処理
         if (Application.platform == RuntimePlatform.Android)
         {
             if (Input.GetKey(KeyCode.Home) || Input.GetKey(KeyCode.Escape))
@@ -246,7 +247,7 @@ public class MenuController : MonoBehaviour
                 return;
             }
         }
-        #endregion
+        #endregion*/
         if (sObject != null)//ステータス表示中、ロボを追従
         {
             RectTransform canvasRect = GetComponent<RectTransform>();
@@ -816,22 +817,53 @@ public class MenuController : MonoBehaviour
             #region レベルアップ
             if (DataManager.dataInstance != null)
             {
-                int currentScore
+                /*int currentScore
                     = DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2] * 1000
-                    - DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2] * 200;//現在のスコア
-                if (currentScore < score)
+                    - DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2] * 200;*///現在のスコア
+                //ランク計算
+                int sceneNo = SceneManager.GetActiveScene().buildIndex - 2;
+                int currentRank = DataManager.dataInstance.rank[sceneNo];
+                int rank = Mathf.FloorToInt(score / (eCountMax * 200));
+                if (/*currentScore < score*/currentRank < rank)
                 {
-                    int currentLevel = DataManager.dataInstance.level;//現在レベル
-                    DataManager.dataInstance.level -= Mathf.FloorToInt(currentScore / 1000);
-                    DataManager.dataInstance.combos[SceneManager.GetActiveScene().buildIndex - 2]
+                    if(currentRank==-1)
+                    {
+                        DataManager.dataInstance.stageCount++;
+                    }
+                    //int currentLevel = DataManager.dataInstance.level;//現在レベル
+                    DataManager.dataInstance.rank[sceneNo] = rank;
+                    DataManager.dataInstance.level += rank-currentRank;
+                    DataManager.dataInstance.combos[sceneNo]
                         = comboCountMax;
-                    DataManager.dataInstance.panelCounts[SceneManager.GetActiveScene().buildIndex - 2]
-                        = panelCount;
-                    DataManager.dataInstance.level += Mathf.FloorToInt(score / 1000);
-                    Debug.Log(currentLevel + "and" + DataManager.dataInstance.level);
+                    DataManager.dataInstance.panelCounts[sceneNo] = panelCount;
+                    Debug.Log(rank + "and" + DataManager.dataInstance.level);
                     res.FindChild("LevelUp").GetComponent<Text>().text
-                        = currentLevel < DataManager.dataInstance.level ? "Level Up !!" : "";
+                    = "Level Up !!" /*+ (rank - currentRank).ToString()*/;
                 }
+                string rankText = "";
+                switch (rank)
+                {
+                    case 0:
+                        rankText = "E";
+                        break;
+                    case 1:
+                        rankText = "D";
+                        break;
+                    case 2:
+                        rankText = "C";
+                        break;
+                    case 3:
+                        rankText = "B";
+                        break;
+                    case 4:
+                        rankText = "A";
+                        break;
+                    case 5:
+                        rankText = "S";
+                        break;
+
+                }
+                res.FindChild("Rank").GetComponent<Text>().text ="Grade "+rankText;
             }
             #endregion
             Transform item = res.FindChild("Item");
@@ -938,3 +970,5 @@ public class MenuController : MonoBehaviour
         SetGetItem();
     }
 }
+
+public enum Rank { E = 0, D, C, B, A, S }

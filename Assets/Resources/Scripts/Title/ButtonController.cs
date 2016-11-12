@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using System;
 
 public class ButtonController : MonoBehaviour {
 
@@ -12,6 +13,7 @@ public class ButtonController : MonoBehaviour {
     [SerializeField]
     AudioClip decisionSE;
     bool stageOn;
+    int selectedStage = 0;
 
     // Use this for initialization
     void Start()
@@ -20,14 +22,18 @@ public class ButtonController : MonoBehaviour {
         foreach(Transform stgButton in stgButtons.transform)
         {
             int c = counter;
-            stgButton.GetComponent<Button>().onClick.AddListener(() => LoadLevel(c));
-            counter++;
+            stgButton.GetComponent<Button>().onClick.AddListener(() => SetStageNo(c));
             string nm = stgButton.name;
             /*stgButton.FindChild("BldgNo").GetComponent<Image>().sprite
                 = Resources.LoadAll<Sprite>("Sprites/Title/numberTEST_s")[(nm[0] - '0' + 9) % 10];
             stgButton.FindChild("AreaNo").GetComponent<Image>().sprite
                 = Resources.LoadAll<Sprite>("Sprites/Title/numberTEST_s")[(nm[2] - '0' + 9) % 10];*/
             SetImage(nm, stgButton.FindChild("Image").gameObject);
+            counter++;
+            if (DataManager.dataInstance.stageCount < counter)
+            {
+                break;
+            }
         }
     }
 
@@ -67,6 +73,7 @@ public class ButtonController : MonoBehaviour {
     {
         stageOn = true;
         GetComponent<Animator>().SetTrigger("ChangeSelect");
+        //stgButtons.transform./*GetChild(selectedStage)*/FindChild("0-1").GetComponent<Button>().Select();
         GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
@@ -75,6 +82,7 @@ public class ButtonController : MonoBehaviour {
         stageOn = false;
         GetComponent<Animator>().SetTrigger("ReturnTitle");
         GetComponent<AudioSource>().PlayOneShot(decisionSE);
+        transform.FindChild("Info").gameObject.SetActive(false);
     }
 
     public void OnEnd()
@@ -96,13 +104,22 @@ public class ButtonController : MonoBehaviour {
         GetComponent<AudioSource>().PlayOneShot(decisionSE);
     }
 
-    public void LoadLevel(int stageNo)
+    public void SetStageNo(int stageNo)
     {
-        Debug.Log(stageNo);
+        selectedStage = stageNo;
+        transform.FindChild("Info").gameObject.SetActive(true);
+        SetDescription();
+        GetComponent<AudioSource>().PlayOneShot(decisionSE);
+    }
+
+    public void LoadLevel()
+    {
+        Debug.Log(selectedStage);
+        Toggle tutoToggle = transform.FindChild("Info").FindChild("onTutorial").GetComponent<Toggle>();
         StartCoroutine(GameObject.Find("Loading").GetComponent<LoadManager>().LoadScene(
-            DataManager.dataInstance.stageList[stageNo]));
-        DataManager.dataInstance.onTutorial = DataManager.dataInstance.hasTutorial[stageNo];
-        //    && tutoToggle.isOn;
+            DataManager.dataInstance.stageList[selectedStage]));
+        DataManager.dataInstance.onTutorial = DataManager.dataInstance.hasTutorial[selectedStage]
+        && tutoToggle.isOn;
     }
 
     public void SelectStage()
@@ -115,8 +132,44 @@ public class ButtonController : MonoBehaviour {
         transform.FindChild("Exit").gameObject.SetActive(!stageOn);
     }
 
+    public void SetDescription()
+    {
+        Debug.Log(selectedStage);
+        
+        Transform info = transform.FindChild("Info");
+        info.gameObject.SetActive(true);
+        info.FindChild("Level").GetComponent<Text>().text
+            = "Kernel Level. " + DataManager.dataInstance.level.ToString();
+        info.FindChild("Stage Name").GetComponent<Text>().text
+            = DataManager.dataInstance.stageNames[selectedStage];
+        info.FindChild("Description").GetComponent<Text>().text
+            = DataManager.dataInstance.descriptions[selectedStage];//ステージ情報をセット
+        info.FindChild("onTutorial").gameObject.SetActive(
+            DataManager.dataInstance.hasTutorial[selectedStage]);
+        int comboCount = DataManager.dataInstance.combos[selectedStage];
+        int panelCount = DataManager.dataInstance.panelCounts[selectedStage];
+        Text t = info.transform.FindChild("Score").transform.FindChild("Text").GetComponent<Text>();
+        Text p = info.transform.FindChild("Score").transform.FindChild("Point").GetComponent<Text>();
+        if (DataManager.dataInstance.rank[selectedStage]==-1)
+        {
+            t.text = "";
+            p.alignment = TextAnchor.MiddleCenter;
+            p.text = "Not Cleared!";
+        }
+        else
+        {
+            t.text = "High Score\n   Combo\n   Panels\nGrade";
+            p.alignment = TextAnchor.UpperRight;
+            p.text = (comboCount * 1000 - panelCount * 200).ToString()
+            + "\n" + comboCount.ToString()
+            + "\n" + panelCount.ToString()
+            + "\n" + (Rank)Enum.ToObject(typeof(Rank), DataManager.dataInstance.rank[selectedStage]);
+        }
+    }
+
     public void EndGame()
     {
+        DataManager.dataInstance.Save();
         Application.Quit();
     }
 }

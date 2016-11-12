@@ -637,6 +637,7 @@ MonoBehaviour:
   auto: 1
   genRobots: []
   genNo: 0
+  genDire: 0
   damaged: 0
 --- !u!1001 &1084393559
 Prefab:
@@ -1626,6 +1627,10 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22421200, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
       propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 199552, guid: e57c1109ade406c45a590dbf910db8fb, type: 2}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

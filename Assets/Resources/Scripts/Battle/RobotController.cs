@@ -153,6 +153,7 @@ public class RobotController : MonoBehaviour {
         {
             Debug.Log(name);
             menCon.eCount++;
+            menCon.eCountMax++;
         }
         Turn(dire);
         genSE = Resources.Load<AudioClip>("Sound/SE/roboGenSE");
@@ -521,7 +522,7 @@ public class RobotController : MonoBehaviour {
             if (rc.breaking || rc.Mikata == mikata)
             {
                 ef.GetComponent<SpriteRenderer>().sprite = null;
-                if (rc.Mikata == mikata && rc.dire != dire)
+                if (typeNo==(int)RobotType.Human&&rc.Mikata == mikata && rc.dire != dire)
                 {
                     Break();
                 }

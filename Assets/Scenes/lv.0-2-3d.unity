@@ -802,9 +802,11 @@ MonoBehaviour:
   sp: 80
   br_effect: {fileID: 21300000, guid: 891f7cc04f3e34445ae156dd8924e3b0, type: 3}
   effectCount: 7
+  breaking: 0
   auto: 1
   genRobots: []
   genNo: 0
+  genDire: 0
   damaged: 0
 --- !u!1 &1103163081
 GameObject:
@@ -913,56 +915,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutoNo: 2
   phase: 0
---- !u!1001 &1138591985
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1271701699}
-    m_Modifications:
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 475592, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: 8b535df7e7d75954cad53ebe7a6a8321, type: 2}
-  m_IsPrefabParent: 0
 --- !u!4 &1151151216 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4000013527815934, guid: 7d712cb69f4f8fb4f84b85a5d786452c,
-    type: 2}
-  m_PrefabInternal: {fileID: 1532828019}
---- !u!4 &1271701699 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 4000013139064790, guid: 7d712cb69f4f8fb4f84b85a5d786452c,
     type: 2}
   m_PrefabInternal: {fileID: 1532828019}
 --- !u!1 &1280046038
@@ -1037,7 +992,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4000010618364022, guid: 88a0ee369eb3d714d8d7263fc736bd87, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4000010618364022, guid: 88a0ee369eb3d714d8d7263fc736bd87, type: 2}
       propertyPath: m_LocalPosition.y

@@ -66,6 +66,7 @@ public class KernelController : MonoBehaviour {
         if(!mikata)
         {
             menCon.eCount++;
+            menCon.eCountMax++;
         }
     }
 
@@ -88,8 +89,8 @@ public class KernelController : MonoBehaviour {
                 }
             }
             sp_cn--;
-            bar.transform.localScale = new Vector3(energy / (float)enmax * 2, 2, 2);
         }
+        bar.transform.localScale = new Vector3(energy / (float)enmax * 2, 2, 2);
     }
 
     Texture2D SetEffect(Sprite s, int num, Vector2 targetpos)
