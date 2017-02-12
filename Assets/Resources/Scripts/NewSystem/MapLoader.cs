@@ -120,6 +120,7 @@ public class MapLoader : MonoBehaviour
                     case 2://wall
                         obj = Instantiate(Resources.Load<GameObject>(wallPath),
                             transform);
+                        AdjustCeiling(x, y, obj);
                         break;
                 }
                 if (obj != null)
@@ -128,6 +129,85 @@ public class MapLoader : MonoBehaviour
                 }
             }
         }
+    }
+
+    void AdjustCeiling(int x,int y,GameObject g)//天井のオートマップ編集
+    {
+        Renderer r = g.transform.Find("Top").GetComponent<Renderer>();
+        Texture2D tOrigin = (Texture2D)r.material.mainTexture;
+        int size = tOrigin.width / 2;
+        Texture2D t = new Texture2D(size, size);
+        bool[] sur = new bool[9];
+        sur[4] = true;
+        for (int i = 0; i < sur.Length; i++)//周囲マスデータ
+        {
+            if (i != 4)
+            {
+                int xc = i % 3 - 1 + x;
+                int yc = i / 3 - 1 + y;
+                if (0 <= xc && xc < mapdata.GetLength(0)
+                    && 0 <= yc && yc < mapdata.GetLength(1))
+                {
+                    sur[i] = mapdata[xc, yc] == 2;
+                }
+            }
+        }
+        int[] surNo = new int[4] {GetSurPoint(sur[0],sur[3],sur[1]),
+        GetSurPoint(sur[2],sur[5],sur[1]),
+        GetSurPoint(sur[6],sur[3],sur[7]),
+        GetSurPoint(sur[8],sur[5],sur[7])};//左上、右上、左下、右下の順に角データ
+        int masu = size / 2;
+        for (int i = 0; i < surNo.Length; i++)
+        {
+            Color[] c = new Color[0];
+            int posX = i % 2 * masu;
+            int posY = i / 2 * masu;
+            switch(surNo[i])
+            {
+                case 0:
+                    c = tOrigin.GetPixels(posX, masu * 5 - posY, masu, masu);
+                    break;
+                case 1:
+                    c = tOrigin.GetPixels(posX * 3, masu * 2 - posY, masu, masu);
+                    break;
+                case 2:
+                    c = tOrigin.GetPixels(masu + posX, masu * 3 - posY * 3,
+                        masu, masu);
+                    break;
+                case 3:
+                    c = tOrigin.GetPixels(masu * 2 + posX, masu * 5 - posY,
+                        masu, masu);
+                    break;
+                case 4:
+                    c = tOrigin.GetPixels(masu + posX, masu * 2 - posY, masu, masu);
+                    break;
+            }
+            t.SetPixels(posX, masu - posY, masu, masu, c);
+        }
+        t.Apply();
+        r.material.mainTexture = t;
+    }
+
+    int GetSurPoint(bool kado,bool faceH,bool faceV)
+    {
+        int point = 0;
+        if (kado && faceH && faceV)
+        {
+            point = 4;
+        }
+        else if (faceH && faceV)
+        {
+            point = 3;
+        }
+        else if (faceH)
+        {
+            point = 2;
+        }
+        else if (faceV)
+        {
+            point = 1;
+        }
+        return point;
     }
 
     public int GetMapData(Vector2 pos)
