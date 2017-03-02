@@ -6,9 +6,17 @@ ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: Camera
+    100004: Lamp
+    100006: robo_ab00_mod_wait
     400000: //RootNode
+    400002: Camera
+    400004: Lamp
+    400006: robo_ab00_mod_wait
     2300000: //RootNode
+    2300002: robo_ab00_mod_wait
     3300000: //RootNode
+    3300002: robo_ab00_mod_wait
     4300000: robo_ab00_mod_wait
   materials:
     importMaterials: 1
@@ -56,6 +64,7 @@ ModelImporter:
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
+    serializedVersion: 2
     human: []
     skeleton: []
     armTwist: 0.5
@@ -66,7 +75,10 @@ ModelImporter:
     legStretch: 0.05
     feetSpacing: 0
     rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   animationType: 0
   humanoidOversampling: 1

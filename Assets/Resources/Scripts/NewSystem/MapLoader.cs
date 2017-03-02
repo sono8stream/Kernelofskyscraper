@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MapLoader : MonoBehaviour
 {
@@ -8,7 +9,9 @@ public class MapLoader : MonoBehaviour
     Texture2D MapImage;
     int mapWidth;
     int mapHeight;
-    public int[,] mapdata;//サイズは縦横いずれも奇数推奨
+    int[,] mapdata;//サイズは縦横いずれも奇数推奨
+    List<MapObject> objs;
+    int[,] objData;//マップとオブジェクトの対応値
     public string[] mapdataDebug;
     public Sprite mapchips;
     Sprite map;
@@ -18,7 +21,8 @@ public class MapLoader : MonoBehaviour
     void Awake()
     {
         ReadMap();
-
+        objs = new List<MapObject>();
+        objData = new int[mapdata.GetLength(0), mapdata.GetLength(1)];
         /*if ((mapdata.GetLength(0) & 1) == 0)//x位置補正
         {
             transform.position += Vector3.left * 0.5f;
@@ -37,12 +41,12 @@ public class MapLoader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0; i < mapdataDebug.GetLength(0); i++)//タテループ
+        for (int i = 0; i < mapdataDebug.Length; i++)//タテループ
         {
             string sub = "";
             for (int j = 0; j < mapdata.GetLength(0); j++)//よこループ
             {
-                sub += mapdata[j, mapdata.GetLength(1) - i - 1].ToString() + ",";
+                sub += objData[j, i].ToString() + ",";
             }
             mapdataDebug[i] = sub;
         }
@@ -104,8 +108,8 @@ public class MapLoader : MonoBehaviour
     {
         string floorPath = "Prefabs/New3D/Floor";
         string wallPath = "Prefabs/New3D/Wall";
-        float iniX = -(mapWidth - 1) * 0.5f;
-        float iniY = (mapWidth - 1) * 0.5f;
+        float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
+        float iniY = (mapHeight - mapHeight % 2) * 0.5f;
         for (int y = 0; y < mapHeight; y++)
         {
             for (int x = 0; x < mapWidth; x++)
@@ -212,20 +216,85 @@ public class MapLoader : MonoBehaviour
 
     public int GetMapData(Vector2 pos)
     {
-        int x = PosToIndex(pos.x, mapdata.GetLength(0));
-        int y = PosToIndex(pos.y, mapdata.GetLength(1));
-        return mapdata[x, y];
+        int x = PosToIndex(pos.x, mapdata.GetLength(0), false);
+        int y = PosToIndex(pos.y, mapdata.GetLength(1), true);
+        if (0 <= x && x < mapdata.GetLength(0)
+            && 0 <= y && y < mapdata.GetLength(1))
+        {
+            return mapdata[x, y];
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     public void SetMapData(Vector2 pos, int value)
     {
-        int x = PosToIndex(pos.x, mapdata.GetLength(0));
-        int y = PosToIndex(pos.y, mapdata.GetLength(1));
-        mapdata[x, y] = value;
+        int x = PosToIndex(pos.x, mapdata.GetLength(0),false);
+        int y = PosToIndex(pos.y, mapdata.GetLength(1),true);
+        if (0 <= x && x < mapdata.GetLength(0)
+            && 0 <= y && y < mapdata.GetLength(1))
+        {
+            mapdata[x, y] = value;
+        }
     }
 
-    int PosToIndex(float v, int length)
+    public int GetObjData(Vector2 pos)
     {
-        return Mathf.RoundToInt(v) + (length - length % 2) / 2;
+        int x = PosToIndex(pos.x, mapdata.GetLength(0),false);
+        int y = PosToIndex(pos.y, mapdata.GetLength(1),true);
+        if (0 <= x && x < mapdata.GetLength(0)
+            && 0 <= y && y < mapdata.GetLength(1))
+        {
+            return objData[x, y];
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    public void SetObjData(Vector2 pos, int value)
+    {
+        int x = PosToIndex(pos.x, mapdata.GetLength(0), false);
+        int y = PosToIndex(pos.y, mapdata.GetLength(1), true);
+        if (0 <= x && x < mapdata.GetLength(0)
+            && 0 <= y && y < mapdata.GetLength(1))
+        {
+            objData[x, y] = value;
+        }
+    }
+
+    int PosToIndex(float v, int length,bool reverse)
+    {
+        int val = Mathf.RoundToInt(v);
+        val *= reverse ? -1 : 1;
+        return val + (length - length % 2) / 2;
+    }
+
+    public int RecObj(MapObject obj)//オブジェクトに番号をセットする用
+    {
+        objs.Add(obj);
+        SetObjData(obj.transform.position, objs.Count);
+        return objs.Count;
+    }
+
+    public void DelObjNo(int no)//オブジェクト番号をつぶして更新
+    {
+        for (int i = no; i < objs.Count; i++)
+        {
+            for (int x = 0; x < objData.GetLength(0); x++)
+            {
+                for (int y = 0; y < objData.GetLength(1); y++)
+                {
+                    if (objData[x, y] == i)
+                    {
+                        objData[x, y] = i == no ? 0 : i - 1;
+                    }
+                }
+            }
+        }
+        objs.RemoveAt(no);
     }
 }

@@ -172,4 +172,9 @@ public class ButtonController : MonoBehaviour {
         DataManager.dataInstance.Save();
         Application.Quit();
     }
+
+    enum Rank
+    {
+        A, B, C, D, E
+    }
 }
