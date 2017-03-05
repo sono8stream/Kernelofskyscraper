@@ -6,6 +6,7 @@ public class MapLoader : MonoBehaviour
 {
 
     public TextAsset mp_layout;//マップ情報を記述したテキスト
+    public MapGenerator generator;
     Texture2D MapImage;
     int mapWidth;
     int mapHeight;
@@ -20,7 +21,12 @@ public class MapLoader : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        ReadMap();
+        //ReadMap();
+        generator.InitiateMap();
+        mapdata = generator.Mapdata;
+        mapWidth = mapdata.GetLength(0);
+        mapHeight = mapdata.GetLength(1);
+        DrawMap();
         objs = new List<MapObject>();
         objData = new int[mapdata.GetLength(0), mapdata.GetLength(1)];
         /*if ((mapdata.GetLength(0) & 1) == 0)//x位置補正
@@ -46,7 +52,7 @@ public class MapLoader : MonoBehaviour
             string sub = "";
             for (int j = 0; j < mapdata.GetLength(0); j++)//よこループ
             {
-                sub += objData[j, i].ToString() + ",";
+                sub += mapdata[j, i].ToString() + ",";
             }
             mapdataDebug[i] = sub;
         }
