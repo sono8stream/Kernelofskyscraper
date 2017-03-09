@@ -7,7 +7,6 @@ public class MapLoader : MonoBehaviour
 
     public TextAsset mp_layout;//マップ情報を記述したテキスト
     public MapGenerator generator;
-    Texture2D MapImage;
     int mapWidth;
     int mapHeight;
     int[,] mapdata;//サイズは縦横いずれも奇数推奨
@@ -15,7 +14,7 @@ public class MapLoader : MonoBehaviour
     int[,] objData;//マップとオブジェクトの対応値
     public string[] mapdataDebug;
     public Sprite mapchips;
-    Sprite map;
+    Texture2D ceilingTexture;
     const int MASU = 32;
 
     // Use this for initialization
@@ -42,17 +41,41 @@ public class MapLoader : MonoBehaviour
     void Start()
     {
         mapdataDebug = new string[mapdata.GetLength(1)];
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
         for (int i = 0; i < mapdataDebug.Length; i++)//タテループ
         {
             string sub = "";
             for (int j = 0; j < mapdata.GetLength(0); j++)//よこループ
             {
-                sub += mapdata[j, i].ToString() + ",";
+                string c = mapdata[j, i] == 1 ? " " : "■";
+                sub += mapdata[j, i].ToString();
+            }
+            mapdataDebug[i] = sub;
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            DelMap();
+            generator.InitiateMap();
+            mapdata = generator.Mapdata;
+            DebugMapdata();
+            DrawMap();
+        }
+    }
+
+    void DebugMapdata()
+    {
+        mapdataDebug = new string[mapdata.GetLength(1)];
+        for (int i = 0; i < mapdataDebug.Length; i++)//タテループ
+        {
+            string sub = "";
+            for (int j = 0; j < mapdata.GetLength(0); j++)//よこループ
+            {
+                string c = mapdata[j, i] == 1 ? " " : "■";
+                sub += mapdata[j, i].ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -116,6 +139,8 @@ public class MapLoader : MonoBehaviour
         string wallPath = "Prefabs/New3D/Wall";
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
+        Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
+        Debug.Log(ceilingTextures.Length);
         for (int y = 0; y < mapHeight; y++)
         {
             for (int x = 0; x < mapWidth; x++)
@@ -130,7 +155,7 @@ public class MapLoader : MonoBehaviour
                     case 2://wall
                         obj = Instantiate(Resources.Load<GameObject>(wallPath),
                             transform);
-                        AdjustCeiling(x, y, obj);
+                        //AdjustCeiling(x, y, obj.transform, ceilingTextures);
                         break;
                 }
                 if (obj != null)
@@ -141,14 +166,38 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    void AdjustCeiling(int x,int y,GameObject g)//天井のオートマップ編集
+    void DelMap()
     {
-        Renderer r = g.transform.Find("Top").GetComponent<Renderer>();
-        Texture2D tOrigin = (Texture2D)r.material.mainTexture;
-        int size = tOrigin.width / 2;
-        Texture2D t = new Texture2D(size, size);
+        foreach(Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    Texture2D[] GetCeilingTexture(Sprite ceilingSprite)
+    {
+        int vSplits = 4;
+        int hSplits = 6;
+        int masu = ceilingSprite.texture.width / vSplits;
+        Texture2D[] textures = new Texture2D[vSplits * hSplits];
+        for (int i = 0; i < vSplits * hSplits; i++)
+        {
+            textures[i] = new Texture2D(masu, masu);
+            textures[i].SetPixels(ceilingSprite.texture.GetPixels(i % vSplits * masu,
+                (hSplits-1 - i / vSplits) * masu, masu, masu));
+            textures[i].Apply();
+        }
+        return textures;
+    }
+
+    void AdjustCeiling(int x,int y,Transform t,Texture2D[] sprites)//天井のオートマップ編集
+    {
+        Renderer[] rs = new Renderer[4] {t.FindChild("TopLU").GetComponent<Renderer>(),
+        t.FindChild("TopRU").GetComponent<Renderer>(),
+        t.FindChild("TopLD").GetComponent<Renderer>(),
+        t.FindChild("TopRD").GetComponent<Renderer>()};
         bool[] sur = new bool[9];
-        sur[4] = true;
+        sur[4] = true;//中心
         for (int i = 0; i < sur.Length; i++)//周囲マスデータ
         {
             if (i != 4)
@@ -166,36 +215,35 @@ public class MapLoader : MonoBehaviour
         GetSurPoint(sur[2],sur[5],sur[1]),
         GetSurPoint(sur[6],sur[3],sur[7]),
         GetSurPoint(sur[8],sur[5],sur[7])};//左上、右上、左下、右下の順に角データ
-        int masu = size / 2;
-        for (int i = 0; i < surNo.Length; i++)
+        int masu = 4;
+        /*for (int i = 0; i < surNo.Length; i++)
         {
-            Color[] c = new Color[0];
-            int posX = i % 2 * masu;
-            int posY = i / 2 * masu;
+            int posX = i % 2;
+            int posY = i / 2;
             switch(surNo[i])
             {
-                case 0:
-                    c = tOrigin.GetPixels(posX, masu * 5 - posY, masu, masu);
+                case 0://隣接無し
+                    Debug.Log(posX + posY * masu);
+                    rs[i].material.mainTexture = sprites[posX + posY * masu];
                     break;
-                case 1:
-                    c = tOrigin.GetPixels(posX * 3, masu * 2 - posY, masu, masu);
+                case 1://縦隣接
+                    Debug.Log(posX * (masu - 1) + (posY + 3) * masu);
+                    rs[i].material.mainTexture = sprites[posX * (masu - 1) + (posY + 3) * masu];
                     break;
-                case 2:
-                    c = tOrigin.GetPixels(masu + posX, masu * 3 - posY * 3,
-                        masu, masu);
+                case 2://横隣接
+                    Debug.Log(posX + 1 + (posY * 3 + 2) * masu);
+                    rs[i].material.mainTexture = sprites[posX + 1 + (posY * 3 + 2) * masu];
                     break;
-                case 3:
-                    c = tOrigin.GetPixels(masu * 2 + posX, masu * 5 - posY,
-                        masu, masu);
+                case 3://横縦隣接
+                    Debug.Log(posX + 2 + posY * masu);
+                    rs[i].material.mainTexture = sprites[posX + 2 + posY * masu];
                     break;
-                case 4:
-                    c = tOrigin.GetPixels(masu + posX, masu * 2 - posY, masu, masu);
+                case 4://すべて隣接
+                    Debug.Log(posX + 1 + (posY + 3) * masu);
+                    rs[i].material.mainTexture = sprites[posX + 1 + (posY + 3) * masu];
                     break;
             }
-            t.SetPixels(posX, masu - posY, masu, masu, c);
-        }
-        t.Apply();
-        r.material.mainTexture = t;
+        }*/
     }
 
     int GetSurPoint(bool kado,bool faceH,bool faceV)

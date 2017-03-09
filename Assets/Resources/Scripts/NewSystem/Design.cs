@@ -142,13 +142,13 @@ public class Design : MonoBehaviour
 
     public void DeleteRecipe()
     {
-        if (isOnRobot && 0 < selNo)
+        if (isOnRobot && 1 < menuButtons.Count)
         {
             GameObject g = menuButtons[selNo].gameObject;
             menuButtons.RemoveAt(selNo);
             Destroy(g);
             UserData.robotRecipe.RemoveAt(selNo);
-            selNo = 0;
+            pSelNo = selNo == 0 ? 0 : selNo - 1;
             SetSelNo(pSelNo);
         }
     }
