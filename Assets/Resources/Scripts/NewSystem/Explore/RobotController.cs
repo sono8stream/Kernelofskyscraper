@@ -121,7 +121,7 @@ public class RobotController : MapObject
                 if (0 <= tX && tX < robot.head.ComList.GetLength(1)
                     && 0 <= tY && tY < robot.head.ComList.GetLength(0)
                     && 0 <= robot.head.ComList[tY, tX]
-                    && map.GetMapData(transform.position
+                    && map.GetMapData(floor,transform.position
                     + new Vector3(ttX,ttY,0)) == 2)
                 {
                     comNo = robot.head.ComList[tY, tX];

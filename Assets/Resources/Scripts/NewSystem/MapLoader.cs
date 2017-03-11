@@ -9,7 +9,7 @@ public class MapLoader : MonoBehaviour
     public MapGenerator generator;
     int mapWidth;
     int mapHeight;
-    int[,] mapdata;//サイズは縦横いずれも奇数推奨
+    int[][,] mapdata;//サイズは縦横いずれも奇数推奨
     List<MapObject> objs;
     int[,] objData;//マップとオブジェクトの対応値
     public string[] mapdataDebug;
@@ -23,11 +23,11 @@ public class MapLoader : MonoBehaviour
         //ReadMap();
         generator.InitiateMap();
         mapdata = generator.Mapdata;
-        mapWidth = mapdata.GetLength(0);
-        mapHeight = mapdata.GetLength(1);
+        mapWidth = mapdata[0].GetLength(0);
+        mapHeight = mapdata[0].GetLength(1);
         DrawMap();
         objs = new List<MapObject>();
-        objData = new int[mapdata.GetLength(0), mapdata.GetLength(1)];
+        objData = new int[mapWidth, mapHeight];
         /*if ((mapdata.GetLength(0) & 1) == 0)//x位置補正
         {
             transform.position += Vector3.left * 0.5f;
@@ -40,14 +40,14 @@ public class MapLoader : MonoBehaviour
 
     void Start()
     {
-        mapdataDebug = new string[mapdata.GetLength(1)];
+        mapdataDebug = new string[mapHeight];
         for (int i = 0; i < mapdataDebug.Length; i++)//タテループ
         {
             string sub = "";
-            for (int j = 0; j < mapdata.GetLength(0); j++)//よこループ
+            for (int j = 0; j < mapWidth; j++)//よこループ
             {
-                string c = mapdata[j, i] == 1 ? " " : "■";
-                sub += mapdata[j, i].ToString();
+                string c = mapdata[0][j, i] == 1 ? " " : "■";
+                sub += mapdata[0][j, i].ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -68,14 +68,14 @@ public class MapLoader : MonoBehaviour
 
     void DebugMapdata()
     {
-        mapdataDebug = new string[mapdata.GetLength(1)];
+        mapdataDebug = new string[mapHeight];
         for (int i = 0; i < mapdataDebug.Length; i++)//タテループ
         {
             string sub = "";
-            for (int j = 0; j < mapdata.GetLength(0); j++)//よこループ
+            for (int j = 0; j < mapWidth; j++)//よこループ
             {
-                string c = mapdata[j, i] == 1 ? " " : "■";
-                sub += mapdata[j, i].ToString();
+                string c = mapdata[0][j, i] == 1 ? " " : "■";
+                sub += mapdata[0][j, i].ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -86,7 +86,7 @@ public class MapLoader : MonoBehaviour
     /// 戻り値はマップサイズ
     /// </summary>
     /// <returns></returns>
-    public Vector2 ReadMap()
+    /*public Vector2 ReadMap()
     {
         char[] kugiri = { '\r' };
         string[] layoutInfo = mp_layout.text.Split(kugiri);
@@ -131,36 +131,51 @@ public class MapLoader : MonoBehaviour
                 mapdata[x, y] -= mapdata[x, mapdata.GetLength(1) - y - 1];
             }
         }
-    }
+    }*/
 
     void DrawMap()
     {
         string floorPath = "Prefabs/New3D/Floor";
         string wallPath = "Prefabs/New3D/Wall";
+        string stairUPath = "Prefabs/New3D/StairU";
+        string stairDPath = "Prefabs/New3D/StairD";
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
         Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
         Debug.Log(ceilingTextures.Length);
-        for (int y = 0; y < mapHeight; y++)
+        for (int i = 0; i < mapdata.Length; i++)
         {
-            for (int x = 0; x < mapWidth; x++)
+            GameObject map = new GameObject("Floor" + (i+1).ToString());
+            map.transform.SetParent(transform);
+            for (int y = 0; y < mapHeight; y++)
             {
-                GameObject obj = null;
-                switch (mapdata[x, y])
+                for (int x = 0; x < mapWidth; x++)
                 {
-                    case 1://floor
-                        obj = Instantiate(Resources.Load<GameObject>(floorPath),
-                            transform);
-                        break;
-                    case 2://wall
-                        obj = Instantiate(Resources.Load<GameObject>(wallPath),
-                            transform);
-                        //AdjustCeiling(x, y, obj.transform, ceilingTextures);
-                        break;
-                }
-                if (obj != null)
-                {
-                    obj.transform.position = new Vector2(iniX + x, iniY - y);
+                    GameObject obj = null;
+                    switch (mapdata[i][x, y])
+                    {
+                        case 1://floor
+                            obj = Instantiate(Resources.Load<GameObject>(floorPath),
+                                map.transform);
+                            break;
+                        case 2://wall
+                            obj = Instantiate(Resources.Load<GameObject>(wallPath),
+                                map.transform);
+                            //AdjustCeiling(x, y, obj.transform, ceilingTextures);
+                            break;
+                        case 3://下階段
+                            obj = Instantiate(Resources.Load<GameObject>(stairDPath),
+                                map.transform);
+                            break;
+                        case 4://上階段
+                            obj = Instantiate(Resources.Load<GameObject>(stairUPath),
+                                map.transform);
+                            break;
+                    }
+                    if (obj != null)
+                    {
+                        obj.transform.position = new Vector3(iniX + x, iniY - y, -i * 2.4f);
+                    }
                 }
             }
         }
@@ -190,7 +205,7 @@ public class MapLoader : MonoBehaviour
         return textures;
     }
 
-    void AdjustCeiling(int x,int y,Transform t,Texture2D[] sprites)//天井のオートマップ編集
+    void AdjustCeiling(int floorNo,int x,int y,Transform t,Texture2D[] sprites)//天井のオートマップ編集
     {
         Renderer[] rs = new Renderer[4] {t.FindChild("TopLU").GetComponent<Renderer>(),
         t.FindChild("TopRU").GetComponent<Renderer>(),
@@ -207,7 +222,7 @@ public class MapLoader : MonoBehaviour
                 if (0 <= xc && xc < mapdata.GetLength(0)
                     && 0 <= yc && yc < mapdata.GetLength(1))
                 {
-                    sur[i] = mapdata[xc, yc] == 2;
+                    sur[i] = mapdata[floorNo][xc, yc] == 2;
                 }
             }
         }
@@ -268,14 +283,14 @@ public class MapLoader : MonoBehaviour
         return point;
     }
 
-    public int GetMapData(Vector2 pos)
+    public int GetMapData(int floorNo,Vector2 pos)
     {
         int x = PosToIndex(pos.x, mapdata.GetLength(0), false);
         int y = PosToIndex(pos.y, mapdata.GetLength(1), true);
         if (0 <= x && x < mapdata.GetLength(0)
             && 0 <= y && y < mapdata.GetLength(1))
         {
-            return mapdata[x, y];
+            return mapdata[floorNo][x, y];
         }
         else
         {
@@ -283,18 +298,18 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    public void SetMapData(Vector2 pos, int value)
+    public void SetMapData(int floorNo,Vector2 pos, int value)
     {
         int x = PosToIndex(pos.x, mapdata.GetLength(0),false);
         int y = PosToIndex(pos.y, mapdata.GetLength(1),true);
         if (0 <= x && x < mapdata.GetLength(0)
             && 0 <= y && y < mapdata.GetLength(1))
         {
-            mapdata[x, y] = value;
+            mapdata[floorNo][x, y] = value;
         }
     }
 
-    public int GetObjData(Vector2 pos)
+    public int GetObjData(int floorNo, Vector2 pos)
     {
         int x = PosToIndex(pos.x, mapdata.GetLength(0),false);
         int y = PosToIndex(pos.y, mapdata.GetLength(1),true);
@@ -309,7 +324,7 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    public void SetObjData(Vector2 pos, int value)
+    public void SetObjData(int floorNo,Vector2 pos, int value)
     {
         int x = PosToIndex(pos.x, mapdata.GetLength(0), false);
         int y = PosToIndex(pos.y, mapdata.GetLength(1), true);
@@ -330,7 +345,7 @@ public class MapLoader : MonoBehaviour
     public int RecObj(MapObject obj)//オブジェクトに番号をセットする用
     {
         objs.Add(obj);
-        SetObjData(obj.transform.position, objs.Count);
+        SetObjData(obj.Floor,obj.transform.position, objs.Count);
         return objs.Count;
     }
 

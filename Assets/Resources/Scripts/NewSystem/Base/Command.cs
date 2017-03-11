@@ -268,9 +268,9 @@ public class Go : Command
                     mPos = Vector3.left;
                     break;
             }
-            if (obj.Map.GetMapData(obj.transform.position + mPos) == 1)
+            if (obj.Map.GetMapData(obj.Floor, obj.transform.position + mPos) == 1)
             {
-                obj.Map.SetObjData(obj.transform.position + mPos, obj.No);
+                obj.Map.SetObjData(obj.Floor,obj.transform.position + mPos, obj.No);
             }
             else
             {
@@ -284,7 +284,7 @@ public class Go : Command
             obj.transform.position 
                 = new Vector3(Mathf.Round(obj.transform.position.x),
                 Mathf.Round(obj.transform.position.y), 0);
-            obj.Map.SetObjData(obj.transform.position - mPos, 0);
+            obj.Map.SetObjData(obj.Floor,obj.transform.position - mPos, 0);
             count = 0;
             return true;
         }

@@ -15,6 +15,12 @@ public class MapObject : MonoBehaviour {
     {
         get { return no; }
     }
+    protected int floor;
+    public int Floor
+    {
+        get { return floor;}
+        set { floor = value; }
+    }
 
     protected MapLoader map;
     public MapLoader Map
