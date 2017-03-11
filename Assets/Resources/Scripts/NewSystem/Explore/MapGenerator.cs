@@ -26,7 +26,7 @@ public class MapGenerator : MonoBehaviour
     {
         public int x, y, w, h;
         public int rX, rY, rW, rH;//部屋Rect
-        public List<int> adjNos;//隣接ブロックの番号
+        public List<Block> adjBlocks;//隣接ブロックの番号
         public List<int> adjDire;//隣接方向 down=0,right,up,left
         public int floorNo;
         public List<Vector2> sPos;//階段座標
@@ -38,7 +38,7 @@ public class MapGenerator : MonoBehaviour
             this.w = w;
             this.h = h;
             this.floorNo = floorNo;
-            adjNos = new List<int>();
+            adjBlocks = new List<Block>();
             adjDire = new List<int>();
             sPos = new List<Vector2>();
         }
@@ -208,55 +208,34 @@ public class MapGenerator : MonoBehaviour
         int loopLim = 100;
         int tarAdjCo = (int)(CountAdjacents() * rate);
         int adjCo = CountAdjacents();
-        int fNo1, fNo2, rNo1, rNo2, index1, index2, dire1, dire2;
-        /*for (int i = 0; i < loopLim && tarAdjCo < adjCo; i++)
-        {*/
-            fNo1 = Random.Range(0, floors);//ランダムでルート消去
-            rNo1 = Random.Range(0, rooms[fNo1].Count);
-            index1 = Random.Range(0, rooms[fNo1][rNo1].adjNos.Count);
-            Debug.Log(rooms[fNo1][rNo1].adjNos.Count);
-            rNo2 = rooms[fNo1][rNo1].adjNos[index1];
-            if (rooms[fNo1][rNo1].adjDire[index1]==5)
-            {
-                fNo2 = fNo1 - 1;
-            }
-            else if(rooms[fNo1][rNo1].adjDire[index1] == 6)
-            {
-                fNo2 = fNo1 + 1;
-            }
-            else
-            {
-                fNo2 = fNo1;
-            }
-            dire1 = rooms[fNo1][rNo1].adjDire[index1];
-            index2 = -1;
-            dire2 = -1;
-            for (int j = 0; j < rooms[fNo2][rNo2].adjNos.Count; j++)
-            {
-                if (rNo1 == rooms[fNo2][rNo2].adjNos[j] && ((dire1 + rooms[fNo2][rNo2].adjDire[j] <= 6)
-                    || (dire1 + rooms[fNo2][rNo2].adjDire[j] == 11)))
-                {
-                    index2 = j;//rNo1のインデックス取得
-                    dire2 = rooms[fNo2][rNo2].adjDire[j];
-                    break;
-                }
-            }
-            rooms[fNo1][rNo1].adjNos.RemoveAt(index1);
-            rooms[fNo1][rNo1].adjDire.RemoveAt(index1);
-            rooms[fNo2][rNo2].adjNos.RemoveAt(index2);
-            rooms[fNo2][rNo2].adjDire.RemoveAt(index2);
-            if(!CheckRoute())
+        int fNo, rNo, index1, index2, dire1, dire2;
+        Block b1, b2;
+        for (int i = 0; i < loopLim && tarAdjCo < adjCo; i++)
+        {
+            fNo = Random.Range(0, floors);//ランダムでルート消去
+            rNo = Random.Range(0, rooms[fNo].Count);
+            index1 = Random.Range(0, rooms[fNo][rNo].adjBlocks.Count);
+            b1 = rooms[fNo][rNo];
+            b2 = b1.adjBlocks[index1];
+            index2 = b2.adjBlocks.IndexOf(b1);
+            dire1 = b1.adjDire[index1];
+            dire2 = b2.adjDire[index2];
+            b1.adjBlocks.RemoveAt(index1);
+            b1.adjDire.RemoveAt(index1);
+            b2.adjBlocks.RemoveAt(index2);
+            b2.adjDire.RemoveAt(index2);
+            if(CheckRoute())
             {
                 adjCo -= 2;
             }
             else
             {
-                rooms[fNo1][rNo1].adjNos.Add(rNo2);
-                rooms[fNo1][rNo1].adjDire.Add(dire1);
-                rooms[fNo2][rNo2].adjNos.Add(rNo1);
-                rooms[fNo2][rNo2].adjDire.Add(dire2);
+                b1.adjBlocks.Add(b2);
+                b1.adjDire.Add(dire1);
+                b2.adjBlocks.Add(b1);
+                b2.adjDire.Add(dire2);
             }
-        //}
+        }
     }
 
     int CountAdjacents()
@@ -266,7 +245,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int j = 0; j < rooms[i].Count; j++)
             {
-                adjCo += rooms[i][j].adjNos.Count;
+                adjCo += rooms[i][j].adjBlocks.Count;
             }
         }
         return adjCo;
@@ -281,7 +260,7 @@ public class MapGenerator : MonoBehaviour
                 rooms[i][j].roomNo = 0;
             }
         }
-        SetNo(0, 0);
+        SetNo(rooms[0][0]);
         for (int i = 0; i < floors; i++)
         {
             for (int j = 0; j < rooms[i].Count; j++)
@@ -293,20 +272,16 @@ public class MapGenerator : MonoBehaviour
         return true;
     }
 
-    void SetNo(int floorNo, int no)
+    void SetNo(Block b)
     {
-        Debug.Log(floorNo);
-        Debug.Log(no);
-        if (rooms[floorNo][no].roomNo == 1)
+        if (b.roomNo == 1)
         {
             return;
         }
-        rooms[floorNo][no].roomNo = 1;
-        for (int i = 0; i < rooms[floorNo][no].adjNos.Count; i++)
+        b.roomNo = 1;
+        for (int i = 0; i < b.adjBlocks.Count; i++)
         {
-            int floor = rooms[floorNo][no].adjDire[i] == 5 ? floorNo - 1 : floorNo;
-            floor = rooms[floorNo][no].adjDire[i] == 6 ? floorNo + 1 : floor;
-            SetNo(floor, rooms[floorNo][no].adjNos[i]);
+            SetNo(b.adjBlocks[i]);
         }
     }
 
@@ -343,9 +318,9 @@ public class MapGenerator : MonoBehaviour
                     }
                     if (0 <= dire)
                     {
-                        rooms[i][j].adjNos.Add(k);
+                        rooms[i][j].adjBlocks.Add(rooms[i][k]);
                         rooms[i][j].adjDire.Add(dire);
-                        rooms[i][k].adjNos.Add(j);
+                        rooms[i][k].adjBlocks.Add(rooms[i][j]);
                         rooms[i][k].adjDire.Add((dire + 2) % 4);
                     }
                 }
@@ -355,9 +330,9 @@ public class MapGenerator : MonoBehaviour
                     {
                         if (OnFloorAdjucent(rooms[i][j], rooms[i - 1][k]))
                         {
-                            rooms[i][j].adjNos.Add(k);
+                            rooms[i][j].adjBlocks.Add(rooms[i-1][k]);
                             rooms[i][j].adjDire.Add(5);//階層下,方向5
-                            rooms[i-1][k].adjNos.Add(j);
+                            rooms[i-1][k].adjBlocks.Add(rooms[i][j]);
                             rooms[i-1][k].adjDire.Add(6);
                         }
                     }
@@ -387,11 +362,11 @@ public class MapGenerator : MonoBehaviour
         {
             for (int j = 0; j < rooms[i].Count; j++)
             {
-                for (int k = 0; k < rooms[i][j].adjNos.Count; k++)
+                for (int k = 0; k < rooms[i][j].adjBlocks.Count; k++)
                 {
                     if (rooms[i][j].adjDire[k] == 5)//下とつながるときだけ
                     {
-                        MakeStair(rooms[i][j], rooms[i - 1][rooms[i][j].adjNos[k]]);
+                        MakeStair(rooms[i][j], rooms[i][j].adjBlocks[k]);
                     }
                 }
             }
@@ -476,7 +451,7 @@ public class MapGenerator : MonoBehaviour
             List<Vector2> pos2 = new List<Vector2>();
             for (int i = 0; i < rooms[h].Count; i++)
             {
-                for (int j = 0; j < rooms[h][i].adjNos.Count; j++)
+                for (int j = 0; j < rooms[h][i].adjBlocks.Count; j++)
                 {
                     if (rooms[h][i].adjDire[j] <= 3)
                     {
@@ -484,19 +459,10 @@ public class MapGenerator : MonoBehaviour
                         p1 = Vector2.zero;
                         p2 = Vector2.zero;
                         v.Add(MakeAisle(rooms[h][i],rooms[h][i].adjDire[j], ref p1));
-                        int delIndex = 0;
-                        for(int k=0;k< rooms[h][rooms[h][i].adjNos[j]].adjNos.Count;k++)
-                        {
-                            if(rooms[h][rooms[h][i].adjNos[j]].adjNos[k]==i
-                                &&rooms[h][rooms[h][i].adjNos[j]].adjDire[k]<=3)
-                            {
-                                delIndex = k;
-                                break;
-                            }
-                        }
-                        rooms[h][rooms[h][i].adjNos[j]].adjNos.RemoveAt(delIndex);
-                        rooms[h][rooms[h][i].adjNos[j]].adjDire.RemoveAt(delIndex);
-                        MakeAisle(rooms[h][rooms[h][i].adjNos[j]], (rooms[h][i].adjDire[j] + 2) % 4, ref p2);//相手
+                        int delIndex = rooms[h][i].adjBlocks[j].adjBlocks.IndexOf(rooms[h][i]);
+                        rooms[h][i].adjBlocks[j].adjBlocks.RemoveAt(delIndex);
+                        rooms[h][i].adjBlocks[j].adjDire.RemoveAt(delIndex);
+                        MakeAisle(rooms[h][i].adjBlocks[j], (rooms[h][i].adjDire[j] + 2) % 4, ref p2);//相手
                         pos1.Add(new Vector2(p1.x, p1.y));
                         pos2.Add(new Vector2(p2.x, p2.y));
                     }
