@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class CommandSetter : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class CommandSetter : MonoBehaviour
     [SerializeField]
     RobotController rCon;
     [SerializeField]
-    GameObject cButtonOrigin, defaultButton, modeButton, comModeGO;
+    GameObject cButtonOrigin, defaultButton, modeButton, returnButton, margin, comModeGO;
     [SerializeField]
     RectTransform lWindowRT, rWindowRT;
     [SerializeField]
@@ -36,28 +37,18 @@ public class CommandSetter : MonoBehaviour
 
     void Awake()
     {
-        robot = UserData.robotRecipe[0];
+        UpdateRobot(UserData.robotRecipe[0]);
+        comMenu = transform.FindChild("WinL").FindChild("ComMenu");
         Debug.Log(rCon);
-        rCon.Robot = robot;
-        comListNo = 0;
-        choiceNo = -1;
-        isOnPriNo = false;
-        panelNo = new List<int>();
-        priNo = new List<int>();
-        priNoTemp = new List<int>();
-        InitiatePanelButtons();
     }
 
     // Use this for initialization
     void Start()
     {
         modeFadeCo = 0;
-        modeFadeTime = 10;
+        modeFadeTime = 6f;
         menuFadeSp = 4f;
-        comMenu = transform.FindChild("WinL").FindChild("ComMenu");
-        comMenuH = robot.Command.Count * comButtonH + 30;
         menuFadeSp = comMenuH / menuFadeSp;
-        InitiateMenuButtons();
         isOnMode = true;
         comModeGO.SetActive(false);
     }
@@ -75,8 +66,27 @@ public class CommandSetter : MonoBehaviour
         }
     }
 
+    public void UpdateRobot(Robot robot)
+    {
+        this.robot = robot;
+        rCon.Robot = robot;
+        comListNo = 0;
+        choiceNo = -1;
+        isOnPriNo = false;
+        priNoTemp = new List<int>();
+        InitiatePanelButtons();
+        comMenuH = robot.Command.Count * comButtonH + 30;
+        InitiateMenuButtons();
+    }
+
     void InitiatePanelButtons()
     {
+        if(panelButtons!=null&&0<panelButtons.Count)
+        {
+            panelButtons.ForEach(x => Destroy(x.gameObject));
+        }
+        panelNo = new List<int>();
+        priNo = new List<int>();
         panelButtons = new List<Button>();
         Vector2 cPos = rCon.GetComCPos();
         int masu = 150;//ボタン位置基準
@@ -116,6 +126,10 @@ public class CommandSetter : MonoBehaviour
 
     void InitiateMenuButtons()
     {
+        if (menuButtons != null && 0 < menuButtons.Count)
+        {
+            menuButtons.ForEach(x => Destroy(x.gameObject));
+        }
         menuButtons = new List<Button>();
         for (int i = 0; i < robot.Command.Count; i++)
         {
@@ -190,10 +204,12 @@ public class CommandSetter : MonoBehaviour
                         = pos + new Vector2(cor, 0);
                 }
                 menuButtons[0].interactable = buttonNo != -1;
+                margin.SetActive(true);
             }
             else
             {
                 isOnMenu = menuFadeSp < 0;
+                margin.SetActive(false);
             }
         }
     }
@@ -266,6 +282,7 @@ public class CommandSetter : MonoBehaviour
             if(priNoTemp.Count==0)
             {
                 modeButton.GetComponent<Button>().interactable = true;
+                returnButton.GetComponent<Button>().interactable = true;
             }
         }
         else if (0 <= index && index < robot.head.ComPriList[comListNo].Length)
@@ -273,6 +290,7 @@ public class CommandSetter : MonoBehaviour
             priNoTemp.Insert(GetSortedIndex(priNoTemp, index), index);
             t.text = "-";
             modeButton.GetComponent<Button>().interactable = false;
+            returnButton.GetComponent<Button>().interactable = false;
         }
         string text = "";
         for (int i = 0; i < robot.head.ComPriList[comListNo].Length; i++)

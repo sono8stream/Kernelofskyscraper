@@ -15,13 +15,19 @@ public class Design : MonoBehaviour
     Sprite defSprite, selSprite;
     [SerializeField]
     Scrollbar scrollbar;
+    [SerializeField]
+    CommandSetter comSetter;
     List<Button> menuButtons;
     const float height = 100;
     List<Button> matButtons;
     bool isOnRobot;
+    bool isOnFade;
     int selNo;//選択中レシピ番号
     int pSelNo;
     float menPosY;
+    float fadeSp;
+    float fadeTime;
+    float fadeCo;
 
     // Use this for initialization
     void Start()
@@ -31,6 +37,9 @@ public class Design : MonoBehaviour
         isOnRobot = true;
         InitiateMenu();
         menPosY = 1f;
+        fadeSp = 180f;
+        fadeTime = 1080 / fadeSp;
+        fadeCo = 0;
     }
 
     // Update is called once per frame
@@ -39,6 +48,11 @@ public class Design : MonoBehaviour
         if(!winsGO.activeSelf&& !comModeGO.activeSelf)
         {
             winsGO.SetActive(true);
+            isOnFade = true;
+        }
+        else if(isOnFade)
+        {
+            FadeMenu();
         }
     }
 
@@ -55,10 +69,11 @@ public class Design : MonoBehaviour
         if (isOnRobot)
         {
             menuButtons.Add(Instantiate(bOrigin,
-                transform.FindChild("WinR")).GetComponent<Button>());
+                transform.FindChild("Wins").FindChild("WinR")).GetComponent<Button>());
             SetSelNo(menuButtons.Count - 1);
             menuButtons[selNo].transform
                 .FindChild("Text").GetComponent<Text>().text = r.Name;
+            UpdateMenu();
         }
     }
 
@@ -77,6 +92,15 @@ public class Design : MonoBehaviour
             int no = i;
             menuButtons[i].onClick.RemoveAllListeners();
             menuButtons[i].onClick.AddListener(() => SetSelNo(no));
+        }
+        UpdateSprite();
+    }
+
+    void UpdateSprite()
+    {
+        if (0 <= pSelNo && pSelNo < menuButtons.Count)
+        {
+            menuButtons[pSelNo].GetComponent<Image>().sprite = defSprite;
         }
         if (0 <= selNo && selNo < menuButtons.Count)
         {
@@ -99,6 +123,7 @@ public class Design : MonoBehaviour
             component[3].FindChild("Text").GetComponent<Text>().text
                 = r.leg.Name.ToString();
         }
+        Debug.Log(recipe.Name);
         nameField.text = recipe.Name;
         status[0].FindChild("Status").GetComponent<Text>().text
             = "HP";
@@ -115,12 +140,29 @@ public class Design : MonoBehaviour
 
     }
 
+    void FadeMenu()
+    {
+        if (fadeCo == fadeTime)
+        {
+            winsGO.SetActive(fadeSp < 0);
+            comModeGO.SetActive(0 < fadeSp);
+            isOnFade = false;
+            fadeCo = 0;
+            fadeSp *= -1;
+        }
+        else
+        {
+            winsGO.GetComponent<RectTransform>().anchoredPosition += Vector2.down * fadeSp;
+            fadeCo++;
+        }
+    }
+
     public void SetSelNo(int no)
     {
         pSelNo = selNo;
         selNo = no;
-        Debug.Log(no);
-        UpdateMenu();
+        Debug.Log(selNo);
+        UpdateSprite();
         SetStatus();
     }
 
@@ -175,20 +217,20 @@ public class Design : MonoBehaviour
 
     public void SetName()
     {
+        Debug.Log(nameField.text);
         if (isOnRobot)
         {
             UserData.robotRecipe[selNo].Name = nameField.text;
         }
-        menuButtons[selNo].transform.FindChild("Text").GetComponent<Text>().text
-            = nameField.text;
+        menuButtons[selNo].transform.FindChild("Text").GetComponent<Text>().text = nameField.text;
     }
 
     public void CallComMode()
     {
         if(isOnRobot)
         {
-            comModeGO.SetActive(true);
-            winsGO.SetActive(false);
+            comSetter.UpdateRobot(UserData.robotRecipe[selNo]);
+            isOnFade = true;
         }
     }
 }
