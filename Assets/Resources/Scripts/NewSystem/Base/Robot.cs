@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using UnityEngine;
+using System.Linq;
 
 [System.Serializable]//New System
 public class Recipe//パーツ
@@ -60,6 +61,7 @@ public class Robot :Recipe
     public Robot(Head h,Body b,Arm a,Leg l)
     {
         c = new List<Command>();
+        c.Add(new DefaultCommand());
         head = h;
         body = b;
         arm = a;
@@ -75,45 +77,82 @@ public class Robot :Recipe
     }
 }
 
-public class Head :Recipe
+public class Head : Recipe
 {
-    int[,] comList;//コマンド番号リスト
-    public int[,] ComList
+    List<int[,]> comList;//コマンド番号リスト
+    public List<int[,]> ComList
     {
         get { return comList; }
         set { comList = value; }
     }
-    int range;
+    List<int[]> comPriList;//コマンド優先リスト、より小さい位置に、優先するコマンド番号の位置が入る
+    //呼び出し時は[value/range,value%range]
+    public List<int[]> ComPriList
+    {
+        get { return comPriList; }
+        set { comPriList = value; }
+    }
+    int defComNo;//デフォルトのコマンド番号
+    public int DefaultComNo
+    {
+        get { return defComNo; }
+        set { defComNo = value; }
+    }
+    int range;//コマンドリスト大きさ
     public int Range
     {
         get { return range; }
+        set { range = value; }
     }
     Dictionary<int, int[,]> rangeType;
+    int typeNo;
 
     public Head(int range, int typeNo, params Item[] i) : base(i)
     {
-        range = this.range;
-        comList = new int[range, range];
+        this.range = range;
+        comList = new List<int[,]>();
+        comPriList = new List<int[]>();
         rangeType = new Dictionary<int, int[,]>();
         rangeType.Add(0, new int[3, 3] { //十字
-            { -1, 0, -1 },
-            { 1, -2, 3 },
-            { -1, 2, -1 } });
+            { -2, 0, -2 },
+            { 3, -3, 1 },
+            { -2, 2, -2 } });
         rangeType.Add(1, new int[3, 3] { //円
-            { 0, 0, 0 },
-            { 0, -2, 0 },
-            { 0, 0, 0 } });
+            { 7, 0, 1 },
+            { 6, -3, 2 },
+            { 5, 4, 3 } });
         rangeType.Add(2, new int[3, 3] { //放射
-            { 0, 0, 0 },
-            { -1, 0, -1 },
-            { -1, -2, -1 } });
-        comList = rangeType[typeNo];
+            { 1, 2, 3 },
+            { -2, 0, -2 },
+            { -2, -3, -2 } });
+        this.typeNo = typeNo;
+        AddComList();
         mats = i;
         name = "新しいヘッド";
         float comp = -0.5f;//補正
         sp = (int)(mats[0].HP * comp);
+        defComNo = 1;
+    }
+
+    public void AddComList()
+    {
+        comList.Add(rangeType[typeNo]);
+        List<int> priListTemp = new List<int>();
+        int no = comList.Count - 1;
+        //int count= rangeType[typeNo].
+        for (int k = 0; k < range * range; k++)
+        {
+            if ((int)ComNo.Default <= comList[no][k / range, k % range])
+            {
+                comList[no][k / range, k % range] = (int)ComNo.Default;//デフォルトに設定
+                priListTemp.Add(k);
+            }
+        }
+        comPriList.Add(priListTemp.ToArray());
     }
 }
+
+public enum ComNo { Myself = -3, None = -2, Default = 0 }
 
 public class Body : Recipe
 {

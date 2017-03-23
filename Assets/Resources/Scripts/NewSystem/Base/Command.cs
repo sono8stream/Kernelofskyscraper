@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -289,5 +290,18 @@ public class Go : Command
             return true;
         }
         return false;
+    }
+}
+
+public class DefaultCommand : Command
+{
+    public DefaultCommand() : base("Default", "Sprites/Battle/Panel/default", Vector3.zero)
+    {
+
+    }
+
+    public override bool Run(MapObject obj)
+    {
+        return true;
     }
 }

@@ -16,15 +16,27 @@ public class MapLoader : MonoBehaviour
     public Sprite mapchips;
     Texture2D ceilingTexture;
     const int MASU = 32;
+    [SerializeField]
+    bool onTest;
+    GameObject[][] tiles;
+    int f,x, y;
 
     // Use this for initialization
     void Awake()
     {
         //ReadMap();
-        generator.InitiateMap();
-        mapdata = generator.Mapdata;
+        if (generator != null)
+        {
+            generator.InitiateMap();
+            mapdata = generator.Mapdata;
+        }
+        else
+        {
+            ReadMap();
+        }
         mapWidth = mapdata[0].GetLength(0);
         mapHeight = mapdata[0].GetLength(1);
+        tiles = new GameObject[mapdata.Length][];
         DrawMap();
         objs = new List<MapObject>();
         objData = new int[mapWidth, mapHeight];
@@ -51,18 +63,36 @@ public class MapLoader : MonoBehaviour
             }
             mapdataDebug[i] = sub;
         }
+        f = 0;
+        x = 0;
+        y = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && generator != null)
         {
             DelMap();
             generator.InitiateMap();
             mapdata = generator.Mapdata;
             DebugMapdata();
             DrawMap();
+        }
+        if (!onTest&&f < mapdata.Length)
+        {
+            tiles[f][x + mapWidth * y].SetActive(true);
+            x++;
+            if (x == mapWidth)
+            {
+                x = 0;
+                y++;
+                if(y==mapHeight)
+                {
+                    y = 0;
+                    f++;
+                }
+            }
         }
     }
 
@@ -86,7 +116,7 @@ public class MapLoader : MonoBehaviour
     /// 戻り値はマップサイズ
     /// </summary>
     /// <returns></returns>
-    /*public Vector2 ReadMap()
+    public Vector2 ReadMap()
     {
         char[] kugiri = { '\r' };
         string[] layoutInfo = mp_layout.text.Split(kugiri);
@@ -95,43 +125,40 @@ public class MapLoader : MonoBehaviour
         string[] eachInfo;
         for (int i = 0; i < layoutInfo.Length; i++)
         {
-            //layoutInfo[i]=layoutInfo[i].Remove(layoutInfo[i].Length - 1);
             eachInfo = layoutInfo[i].Split(',');
             if (i == 0)//mapdata初期化
             {
                 mapWidth = eachInfo.Length;
-                mapdata = new int[eachInfo.Length, layoutInfo.Length];
+                mapdata = new int[1][,] { new int[eachInfo.Length, layoutInfo.Length] };
             }
             for (int j = 0; j < eachInfo.Length; j++)
             {
                 if (eachInfo[j] != "")
                 {
-                    mapdata[j, i] = int.Parse(eachInfo[j]);
+                    mapdata[0][j, i] = int.Parse(eachInfo[j]);
                 }
             }
         }
-        //AdjustMapData();
-        DrawMap();
-        return new Vector2(mapdata.GetLength(0), mapdata.GetLength(1));
+        AdjustMapData(mapdata[0]);
+        return new Vector2(mapdata[0].GetLength(0), mapdata[0].GetLength(1));
     }
 
     /// <summary>
     /// マップデータをy座標上向きにとる,つまりy座標をひっくり返す
     /// </summary>
-    void AdjustMapData()
+    void AdjustMapData(int[,] map)
     {
-        for (int x = 0; x < mapdata.GetLength(0); x++)//よこループ
+        for (int x = 0; x < mapdata[0].GetLength(0); x++)//よこループ
         {
-            for (int y = 0; 
-                y < (mapdata.GetLength(1)-mapdata.GetLength(1)%2) / 2; y++)//タテループ
+            for (int y = 0;
+                y < (mapdata[0].GetLength(1) - mapdata[0].GetLength(1) % 2) / 2; y++)//タテループ
             {
-                mapdata[x, y] += mapdata[x, mapdata.GetLength(1) - y - 1];
-                mapdata[x, mapdata.GetLength(1) - y - 1] = mapdata[x, y]
-                    - mapdata[x, mapdata.GetLength(1) - y - 1];
-                mapdata[x, y] -= mapdata[x, mapdata.GetLength(1) - y - 1];
+                map[x, y] += map[x, map.GetLength(1) - y - 1];
+                map[x, map.GetLength(1) - y - 1] = map[x, y] - map[x, map.GetLength(1) - y - 1];
+                map[x, y] -= map[x, map.GetLength(1) - y - 1];
             }
         }
-    }*/
+    }
 
     void DrawMap()
     {
@@ -141,40 +168,46 @@ public class MapLoader : MonoBehaviour
         string stairDPath = "Prefabs/New3D/StairD";
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
+        tiles = new GameObject[mapdata.Length][];
         Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
         Debug.Log(ceilingTextures.Length);
         for (int i = 0; i < mapdata.Length; i++)
         {
+            tiles[i] = new GameObject[mapWidth * mapHeight];
             GameObject map = new GameObject("Floor" + (i+1).ToString());
             map.transform.SetParent(transform);
             for (int y = 0; y < mapHeight; y++)
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    GameObject obj = null;
+                    tiles[i][x + mapWidth * y] = null;
                     switch (mapdata[i][x, y])
                     {
                         case 1://floor
-                            obj = Instantiate(Resources.Load<GameObject>(floorPath),
+                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(floorPath),
                                 map.transform);
                             break;
                         case 2://wall
-                            obj = Instantiate(Resources.Load<GameObject>(wallPath),
+                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(wallPath),
                                 map.transform);
                             //AdjustCeiling(x, y, obj.transform, ceilingTextures);
                             break;
                         case 3://下階段
-                            obj = Instantiate(Resources.Load<GameObject>(stairDPath),
+                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(stairDPath),
                                 map.transform);
                             break;
                         case 4://上階段
-                            obj = Instantiate(Resources.Load<GameObject>(stairUPath),
+                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(stairUPath),
                                 map.transform);
                             break;
                     }
-                    if (obj != null)
+                    if (tiles[i][x + mapWidth * y] != null)
                     {
-                        obj.transform.position = new Vector3(iniX + x, iniY - y, -i * 2.4f);
+                        tiles[i][x + mapWidth * y].transform.position = new Vector3(iniX + x, iniY - y, -i * 2.4f);
+                        if (onTest)
+                        {
+                            tiles[i][x + mapWidth * y].SetActive(true);
+                        }
                     }
                 }
             }
@@ -285,10 +318,10 @@ public class MapLoader : MonoBehaviour
 
     public int GetMapData(int floorNo,Vector2 pos)
     {
-        int x = PosToIndex(pos.x, mapdata.GetLength(0), false);
-        int y = PosToIndex(pos.y, mapdata.GetLength(1), true);
-        if (0 <= x && x < mapdata.GetLength(0)
-            && 0 <= y && y < mapdata.GetLength(1))
+        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0), false);
+        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1), true);
+        if (0 <= x && x < mapdata[floorNo].GetLength(0)
+            && 0 <= y && y < mapdata[floorNo].GetLength(1))
         {
             return mapdata[floorNo][x, y];
         }
@@ -300,10 +333,10 @@ public class MapLoader : MonoBehaviour
 
     public void SetMapData(int floorNo,Vector2 pos, int value)
     {
-        int x = PosToIndex(pos.x, mapdata.GetLength(0),false);
-        int y = PosToIndex(pos.y, mapdata.GetLength(1),true);
-        if (0 <= x && x < mapdata.GetLength(0)
-            && 0 <= y && y < mapdata.GetLength(1))
+        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0),false);
+        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1),true);
+        if (0 <= x && x < mapdata[floorNo].GetLength(0)
+            && 0 <= y && y < mapdata[floorNo].GetLength(1))
         {
             mapdata[floorNo][x, y] = value;
         }
@@ -311,10 +344,10 @@ public class MapLoader : MonoBehaviour
 
     public int GetObjData(int floorNo, Vector2 pos)
     {
-        int x = PosToIndex(pos.x, mapdata.GetLength(0),false);
-        int y = PosToIndex(pos.y, mapdata.GetLength(1),true);
-        if (0 <= x && x < mapdata.GetLength(0)
-            && 0 <= y && y < mapdata.GetLength(1))
+        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0),false);
+        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1),true);
+        if (0 <= x && x < mapdata[floorNo].GetLength(0)
+            && 0 <= y && y < mapdata[floorNo].GetLength(1))
         {
             return objData[x, y];
         }
@@ -326,10 +359,10 @@ public class MapLoader : MonoBehaviour
 
     public void SetObjData(int floorNo,Vector2 pos, int value)
     {
-        int x = PosToIndex(pos.x, mapdata.GetLength(0), false);
-        int y = PosToIndex(pos.y, mapdata.GetLength(1), true);
-        if (0 <= x && x < mapdata.GetLength(0)
-            && 0 <= y && y < mapdata.GetLength(1))
+        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0), false);
+        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1), true);
+        if (0 <= x && x < mapdata[floorNo].GetLength(0)
+            && 0 <= y && y < mapdata[floorNo].GetLength(1))
         {
             objData[x, y] = value;
         }

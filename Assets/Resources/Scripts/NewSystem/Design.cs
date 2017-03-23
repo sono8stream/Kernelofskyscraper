@@ -5,9 +5,8 @@ using UnityEngine.UI;
 
 public class Design : MonoBehaviour
 {
-
     [SerializeField]
-    GameObject bOrigin;
+    GameObject bOrigin, comModeGO, winsGO;
     [SerializeField]
     Transform[] status, component;
     [SerializeField]
@@ -37,7 +36,10 @@ public class Design : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(!winsGO.activeSelf&& !comModeGO.activeSelf)
+        {
+            winsGO.SetActive(true);
+        }
     }
 
     void InitiateMenu()
@@ -179,5 +181,14 @@ public class Design : MonoBehaviour
         }
         menuButtons[selNo].transform.FindChild("Text").GetComponent<Text>().text
             = nameField.text;
+    }
+
+    public void CallComMode()
+    {
+        if(isOnRobot)
+        {
+            comModeGO.SetActive(true);
+            winsGO.SetActive(false);
+        }
     }
 }

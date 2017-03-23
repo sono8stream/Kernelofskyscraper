@@ -17,7 +17,7 @@ public class MapGenerator : MonoBehaviour
     const int MASU = 32;
     int stX, stY;//初期座標
     int minRectSize = 7;//ブロックサイズ最小値,実際部屋サイズは-2
-    int roomLim = 4;//最大部屋数基準+3
+    int roomLim = 5;//最大部屋数基準+3
     int roomRan = 3;
     int roomCo = 1;
     int lineSize = 2;
@@ -89,7 +89,7 @@ public class MapGenerator : MonoBehaviour
             blocks[i].Add(new Block(0, 0, width, height, i));
             rooms[i] = new List<Block>();
         }
-        roomLim = 4 + Random.Range(0, roomRan + 1);
+        roomLim = 5 + Random.Range(0, roomRan + 1);
         roomCo = 1;
         for (int i = 0; i < floors; i++)
         {
@@ -204,9 +204,10 @@ public class MapGenerator : MonoBehaviour
 
     void DelAdjacents()//指定割合まで隣接消去
     {
-        float rate = 0.5f;
-        int loopLim = 100;
+        float rate = 0.2f;
+        int loopLim = 200;
         int tarAdjCo = (int)(CountAdjacents() * rate);
+        Debug.Log(tarAdjCo);
         int adjCo = CountAdjacents();
         int fNo, rNo, index1, index2, dire1, dire2;
         Block b1, b2;
