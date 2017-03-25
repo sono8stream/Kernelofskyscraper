@@ -52,13 +52,6 @@ public class SaveManager
     public UserData load()
     {
         UserData data_tmp = Load<UserData>("data.dat");
-        if (data_tmp != null)
-        {
-            return data_tmp;
-        }
-        else
-        {
-            return null;
-        }
+        return data_tmp ?? UserData.instance;
     }
 }

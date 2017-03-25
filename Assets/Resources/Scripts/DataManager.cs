@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -8,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 /// <summary>
 /// タイトル画面に付与
 /// </summary>
-[System.Serializable]
+[Serializable]
 public class DataManager : MonoBehaviour {
 
     static public DataManager dataInstance;
@@ -155,7 +156,7 @@ public class DataManager : MonoBehaviour {
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class SaveData
 {
     [System.NonSerialized]

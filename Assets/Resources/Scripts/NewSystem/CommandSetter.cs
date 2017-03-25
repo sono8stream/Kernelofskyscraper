@@ -37,7 +37,8 @@ public class CommandSetter : MonoBehaviour
 
     void Awake()
     {
-        UpdateRobot(UserData.robotRecipe[0]);
+        DataController.InitiateData();
+        UpdateRobot(UserData.instance.robotRecipe[0]);
         comMenu = transform.FindChild("WinL").FindChild("ComMenu");
         Debug.Log(rCon);
     }

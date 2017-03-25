@@ -1,12 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using UnityEngine;
 using System.Linq;
 
-[System.Serializable]//New System
+//New System
 public class Recipe//パーツ
 {
+    [NonSerialized]
     protected List<Command> c;
     public List<Command> Command
     {
@@ -48,9 +50,9 @@ public class Recipe//パーツ
         lp = 0;
         sp = 0;
     }
-
 }
 
+[Serializable]
 public class Robot :Recipe
 {
     public Head head;
@@ -59,6 +61,11 @@ public class Robot :Recipe
     public Leg leg;
 
     public Robot(Head h,Body b,Arm a,Leg l)
+    {
+        InitiateRobot(h, b, a, l);
+    }
+
+    void InitiateRobot(Head h, Body b, Arm a, Leg l)
     {
         c = new List<Command>();
         c.Add(new DefaultCommand());
@@ -70,13 +77,14 @@ public class Robot :Recipe
         c.AddRange(body.Command);
         c.AddRange(arm.Command);
         c.AddRange(leg.Command);
-        name = "新しいロボット";
+        name = "rb-000";
         hp = h.HP + b.HP + a.HP + l.HP;
         lp = h.LP + b.LP + a.LP + l.LP;
         sp = h.SP + b.SP + a.SP + l.SP;
     }
 }
 
+[Serializable]
 public class Head : Recipe
 {
     List<int[,]> comList;//コマンド番号リスト
@@ -128,7 +136,7 @@ public class Head : Recipe
         this.typeNo = typeNo;
         AddComList();
         mats = i;
-        name = "新しいヘッド";
+        name = "hd-000";
         float comp = -0.5f;//補正
         sp = (int)(mats[0].HP * comp);
         defComNo = 1;
@@ -154,12 +162,13 @@ public class Head : Recipe
 
 public enum ComNo { Myself = -3, None = -2, Default = 0 }
 
+[Serializable]
 public class Body : Recipe
 {
     public Body(params Item[] i) : base(i)
     {
         mats = i;
-        name = "新しいボディ";
+        name = "bd-000";
         float comp = 10f;//補正
         hp = (int)(mats[0].HP * comp);
         lp = (int)(mats[0].HP * comp);
@@ -167,6 +176,7 @@ public class Body : Recipe
     }
 }
 
+[Serializable]
 public class Arm : Recipe
 {
     int pow;//火力
@@ -174,7 +184,7 @@ public class Arm : Recipe
     public Arm(params Item[] i) : base(i)
     {
         mats = i;
-        name = "新しいアーム";
+        name = "am-000";
         float comp = 10f;
         switch(mats[0].HP)
         {
@@ -185,6 +195,7 @@ public class Arm : Recipe
     }
 }
 
+[Serializable]
 public class Leg : Recipe
 {
 
@@ -199,7 +210,7 @@ public class Leg : Recipe
         c.Add(new Right());
         c.Add(new Turn());
         mats = i;
-        name = "新しいレッグ";
+        name = "lg-000";
         float comp = 15f;//補正
         sp = (int)(mats[0].HP * comp);
     }

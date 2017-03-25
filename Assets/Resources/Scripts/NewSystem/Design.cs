@@ -58,9 +58,9 @@ public class Design : MonoBehaviour
 
     void InitiateMenu()
     {
-        for (int i = 0; i < UserData.robotRecipe.Count; i++)
+        for (int i = 0; i < UserData.instance.robotRecipe.Count; i++)
         {
-            AddMenu(UserData.robotRecipe[i]);
+            AddMenu(UserData.instance.robotRecipe[i]);
         }
     }
 
@@ -110,10 +110,10 @@ public class Design : MonoBehaviour
 
     void SetStatus()
     {
-        Recipe recipe = UserData.robotRecipe[selNo];
+        Recipe recipe = UserData.instance.robotRecipe[selNo];
         if (isOnRobot)
         {
-            Robot r = UserData.robotRecipe[selNo];
+            Robot r = UserData.instance.robotRecipe[selNo];
             component[0].FindChild("Text").GetComponent<Text>().text
                 = r.head.Name.ToString();
             component[1].FindChild("Text").GetComponent<Text>().text
@@ -144,8 +144,15 @@ public class Design : MonoBehaviour
     {
         if (fadeCo == fadeTime)
         {
-            winsGO.SetActive(fadeSp < 0);
-            comModeGO.SetActive(0 < fadeSp);
+            if(0<fadeSp)//自分が消え、コマンドを呼び出すとき
+            {
+                comModeGO.SetActive(true);
+                winsGO.SetActive(false);
+                comSetter.UpdateRobot(UserData.instance.robotRecipe[selNo]);
+            }
+            else//自分を表示
+            {
+            }
             isOnFade = false;
             fadeCo = 0;
             fadeSp *= -1;
@@ -170,8 +177,9 @@ public class Design : MonoBehaviour
     {
         if (isOnRobot)
         {
-            UserData.robotRecipe.Add(UserData.robotRecipe[0]);
-            AddMenu(UserData.robotRecipe[UserData.robotRecipe.Count - 1]);
+            UserData.instance.robotRecipe.Add(new Robot(UserData.instance.heads[0], UserData.instance.bodies[0],
+                UserData.instance.arms[0], UserData.instance.legs[0]));
+            AddMenu(UserData.instance.robotRecipe[UserData.instance.robotRecipe.Count - 1]);
         }
     }
 
@@ -179,8 +187,8 @@ public class Design : MonoBehaviour
     {
         if (isOnRobot)
         {
-            UserData.robotRecipe.Add(UserData.robotRecipe[selNo]);
-            AddMenu(UserData.robotRecipe[UserData.robotRecipe.Count - 1]);
+            UserData.instance.robotRecipe.Add(UserData.instance.robotRecipe[selNo]);
+            AddMenu(UserData.instance.robotRecipe[UserData.instance.robotRecipe.Count - 1]);
         }
     }
 
@@ -191,7 +199,7 @@ public class Design : MonoBehaviour
             GameObject g = menuButtons[selNo].gameObject;
             menuButtons.RemoveAt(selNo);
             Destroy(g);
-            UserData.robotRecipe.RemoveAt(selNo);
+            UserData.instance.robotRecipe.RemoveAt(selNo);
             pSelNo = selNo == 0 ? 0 : selNo - 1;
             SetSelNo(pSelNo);
         }
@@ -220,7 +228,7 @@ public class Design : MonoBehaviour
         Debug.Log(nameField.text);
         if (isOnRobot)
         {
-            UserData.robotRecipe[selNo].Name = nameField.text;
+            UserData.instance.robotRecipe[selNo].Name = nameField.text;
         }
         menuButtons[selNo].transform.FindChild("Text").GetComponent<Text>().text = nameField.text;
     }
@@ -229,7 +237,6 @@ public class Design : MonoBehaviour
     {
         if(isOnRobot)
         {
-            comSetter.UpdateRobot(UserData.robotRecipe[selNo]);
             isOnFade = true;
         }
     }

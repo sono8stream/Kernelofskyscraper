@@ -1,45 +1,41 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class UserData
 {
-    public static List<Item> items;
-    public static List<int> itemCo;//アイテム数
-    public static List<Robot> robotRecipe;
-    public static List<Head> heads;
-    public static List<Body> bodies;
-    public static List<Arm> arms;
-    public static List<Leg> legs;
-    public static List<Robot> robots;
-    static SaveManager saveManager;
+    [NonSerialized]
+    public static UserData instance;
+    public List<Item> items;
+    public List<int> itemCo;//アイテム数
+    public List<Robot> robotRecipe;//設計図
+    public List<Head> heads;
+    public List<Body> bodies;
+    public List<Arm> arms;
+    public List<Leg> legs;
+    public List<Robot> robots;//本体
+    public List<Command> commands;//パネルセット
 
-    static UserData()
+    public UserData()
     {
-        Data.InitiateItems();
-        saveManager = new SaveManager();
-        if (saveManager.load() == null)
-        {
-            heads = new List<Head>();
-            bodies = new List<Body>();
-            arms = new List<Arm>();
-            legs = new List<Leg>();
-            robotRecipe = new List<Robot>();
-            robots = new List<Robot>();
-            heads.Add(new Head(3, 0, Data.items[0]));
-            bodies.Add(new Body(Data.items[0]));
-            arms.Add(new Arm(Data.items[0]));
-            legs.Add(new Leg(Data.items[0]));
-            robotRecipe.Add(new Robot(heads[0], bodies[0],
-                arms[0], legs[0]));
-        }
+        heads = new List<Head>();
+        bodies = new List<Body>();
+        arms = new List<Arm>();
+        legs = new List<Leg>();
+        robotRecipe = new List<Robot>();
+        robots = new List<Robot>();
+        commands = new List<Command>();
+        heads.Add(new Head(3, 0, Data.items[0]));
+        bodies.Add(new Body(Data.items[0]));
+        arms.Add(new Arm(Data.items[0]));
+        legs.Add(new Leg(Data.items[0]));
+        robotRecipe.Add(new Robot(heads[0], bodies[0], arms[0], legs[0]));
+        commands.Add(new North());
+        commands.Add(new South());
+        commands.Add(new East());
+        commands.Add(new West());
     }
-
-    /*private void OnApplicationQuit()
-    {
-        Debug.Log("Loaded??");
-        saveManager.save(this);
-    }*/
 }

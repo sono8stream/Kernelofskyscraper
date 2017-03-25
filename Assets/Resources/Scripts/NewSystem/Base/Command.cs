@@ -3,18 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
 public abstract class Command
 {
     public string name;//名前
     public Sprite sprite;//アイコン
     public Vector3 angle;
-    public Command(string name, string sPath, Vector3 angle)
+    public Command(string name, Sprite sprite, Vector3 angle)
     {
         this.name = name;
-        sprite = Resources.Load<Sprite>(sPath);
+        this.sprite = sprite;
         this.angle = angle;
+        Debug.Log(GetType());
     }
+
+    public Command CreateInstance()
+    {
+        return (Command)Activator.CreateInstance(GetType());
+    }
+
+    public abstract Command Copy();
+
     public abstract bool Run(MapObject obj);
 }
 
@@ -23,9 +31,14 @@ public class North : Command
     float sp;
     const float ANGLE = 180f;
 
-    public North() : base("North", "Sprites/Battle/Panel/panel_2", Vector3.zero)
+    public North() : base("North", Data.panelSprites[(int)PanelSpritesName.go], Vector3.zero)
     {
         sp = 10f;
+    }
+
+    public override Command Copy()
+    {
+        return new North();
     }
 
     public override bool Run(MapObject obj)
@@ -55,10 +68,14 @@ public class South : Command
     float sp;
     const float ANGLE = 0f;
 
-    public South() : base("South",
-        "Sprites/Battle/Panel/panel_2", Vector3.forward*180)
+    public South() : base("South", Data.panelSprites[(int)PanelSpritesName.go], Vector3.forward*180)
     {
         sp = 10f;
+    }
+
+    public override Command Copy()
+    {
+        return new South();
     }
 
     public override bool Run(MapObject obj)
@@ -88,10 +105,14 @@ public class East : Command
     float sp;
     const float ANGLE = 90f;
 
-    public East() : base("East",
-        "Sprites/Battle/Panel/panel_2", Vector3.forward * 270)
+    public East() : base("East", Data.panelSprites[(int)PanelSpritesName.go], Vector3.forward * 270)
     {
         sp = 10f;
+    }
+
+    public override Command Copy()
+    {
+        return new East();
     }
 
     public override bool Run(MapObject obj)
@@ -121,10 +142,14 @@ public class West : Command
     float sp;
     const float ANGLE = 270f;
 
-    public West() : base("West",
-        "Sprites/Battle/Panel/panel_2", Vector3.forward * 90)
+    public West() : base("West", Data.panelSprites[(int)PanelSpritesName.go], Vector3.forward * 90)
     {
         sp = 10f;
+    }
+
+    public override Command Copy()
+    {
+        return new West();
     }
 
     public override bool Run(MapObject obj)
@@ -155,11 +180,16 @@ public class Left : Command
     int period;
     int count;
 
-    public Left() : base("Left", "Sprites/Battle/Panel/left", Vector3.zero)
+    public Left() : base("Left", Data.panelSprites[(int)PanelSpritesName.left], Vector3.zero)
     {
         sp = 15f;
         period = (int)(90f / sp);
         count = 0;
+    }
+
+    public override Command Copy()
+    {
+        return new Left();
     }
 
     public override bool Run(MapObject obj)
@@ -184,11 +214,16 @@ public class Right : Command
     int period;
     int count;
 
-    public Right() : base("Right", "Sprites/Battle/Panel/left", Vector3.up * 180)
+    public Right() : base("Right", Data.panelSprites[(int)PanelSpritesName.left], Vector3.up * 180)
     {
         sp = 15f;
         period = (int)(90f / sp);
         count = 0;
+    }
+
+    public override Command Copy()
+    {
+        return new Right();
     }
 
     public override bool Run(MapObject obj)
@@ -213,11 +248,16 @@ public class Turn : Command
     int period;
     int count;
 
-    public Turn() : base("Turn", "Sprites/Battle/Panel/turn", Vector3.zero)
+    public Turn() : base("Turn", Data.panelSprites[(int)PanelSpritesName.turn], Vector3.zero)
     {
         sp = 30f;
         period = (int)(180f / sp);
         count = 0;
+    }
+
+    public override Command Copy()
+    {
+        return new Turn();
     }
 
     public override bool Run(MapObject obj)
@@ -243,11 +283,16 @@ public class Go : Command
     int count;
     Vector3 mPos = Vector3.zero;
 
-    public Go() : base("Go", "Sprites/Battle/Panel/go", Vector3.zero)
+    public Go() : base("Go", Data.panelSprites[(int)PanelSpritesName.go], Vector3.zero)
     {
         sp = 0.1f;
         period = (int)(1f / sp);
         count = 0;
+    }
+
+    public override Command Copy()
+    {
+        return new Go();
     }
 
     public override bool Run(MapObject obj)
@@ -295,9 +340,14 @@ public class Go : Command
 
 public class DefaultCommand : Command
 {
-    public DefaultCommand() : base("Default", "Sprites/Battle/Panel/default", Vector3.zero)
+    public DefaultCommand() : base("Default", Data.panelSprites[(int)PanelSpritesName.def], Vector3.zero)
     {
 
+    }
+
+    public override Command Copy()
+    {
+        return new DefaultCommand();
     }
 
     public override bool Run(MapObject obj)
