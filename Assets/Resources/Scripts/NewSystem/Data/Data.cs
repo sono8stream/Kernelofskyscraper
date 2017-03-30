@@ -6,6 +6,8 @@ public class Data//基幹データ部
 {
     public static List<Item> items;
     public static List<Sprite> panelSprites;
+    public static List<Command> commands;
+    public static List<Sprite> roboSprites;
 
     public static void Initiate()
     {
@@ -27,7 +29,17 @@ public class Data//基幹データ部
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/default"));
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/left"));
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/turn"));
-        panelSprites.Add(Resources.Load<Sprite>("Sprites / Battle / Panel / go"));
+        panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/go"));
+        commands = new List<Command>();
+        commands.Add(new North());
+        commands.Add(new South());
+        commands.Add(new East());
+        commands.Add(new West());
+        commands.Add(new Left());
+        commands.Add(new Right());
+        commands.Add(new Turn());
+        roboSprites = new List<Sprite>();
+        roboSprites.Add(Resources.Load<Sprite>("Sprites/Battle/robo_b10_icon"));
     }
 
 }
@@ -35,4 +47,9 @@ public class Data//基幹データ部
 public enum PanelSpritesName
 {
     def = 0, left, turn, go
+}
+
+public enum CommandType
+{
+    north = 0, south, east, west, left, right, turn
 }

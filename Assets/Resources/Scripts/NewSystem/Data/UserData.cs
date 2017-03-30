@@ -17,7 +17,7 @@ public class UserData
     public List<Arm> arms;
     public List<Leg> legs;
     public List<Robot> robots;//本体
-    public List<Command> commands;//パネルセット
+    public bool[] gotComs;//パネルセット
 
     public UserData()
     {
@@ -27,15 +27,13 @@ public class UserData
         legs = new List<Leg>();
         robotRecipe = new List<Robot>();
         robots = new List<Robot>();
-        commands = new List<Command>();
+        gotComs = new bool[Data.commands.Count];
+        StaticMethodsCollection.ForArray(ref gotComs,x=> { return true; });
+        Debug.Log(gotComs[0]);
         heads.Add(new Head(3, 0, Data.items[0]));
         bodies.Add(new Body(Data.items[0]));
         arms.Add(new Arm(Data.items[0]));
         legs.Add(new Leg(Data.items[0]));
         robotRecipe.Add(new Robot(heads[0], bodies[0], arms[0], legs[0]));
-        commands.Add(new North());
-        commands.Add(new South());
-        commands.Add(new East());
-        commands.Add(new West());
     }
 }

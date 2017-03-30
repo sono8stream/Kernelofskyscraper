@@ -314,9 +314,11 @@ public class Go : Command
                     mPos = Vector3.left;
                     break;
             }
-            if (obj.Map.GetMapData(obj.Floor, obj.transform.position + mPos) == 1)
+            CellData c = obj.Map.GetMapData(obj.Floor, obj.transform.position + mPos);
+            if (c.partNo == (int)MapPart.floor && c.objNo == 0)
             {
-                obj.Map.SetObjData(obj.Floor,obj.transform.position + mPos, obj.No);
+                c.objNo = obj.No;
+                obj.Map.SetObjData(obj.Floor, obj.transform.position + mPos, -1);
             }
             else
             {

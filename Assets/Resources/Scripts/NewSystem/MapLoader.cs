@@ -1,25 +1,35 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class MapLoader : MonoBehaviour
 {
-
     public TextAsset mp_layout;//マップ情報を記述したテキスト
     public MapGenerator generator;
     int mapWidth;
     int mapHeight;
-    int[][,] mapdata;//サイズは縦横いずれも奇数推奨
+    public int MapWidth
+    {
+        get { return mapWidth; }
+    }
+    public int MapHeight
+    {
+        get { return mapHeight; }
+    }
+    CellData[][,] mapData;//サイズは縦横いずれも奇数推奨
+    public CellData[][,] MapData
+    {
+        get { return mapData; }
+    }
     List<MapObject> objs;
-    int[,] objData;//マップとオブジェクトの対応値
     public string[] mapdataDebug;
-    public Sprite mapchips;
+    //public Sprite mapchips;
     Texture2D ceilingTexture;
-    const int MASU = 32;
+    int floorMargin;//フロア間の距離
+    int f, x, y;//階数,x,y座標
     [SerializeField]
     bool onTest;
-    GameObject[][] tiles;
-    int f,x, y;
 
     // Use this for initialization
     void Awake()
@@ -28,18 +38,17 @@ public class MapLoader : MonoBehaviour
         if (generator != null)
         {
             generator.InitiateMap();
-            mapdata = generator.Mapdata;
+            mapWidth = generator.Mapdata[0].GetLength(0);
+            mapHeight = generator.Mapdata[0].GetLength(1);
+            InitiateMapData();
         }
         else
         {
             ReadMap();
         }
-        mapWidth = mapdata[0].GetLength(0);
-        mapHeight = mapdata[0].GetLength(1);
-        tiles = new GameObject[mapdata.Length][];
+        floorMargin = 20;
         DrawMap();
         objs = new List<MapObject>();
-        objData = new int[mapWidth, mapHeight];
         /*if ((mapdata.GetLength(0) & 1) == 0)//x位置補正
         {
             transform.position += Vector3.left * 0.5f;
@@ -52,17 +61,7 @@ public class MapLoader : MonoBehaviour
 
     void Start()
     {
-        mapdataDebug = new string[mapHeight];
-        for (int i = 0; i < mapdataDebug.Length; i++)//タテループ
-        {
-            string sub = "";
-            for (int j = 0; j < mapWidth; j++)//よこループ
-            {
-                string c = mapdata[0][j, i] == 1 ? " " : "■";
-                sub += mapdata[0][j, i].ToString();
-            }
-            mapdataDebug[i] = sub;
-        }
+        DebugMapdata();
         f = 0;
         x = 0;
         y = 0;
@@ -75,13 +74,13 @@ public class MapLoader : MonoBehaviour
         {
             DelMap();
             generator.InitiateMap();
-            mapdata = generator.Mapdata;
+            UpdateMapData();
             DebugMapdata();
             DrawMap();
         }
-        if (!onTest&&f < mapdata.Length)
+        if (!onTest&&f < mapData.Length)
         {
-            tiles[f][x + mapWidth * y].SetActive(true);
+            mapData[f][x,y].tile.SetActive(true);
             x++;
             if (x == mapWidth)
             {
@@ -104,8 +103,8 @@ public class MapLoader : MonoBehaviour
             string sub = "";
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
-                string c = mapdata[0][j, i] == 1 ? " " : "■";
-                sub += mapdata[0][j, i].ToString();
+                string c = mapData[0][j, i].partNo == (int)MapPart.floor ? " " : "■";
+                sub += mapData[0][j, i].ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -129,35 +128,59 @@ public class MapLoader : MonoBehaviour
             if (i == 0)//mapdata初期化
             {
                 mapWidth = eachInfo.Length;
-                mapdata = new int[1][,] { new int[eachInfo.Length, layoutInfo.Length] };
+                mapData = new CellData[1][,] { new CellData[eachInfo.Length, layoutInfo.Length] };
             }
             for (int j = 0; j < eachInfo.Length; j++)
             {
                 if (eachInfo[j] != "")
                 {
-                    mapdata[0][j, i] = int.Parse(eachInfo[j]);
+                    mapData[0][j, i] = new CellData(int.Parse(eachInfo[j]));
                 }
             }
         }
-        AdjustMapData(mapdata[0]);
-        return new Vector2(mapdata[0].GetLength(0), mapdata[0].GetLength(1));
+        AdjustMapData(mapData[0]);
+        return new Vector2(mapData[0].GetLength(0), mapData[0].GetLength(1));
     }
 
     /// <summary>
     /// マップデータをy座標上向きにとる,つまりy座標をひっくり返す
     /// </summary>
-    void AdjustMapData(int[,] map)
+    void AdjustMapData(CellData[,] map)
     {
-        for (int x = 0; x < mapdata[0].GetLength(0); x++)//よこループ
+        CellData c1, c2;
+        for (int x = 0; x < mapData[0].GetLength(0); x++)//よこループ
         {
             for (int y = 0;
-                y < (mapdata[0].GetLength(1) - mapdata[0].GetLength(1) % 2) / 2; y++)//タテループ
-            {
-                map[x, y] += map[x, map.GetLength(1) - y - 1];
-                map[x, map.GetLength(1) - y - 1] = map[x, y] - map[x, map.GetLength(1) - y - 1];
-                map[x, y] -= map[x, map.GetLength(1) - y - 1];
+                y < (mapData[0].GetLength(1) - mapData[0].GetLength(1) % 2) / 2; y++)//タテループ
+            {//Swap
+                c1 = map[x, y];
+                c2 =map[x, map.GetLength(1) - y - 1];
+                c1.partNo += c2.partNo;
+                c2.partNo = c1.partNo - c2.partNo;
+                c1.partNo -= c2.partNo;
             }
         }
+    }
+
+    void InitiateMapData()
+    {
+        mapData = new CellData[generator.Mapdata.Length][,];
+        for (int i = 0; i < generator.Mapdata.Length; i++)
+        {
+            mapData[i] = new CellData[mapWidth, mapHeight];
+            for(int j=0;j<mapWidth;j++)
+            {
+                for(int k=0;k<mapHeight;k++)
+                {
+                    mapData[i][j, k] = new CellData(generator.Mapdata[i][j, k]);
+                }
+            }
+        }
+    }
+
+    void UpdateMapData()
+    {
+
     }
 
     void DrawMap()
@@ -168,46 +191,41 @@ public class MapLoader : MonoBehaviour
         string stairDPath = "Prefabs/New3D/StairD";
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
-        tiles = new GameObject[mapdata.Length][];
         Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
-        Debug.Log(ceilingTextures.Length);
-        for (int i = 0; i < mapdata.Length; i++)
+        for (int i = 0; i < mapData.Length; i++)
         {
-            tiles[i] = new GameObject[mapWidth * mapHeight];
-            GameObject map = new GameObject("Floor" + (i+1).ToString());
+            GameObject map = new GameObject("Floor" + (i + 1).ToString());
             map.transform.SetParent(transform);
+            map.transform.position += Vector3.right * (floorMargin + mapWidth) * i;
             for (int y = 0; y < mapHeight; y++)
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    tiles[i][x + mapWidth * y] = null;
-                    switch (mapdata[i][x, y])
+                    GameObject g = null;
+                    switch (mapData[i][x, y].partNo)
                     {
                         case 1://floor
-                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(floorPath),
-                                map.transform);
+                            g = Instantiate(Resources.Load<GameObject>(floorPath), map.transform);
                             break;
                         case 2://wall
-                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(wallPath),
-                                map.transform);
+                            g = Instantiate(Resources.Load<GameObject>(wallPath), map.transform);
                             //AdjustCeiling(x, y, obj.transform, ceilingTextures);
                             break;
                         case 3://下階段
-                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(stairDPath),
-                                map.transform);
+                            g = Instantiate(Resources.Load<GameObject>(stairDPath), map.transform);
                             break;
                         case 4://上階段
-                            tiles[i][x + mapWidth * y] = Instantiate(Resources.Load<GameObject>(stairUPath),
-                                map.transform);
+                            g = Instantiate(Resources.Load<GameObject>(stairUPath), map.transform);
                             break;
                     }
-                    if (tiles[i][x + mapWidth * y] != null)
+                    if (g != null)
                     {
-                        tiles[i][x + mapWidth * y].transform.position = new Vector3(iniX + x, iniY - y, -i * 2.4f);
+                        g.transform.localPosition = new Vector3(iniX + x, iniY - y, 0);
                         if (onTest)
                         {
-                            tiles[i][x + mapWidth * y].SetActive(true);
+                            g.SetActive(true);
                         }
+                        mapData[i][x, y].tile = g;
                     }
                 }
             }
@@ -252,10 +270,10 @@ public class MapLoader : MonoBehaviour
             {
                 int xc = i % 3 - 1 + x;
                 int yc = i / 3 - 1 + y;
-                if (0 <= xc && xc < mapdata.GetLength(0)
-                    && 0 <= yc && yc < mapdata.GetLength(1))
+                if (0 <= xc && xc < mapData.GetLength(0)
+                    && 0 <= yc && yc < mapData.GetLength(1))
                 {
-                    sur[i] = mapdata[floorNo][xc, yc] == 2;
+                    sur[i] = mapData[floorNo][xc,yc].partNo == 2;
                 }
             }
         }
@@ -316,87 +334,86 @@ public class MapLoader : MonoBehaviour
         return point;
     }
 
-    public int GetMapData(int floorNo,Vector2 pos)
+    public CellData GetMapData(int floorNo, Vector2 pos)
     {
-        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0), false);
-        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1), true);
-        if (0 <= x && x < mapdata[floorNo].GetLength(0)
-            && 0 <= y && y < mapdata[floorNo].GetLength(1))
+        int x = 0, y = 0;
+        PosToMapIndex(pos, ref x, ref y);
+        if (InMap(x, y))
         {
-            return mapdata[floorNo][x, y];
+            return mapData[floorNo][x, y];
         }
         else
         {
-            return -1;
+            return null;
         }
     }
 
-    public void SetMapData(int floorNo,Vector2 pos, int value)
+    public void SetObjData(int floorNo, Vector2 pos,int objNo)
     {
-        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0),false);
-        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1),true);
-        if (0 <= x && x < mapdata[floorNo].GetLength(0)
-            && 0 <= y && y < mapdata[floorNo].GetLength(1))
-        {
-            mapdata[floorNo][x, y] = value;
-        }
+        int x = 0, y = 0;
+        PosToMapIndex(pos, ref x, ref y);
+        if (InMap(x, y))
+        { mapData[floorNo][x, y].objNo = objNo; }
     }
 
-    public int GetObjData(int floorNo, Vector2 pos)
+    public void SetPanelData(int floorNo, Vector2 pos, int panelNo)
     {
-        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0),false);
-        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1),true);
-        if (0 <= x && x < mapdata[floorNo].GetLength(0)
-            && 0 <= y && y < mapdata[floorNo].GetLength(1))
-        {
-            return objData[x, y];
-        }
-        else
-        {
-            return -1;
-        }
+        int x = 0, y = 0;
+        PosToMapIndex(pos, ref x, ref y);
+        if (InMap(x, y))
+        { mapData[floorNo][x, y].panelNo = panelNo; }
     }
 
-    public void SetObjData(int floorNo,Vector2 pos, int value)
+    void PosToMapIndex(Vector2 pos,ref int x, ref int y)
     {
-        int x = PosToIndex(pos.x, mapdata[floorNo].GetLength(0), false);
-        int y = PosToIndex(pos.y, mapdata[floorNo].GetLength(1), true);
-        if (0 <= x && x < mapdata[floorNo].GetLength(0)
-            && 0 <= y && y < mapdata[floorNo].GetLength(1))
-        {
-            objData[x, y] = value;
-        }
+        x = Mathf.RoundToInt(pos.x) + (mapWidth - mapWidth % 2) / 2;
+        y = -Mathf.RoundToInt(pos.y) + (mapWidth - mapWidth % 2) / 2;
     }
 
-    int PosToIndex(float v, int length,bool reverse)
+    bool InMap(int x,int y)
     {
-        int val = Mathf.RoundToInt(v);
-        val *= reverse ? -1 : 1;
-        return val + (length - length % 2) / 2;
+        return 0 <= x && x < mapWidth && 0 <= y && y < mapHeight;
     }
 
     public int RecObj(MapObject obj)//オブジェクトに番号をセットする用
     {
         objs.Add(obj);
-        SetObjData(obj.Floor,obj.transform.position, objs.Count);
+        CellData c = GetMapData(obj.Floor, obj.transform.position);
+        c.objNo = objs.Count - 1;
         return objs.Count;
     }
 
     public void DelObjNo(int no)//オブジェクト番号をつぶして更新
     {
+        CellData c;
         for (int i = no; i < objs.Count; i++)
         {
-            for (int x = 0; x < objData.GetLength(0); x++)
-            {
-                for (int y = 0; y < objData.GetLength(1); y++)
-                {
-                    if (objData[x, y] == i)
-                    {
-                        objData[x, y] = i == no ? 0 : i - 1;
-                    }
-                }
-            }
+            c = GetMapData(objs[i].Floor, objs[i].transform.position);
+            c.objNo--;
         }
         objs.RemoveAt(no);
     }
+}
+
+/// <summary>
+/// マス目情報
+/// </summary>
+public class CellData
+{
+    public int partNo;//マスの構造、床、階段など
+    public int objNo;//MapObject番号、存在しなければ0
+    public int panelNo;//パネル番号、存在しなければ-1
+    public GameObject tile;
+
+    public CellData(int partNo, int objNo = 0, int panelNo = -1)
+    {
+        this.partNo = partNo;
+        this.objNo = objNo;
+        this.panelNo = panelNo;
+    }
+}
+
+public enum MapPart
+{
+    floor = 1, wall, stairD, stairU
 }

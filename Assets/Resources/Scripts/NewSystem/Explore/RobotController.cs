@@ -135,7 +135,7 @@ public class RobotController : MapObject
                     && 0 <= tY && tY < robot.head.Range
                     && 0 <= robot.head.ComList[comListNo][tY, tX]
                     && map.GetMapData(floor, transform.position
-                    + new Vector3(ttX, ttY, 0)) == 2/*かべあるとき、条件子*/)
+                    + new Vector3(ttX, ttY, 0)).partNo == (int)MapPart.wall/*かべあるとき、条件子*/)
                 {
                     return robot.head.ComList[comListNo][tY, tX];
                 }

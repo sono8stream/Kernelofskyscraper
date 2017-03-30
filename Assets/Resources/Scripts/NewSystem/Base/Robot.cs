@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Linq;
 
 //New System
+[Serializable]
 public class Recipe//パーツ
 {
     [NonSerialized]
@@ -59,6 +60,8 @@ public class Robot :Recipe
     public Body body;
     public Arm arm;
     public Leg leg;
+    [NonSerialized]
+    public Sprite icon;
 
     public Robot(Head h,Body b,Arm a,Leg l)
     {
@@ -81,6 +84,7 @@ public class Robot :Recipe
         hp = h.HP + b.HP + a.HP + l.HP;
         lp = h.LP + b.LP + a.LP + l.LP;
         sp = h.SP + b.SP + a.SP + l.SP;
+        icon = Data.roboSprites[0];
     }
 }
 

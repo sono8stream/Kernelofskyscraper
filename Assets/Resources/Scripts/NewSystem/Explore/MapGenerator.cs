@@ -16,11 +16,12 @@ public class MapGenerator : MonoBehaviour
     int width, height;
     const int MASU = 32;
     int stX, stY;//初期座標
-    int minRectSize = 7;//ブロックサイズ最小値,実際部屋サイズは-2
-    int roomLim = 5;//最大部屋数基準+3
+    int minRectSize = 5;//ブロックサイズ最小値,実際部屋サイズは-2
+    int roomLim = 15;//最大部屋数基準+roomRan
     int roomRan = 3;
+    int roomLimTemp;
     int roomCo = 1;
-    int lineSize = 2;
+    int lineSize = 1;
     int floors = 3;//3階立て
     class Block
     {
@@ -89,13 +90,12 @@ public class MapGenerator : MonoBehaviour
             blocks[i].Add(new Block(0, 0, width, height, i));
             rooms[i] = new List<Block>();
         }
-        roomLim = 5 + Random.Range(0, roomRan + 1);
-        roomCo = 1;
         for (int i = 0; i < floors; i++)
         {
+            roomLimTemp = roomLim + Random.Range(0, roomRan + 1);
+            roomCo = 1;
             SplitMap(i);
             rooms[i].AddRange(blocks[i]);
-            roomCo = 0;
         }
         CheckAdjacent();
         DelAdjacents();
@@ -150,7 +150,7 @@ public class MapGenerator : MonoBehaviour
                 - minRectSize - lineSize + 1);
         }
         SplitBlock(floorNo, blockNo, splitX, splitY, vertical);
-        if (roomCo < roomLim)
+        if (roomCo < roomLimTemp)
         {
             SplitMap(floorNo);
         }
@@ -215,26 +215,33 @@ public class MapGenerator : MonoBehaviour
         {
             fNo = Random.Range(0, floors);//ランダムでルート消去
             rNo = Random.Range(0, rooms[fNo].Count);
-            index1 = Random.Range(0, rooms[fNo][rNo].adjBlocks.Count);
-            b1 = rooms[fNo][rNo];
-            b2 = b1.adjBlocks[index1];
-            index2 = b2.adjBlocks.IndexOf(b1);
-            dire1 = b1.adjDire[index1];
-            dire2 = b2.adjDire[index2];
-            b1.adjBlocks.RemoveAt(index1);
-            b1.adjDire.RemoveAt(index1);
-            b2.adjBlocks.RemoveAt(index2);
-            b2.adjDire.RemoveAt(index2);
-            if(CheckRoute())
+
+            if (1 < rooms[fNo][rNo].adjBlocks.Count)
             {
-                adjCo -= 2;
-            }
-            else
-            {
-                b1.adjBlocks.Add(b2);
-                b1.adjDire.Add(dire1);
-                b2.adjBlocks.Add(b1);
-                b2.adjDire.Add(dire2);
+                index1 = Random.Range(0, rooms[fNo][rNo].adjBlocks.Count);
+                b1 = rooms[fNo][rNo];
+                b2 = b1.adjBlocks[index1];
+                index2 = b2.adjBlocks.IndexOf(b1);
+                dire1 = b1.adjDire[index1];
+                dire2 = b2.adjDire[index2];
+                b1.adjBlocks.RemoveAt(index1);
+                b1.adjDire.RemoveAt(index1);
+                b2.adjBlocks.RemoveAt(index2);
+                b2.adjDire.RemoveAt(index2);
+
+                if (CheckRoute() && (1 < b1.adjDire.Count || b1.adjDire[0] <= 3)
+                    && (1 < b2.adjDire.Count || b2.adjDire[0] <= 3))//階段だけでつながっていない
+                {
+                    adjCo -= 2;
+                }
+                else
+                {
+                    b1.adjBlocks.Add(b2);
+                    b1.adjDire.Add(dire1);
+                    b2.adjBlocks.Add(b1);
+                    b2.adjDire.Add(dire2);
+                }
+
             }
         }
     }
@@ -506,7 +513,8 @@ public class MapGenerator : MonoBehaviour
                         room.rY + Random.Range(0, room.rH - lineSize + 1));
                     break;
             }
-        } while (mapdata[room.floorNo][(int)(p.x + v.x - Mathf.Abs(v.y)), (int)(p.y + v.y - Mathf.Abs(v.x))] == 1
+        } while ((int)MapPart.wall<mapdata[room.floorNo][(int)p.x,(int)p.y]//通路に階段
+        ||mapdata[room.floorNo][(int)(p.x + v.x - Mathf.Abs(v.y)), (int)(p.y + v.y - Mathf.Abs(v.x))] == 1
         || mapdata[room.floorNo][(int)(p.x + v.x + Mathf.Abs(v.y) * lineSize),
         (int)(p.y + v.y + Mathf.Abs(v.x) * lineSize)] == 1);
         int k = 1;

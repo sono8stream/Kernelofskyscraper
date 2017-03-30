@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PanelMenu : MonoBehaviour {
+public class RobotMenu : MonoBehaviour
+{
 
     [SerializeField]
     Image selectImage;
     [SerializeField]
-    float panelX1, panelSpace;
+    float buttonPosX;
     GameObject panelGOrigin;
     List<Button> commandBs;
     int panelNo;
@@ -39,7 +40,7 @@ public class PanelMenu : MonoBehaviour {
     void InitiateCommandBs()
     {
         commandBs = new List<Button>();
-        for (int i = 0; i < UserData.instance.gotComs.Length; i++)
+        for (int i = 0; i < UserData.instance.robotRecipe.Count; i++)
         {
             if (UserData.instance.gotComs[i])
             {
@@ -47,10 +48,10 @@ public class PanelMenu : MonoBehaviour {
                 int x = i;
                 b.onClick.AddListener(() => SetPanelNo(x));
                 Transform iconT = b.transform.FindChild("Icon");
-                iconT.GetComponent<Image>().sprite = Data.commands[i].sprite;
+                iconT.GetComponent<Image>().sprite = UserData.instance.robotRecipe[i].icon;
                 iconT.eulerAngles = Data.commands[i].angle;
                 RectTransform rt = b.GetComponent<RectTransform>();
-                rt.anchoredPosition = new Vector2(panelX1 + i % 2 * panelSpace, -82 - i / 2 * 120);
+                rt.anchoredPosition = new Vector2(buttonPosX + i * 120, -82 - i * 120);
                 rt.localScale = Vector3.one;
                 commandBs.Add(b);
             }
@@ -67,8 +68,8 @@ public class PanelMenu : MonoBehaviour {
     public void SetPanelNo(int no)
     {
         panelNo = no;
-        selectImage.sprite = Data.commands[panelNo].sprite;
-        selectImage.transform.eulerAngles = Data.commands[panelNo].angle;
+        selectImage.sprite = UserData.instance.robotRecipe[panelNo].icon;
+        selectImage.transform.eulerAngles = Vector3.zero;
         selectImage.enabled = true;
     }
 }
