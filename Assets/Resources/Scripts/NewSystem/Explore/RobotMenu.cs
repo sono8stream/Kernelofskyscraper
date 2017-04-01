@@ -10,17 +10,20 @@ public class RobotMenu : MonoBehaviour
     Image selectImage;
     [SerializeField]
     float buttonPosX;
+    [SerializeField]
+    CameraSwiper swiper;
+    public GameObject robotOrigin;
     GameObject panelGOrigin;
     List<Button> commandBs;
-    int panelNo;
-    public int PanelNo
+    int robotNo;
+    public int RobotNo
     {
-        get { return panelNo; }
+        get { return robotNo; }
     }
 
     void Awake()
     {
-        DataController.InitiateData();
+
     }
 
     // Use this for initialization
@@ -28,7 +31,7 @@ public class RobotMenu : MonoBehaviour
     {
         panelGOrigin = Resources.Load<GameObject>("Prefabs/Custom/PanelButton");
         InitiateCommandBs();
-        panelNo = -1;
+        robotNo = -1;
     }
 
     // Update is called once per frame
@@ -67,9 +70,10 @@ public class RobotMenu : MonoBehaviour
 
     public void SetPanelNo(int no)
     {
-        panelNo = no;
-        selectImage.sprite = UserData.instance.robotRecipe[panelNo].icon;
+        robotNo = no;
+        selectImage.sprite = UserData.instance.robotRecipe[robotNo].icon;
         selectImage.transform.eulerAngles = Vector3.zero;
         selectImage.enabled = true;
+        swiper.onPanel = false;
     }
 }

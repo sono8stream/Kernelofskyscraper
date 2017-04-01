@@ -8,6 +8,8 @@ public class PanelMenu : MonoBehaviour {
     [SerializeField]
     Image selectImage;
     [SerializeField]
+    CameraSwiper swiper;
+    [SerializeField]
     float panelX1, panelSpace;
     GameObject panelGOrigin;
     List<Button> commandBs;
@@ -70,5 +72,6 @@ public class PanelMenu : MonoBehaviour {
         selectImage.sprite = Data.commands[panelNo].sprite;
         selectImage.transform.eulerAngles = Data.commands[panelNo].angle;
         selectImage.enabled = true;
+        swiper.onPanel = true;
     }
 }

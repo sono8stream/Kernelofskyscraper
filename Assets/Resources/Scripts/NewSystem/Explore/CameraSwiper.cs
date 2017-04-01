@@ -13,6 +13,8 @@ public class CameraSwiper : MonoBehaviour
     [SerializeField]
     PanelMenu panelMenu;
     [SerializeField]
+    RobotMenu robotMenu;
+    [SerializeField]
     GameObject panelOrigin;
     [SerializeField]
     GameObject dammySprite;
@@ -24,17 +26,15 @@ public class CameraSwiper : MonoBehaviour
     Vector3 velocity;
     Vector3 accel;
     bool cameraIsFixing;//カメラ固定状態
+    public bool onPanel;
     int floorNo;
     #region for Scroll
     float swipeMargin;
     float period;//スクロール時間
-    float correctionX = /*-0.5f*/0;
     float speed = 0.1f;
-    float marginX = 0;
     float marginY = -8;
     float rangeX;
     float rangeY;
-    float correctionRight = 0;
     float correctionDown = /*2*/16;
     float posZ;
     #endregion
@@ -46,7 +46,7 @@ public class CameraSwiper : MonoBehaviour
         swipeMargin = 5;
         mapCorrectionPos = Vector3.back * 0.01f - camera.transform.localPosition;
         period = 80;
-        rangeX = map.MapWidth * 0.5f + marginX;
+        rangeX = map.MapWidth * 0.5f;
         rangeY = map.MapHeight * 0.5f + marginY;
         posZ = camera.transform.localPosition.z;
     }
@@ -90,7 +90,7 @@ public class CameraSwiper : MonoBehaviour
         if (keyDownPos.x - swipeMargin < posTemp.x && posTemp.x < keyDownPos.x + swipeMargin
             && keyDownPos.y - swipeMargin < posTemp.y && posTemp.y < keyDownPos.y + swipeMargin)
         {
-            tappedMapPos = camera.ScreenToWorldPoint(touchingPos) +mapCorrectionPos;
+            tappedMapPos = camera.ScreenToWorldPoint(touchingPos) + mapCorrectionPos;
             //aTapPoint = new Vector3(aTapPoint.x, aTapPoint.y, 0);
             Collider[] aCollider = Physics.OverlapSphere(tappedMapPos, 0.4f);
             foreach (Collider col in aCollider)
@@ -101,20 +101,32 @@ public class CameraSwiper : MonoBehaviour
                 }
             }
             Debug.Log(tappedMapPos);
-            if (0 <= panelMenu.PanelNo &&
-                (map.GetMapData(floorNo, tappedMapPos) != null 
+            if (onPanel && 0 <= panelMenu.PanelNo//パネル生成
+                &&(map.GetMapData(floorNo, tappedMapPos) != null
                 && map.GetMapData(floorNo, tappedMapPos).panelNo == -1))
             {
                 GameObject g = Instantiate(panelOrigin);
                 g.GetComponent<Panel>().command = Data.commands[panelMenu.PanelNo].CreateInstance();
-                g.transform.position = SetToMapPos();
+                g.transform.position = dammySprite.transform.position;
                 g.transform.localScale = Vector3.one;
                 map.SetPanelData(floorNo, tappedMapPos, panelMenu.PanelNo);
+            }
+            else if (!onPanel && 0 <= robotMenu.RobotNo // ロボ生成
+                &&(map.GetMapData(floorNo, tappedMapPos) != null
+                && map.GetMapData(floorNo, tappedMapPos).objNo == -1))
+            {
+                GameObject g = Instantiate(robotMenu.robotOrigin);
+                RobotController rc = g.GetComponent<RobotController>();
+                rc.Robot = (Robot)UserData.instance.robotRecipe[robotMenu.RobotNo].DeepCopy();
+                rc.Robot.Initiate();
+                Debug.Log(rc.Robot.Command.Count);
+                g.transform.position = dammySprite.transform.position;
+                g.transform.localScale = Vector3.one;
             }
         }
         else
         {
-            velocity = (touchingPos-posTemp) / period;
+            velocity = (touchingPos - posTemp) / period;
             accel = -velocity / 10;
         }
         //SetStatus(selectedObject);
@@ -124,19 +136,19 @@ public class CameraSwiper : MonoBehaviour
     //カメラのスクロール限界
     void LimitScroll(int sizeX, int sizeY, bool bound = true)
     {
-        if (camera.transform.localPosition.x < correctionX - rangeX)
+        if (camera.transform.localPosition.x <  - rangeX)
         {
-            camera.transform.position = new Vector3(correctionX - rangeX, camera.transform.localPosition.y, posZ);
+            camera.transform.position = new Vector3( - rangeX, camera.transform.localPosition.y, posZ);
             if (bound)
             {
                 velocity.x = speed;
             }
             accel = velocity / (-10);
         }
-        if (camera.transform.localPosition.x > correctionX + rangeX + correctionRight)
+        if (camera.transform.localPosition.x > rangeX)
         {
             camera.transform.localPosition
-                = new Vector3(correctionX + rangeX + correctionRight, camera.transform.localPosition.y, posZ);
+                = new Vector3(rangeX, camera.transform.localPosition.y, posZ);
             if (bound)
             {
                 velocity.x = -speed;

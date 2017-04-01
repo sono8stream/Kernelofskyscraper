@@ -376,6 +376,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectImage: {fileID: 68436796}
+  swiper: {fileID: 1943434475}
   panelX1: -82.5
   panelSpace: 130
 --- !u!1 &170687746
@@ -1985,6 +1986,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectImage: {fileID: 68436796}
   buttonPosX: -27.5
+  swiper: {fileID: 1943434475}
+  robotOrigin: {fileID: 1462362532201608, guid: 77967a913c18a6f49a0162cd601f81e2,
+    type: 2}
 --- !u!1 &1107751888
 GameObject:
   m_ObjectHideFlags: 0
@@ -2944,9 +2948,11 @@ MonoBehaviour:
   camera: {fileID: 1630807684}
   map: {fileID: 1829307847}
   panelMenu: {fileID: 170317234}
+  robotMenu: {fileID: 1098847798}
   panelOrigin: {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400,
     type: 2}
   dammySprite: {fileID: 170687746}
+  onPanel: 0
 --- !u!114 &1943434476
 MonoBehaviour:
   m_ObjectHideFlags: 0

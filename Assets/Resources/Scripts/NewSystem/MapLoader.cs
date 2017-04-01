@@ -78,15 +78,15 @@ public class MapLoader : MonoBehaviour
             DebugMapdata();
             DrawMap();
         }
-        if (!onTest&&f < mapData.Length)
+        if (!onTest && f < mapData.Length)
         {
-            mapData[f][x,y].tile.SetActive(true);
+            mapData[f][x, y].tile.SetActive(true);
             x++;
             if (x == mapWidth)
             {
                 x = 0;
                 y++;
-                if(y==mapHeight)
+                if (y == mapHeight)
                 {
                     y = 0;
                     f++;
@@ -154,7 +154,7 @@ public class MapLoader : MonoBehaviour
                 y < (mapData[0].GetLength(1) - mapData[0].GetLength(1) % 2) / 2; y++)//タテループ
             {//Swap
                 c1 = map[x, y];
-                c2 =map[x, map.GetLength(1) - y - 1];
+                c2 = map[x, map.GetLength(1) - y - 1];
                 c1.partNo += c2.partNo;
                 c2.partNo = c1.partNo - c2.partNo;
                 c1.partNo -= c2.partNo;
@@ -168,9 +168,9 @@ public class MapLoader : MonoBehaviour
         for (int i = 0; i < generator.Mapdata.Length; i++)
         {
             mapData[i] = new CellData[mapWidth, mapHeight];
-            for(int j=0;j<mapWidth;j++)
+            for (int j = 0; j < mapWidth; j++)
             {
-                for(int k=0;k<mapHeight;k++)
+                for (int k = 0; k < mapHeight; k++)
                 {
                     mapData[i][j, k] = new CellData(generator.Mapdata[i][j, k]);
                 }
@@ -234,7 +234,7 @@ public class MapLoader : MonoBehaviour
 
     void DelMap()
     {
-        foreach(Transform child in transform)
+        foreach (Transform child in transform)
         {
             Destroy(child.gameObject);
         }
@@ -250,13 +250,13 @@ public class MapLoader : MonoBehaviour
         {
             textures[i] = new Texture2D(masu, masu);
             textures[i].SetPixels(ceilingSprite.texture.GetPixels(i % vSplits * masu,
-                (hSplits-1 - i / vSplits) * masu, masu, masu));
+                (hSplits - 1 - i / vSplits) * masu, masu, masu));
             textures[i].Apply();
         }
         return textures;
     }
 
-    void AdjustCeiling(int floorNo,int x,int y,Transform t,Texture2D[] sprites)//天井のオートマップ編集
+    void AdjustCeiling(int floorNo, int x, int y, Transform t, Texture2D[] sprites)//天井のオートマップ編集
     {
         Renderer[] rs = new Renderer[4] {t.FindChild("TopLU").GetComponent<Renderer>(),
         t.FindChild("TopRU").GetComponent<Renderer>(),
@@ -273,7 +273,7 @@ public class MapLoader : MonoBehaviour
                 if (0 <= xc && xc < mapData.GetLength(0)
                     && 0 <= yc && yc < mapData.GetLength(1))
                 {
-                    sur[i] = mapData[floorNo][xc,yc].partNo == 2;
+                    sur[i] = mapData[floorNo][xc, yc].partNo == 2;
                 }
             }
         }
@@ -312,7 +312,7 @@ public class MapLoader : MonoBehaviour
         }*/
     }
 
-    int GetSurPoint(bool kado,bool faceH,bool faceV)
+    int GetSurPoint(bool kado, bool faceH, bool faceV)
     {
         int point = 0;
         if (kado && faceH && faceV)
@@ -348,7 +348,7 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    public void SetObjData(int floorNo, Vector2 pos,int objNo)
+    public void SetObjData(int floorNo, Vector2 pos, int objNo)
     {
         int x = 0, y = 0;
         PosToMapIndex(pos, ref x, ref y);
@@ -364,13 +364,13 @@ public class MapLoader : MonoBehaviour
         { mapData[floorNo][x, y].panelNo = panelNo; }
     }
 
-    void PosToMapIndex(Vector2 pos,ref int x, ref int y)
+    void PosToMapIndex(Vector2 pos, ref int x, ref int y)
     {
         x = Mathf.RoundToInt(pos.x) + (mapWidth - mapWidth % 2) / 2;
         y = -Mathf.RoundToInt(pos.y) + (mapWidth - mapWidth % 2) / 2;
     }
 
-    bool InMap(int x,int y)
+    bool InMap(int x, int y)
     {
         return 0 <= x && x < mapWidth && 0 <= y && y < mapHeight;
     }
@@ -378,8 +378,7 @@ public class MapLoader : MonoBehaviour
     public int RecObj(MapObject obj)//オブジェクトに番号をセットする用
     {
         objs.Add(obj);
-        CellData c = GetMapData(obj.Floor, obj.transform.position);
-        c.objNo = objs.Count - 1;
+        SetObjData(obj.Floor, obj.transform.position, objs.Count - 1);
         return objs.Count;
     }
 
@@ -388,8 +387,7 @@ public class MapLoader : MonoBehaviour
         CellData c;
         for (int i = no; i < objs.Count; i++)
         {
-            c = GetMapData(objs[i].Floor, objs[i].transform.position);
-            c.objNo--;
+            SetObjData(objs[i].Floor, objs[i].transform.position, i - 1);
         }
         objs.RemoveAt(no);
     }
@@ -405,7 +403,7 @@ public class CellData
     public int panelNo;//パネル番号、存在しなければ-1
     public GameObject tile;
 
-    public CellData(int partNo, int objNo = 0, int panelNo = -1)
+    public CellData(int partNo, int objNo = -1, int panelNo = -1)
     {
         this.partNo = partNo;
         this.objNo = objNo;

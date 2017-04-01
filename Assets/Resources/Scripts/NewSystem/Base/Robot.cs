@@ -41,7 +41,6 @@ public class Recipe//パーツ
 
     public Recipe(params Item[] items)
     {
-        c = new List<Command>();
         mats = new Item[4];
         for (int i = 0; i < items.Length && i < mats.Length; i++)
         {
@@ -50,6 +49,11 @@ public class Recipe//パーツ
         hp = 0;
         lp = 0;
         sp = 0;
+    }
+
+    public virtual void Initiate()
+    {
+        c = new List<Command>();
     }
 }
 
@@ -63,27 +67,31 @@ public class Robot :Recipe
     [NonSerialized]
     public Sprite icon;
 
-    public Robot(Head h,Body b,Arm a,Leg l)
+    public Robot(Head h, Body b, Arm a, Leg l)
     {
-        InitiateRobot(h, b, a, l);
-    }
-
-    void InitiateRobot(Head h, Body b, Arm a, Leg l)
-    {
-        c = new List<Command>();
-        c.Add(new DefaultCommand());
         head = h;
         body = b;
         arm = a;
         leg = l;
+        name = "rb-000";
+        hp = head.HP + body.HP + arm.HP + leg.HP;
+        lp = head.LP + body.LP + arm.LP + leg.LP;
+        sp = head.SP + body.SP + arm.SP + leg.SP;
+        Initiate();
+    }
+
+    public override void Initiate()
+    {
+        base.Initiate();
+        head.Initiate();
+        body.Initiate();
+        arm.Initiate();
+        leg.Initiate();
+        c.Add(new DefaultCommand());
         c.AddRange(head.Command);
         c.AddRange(body.Command);
         c.AddRange(arm.Command);
         c.AddRange(leg.Command);
-        name = "rb-000";
-        hp = h.HP + b.HP + a.HP + l.HP;
-        lp = h.LP + b.LP + a.LP + l.LP;
-        sp = h.SP + b.SP + a.SP + l.SP;
         icon = Data.roboSprites[0];
     }
 }
@@ -144,6 +152,12 @@ public class Head : Recipe
         float comp = -0.5f;//補正
         sp = (int)(mats[0].HP * comp);
         defComNo = 1;
+        Initiate();
+    }
+
+    public override void Initiate()
+    {
+        base.Initiate();
     }
 
     public void AddComList()
@@ -177,6 +191,7 @@ public class Body : Recipe
         hp = (int)(mats[0].HP * comp);
         lp = (int)(mats[0].HP * comp);
         sp = -(int)(mats[0].HP * comp);
+        Initiate();
     }
 }
 
@@ -196,6 +211,7 @@ public class Arm : Recipe
                 pow = (int)(mats[0].LP * comp);
                 break;
         }
+        Initiate();
     }
 }
 
@@ -205,6 +221,16 @@ public class Leg : Recipe
 
     public Leg(params Item[] i) : base(i)
     {
+        mats = i;
+        name = "lg-000";
+        float comp = 15f;//補正
+        sp = (int)(mats[0].HP * comp);
+        Initiate();
+    }
+
+    public override void Initiate()
+    {
+        base.Initiate();
         /*c.Add(new North());
         c.Add(new South());
         c.Add(new East());
@@ -213,9 +239,5 @@ public class Leg : Recipe
         c.Add(new Left());
         c.Add(new Right());
         c.Add(new Turn());
-        mats = i;
-        name = "lg-000";
-        float comp = 15f;//補正
-        sp = (int)(mats[0].HP * comp);
     }
 }
