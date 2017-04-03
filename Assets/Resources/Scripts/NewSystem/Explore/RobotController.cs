@@ -37,6 +37,7 @@ public class RobotController : MapObject
             waitCo = 0;
             if (0 <= comNo && robot.Command[comNo].Run(this))
             {
+                Debug.Log(robot.Command[comNo].name);
                 ReadCommand();
             }
         }
@@ -57,11 +58,11 @@ public class RobotController : MapObject
                 break;
             }
         }
-        if(comNo==(int)ComNo.Default)
+        if (comNo == (int)ComNo.Default)
         {
             comNo = robot.head.DefaultComNo;
         }
-        Transform icon =transform.FindChild("Command").FindChild("Icon");
+        Transform icon = transform.FindChild("Command").FindChild("Icon");
         icon.GetComponent<SpriteRenderer>().sprite = robot.Command[comNo].sprite;
         icon.eulerAngles = robot.Command[comNo].angle;
     }

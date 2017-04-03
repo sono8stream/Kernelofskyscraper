@@ -18,6 +18,8 @@ public class CameraSwiper : MonoBehaviour
     GameObject panelOrigin;
     [SerializeField]
     GameObject dammySprite;
+    [SerializeField]
+    GameObject kernel;
     MapObject selectedObject;
     Vector3 keyDownPos;
     Vector3 touchingPos;
@@ -49,6 +51,7 @@ public class CameraSwiper : MonoBehaviour
         rangeX = map.MapWidth * 0.5f;
         rangeY = map.MapHeight * 0.5f + marginY;
         posZ = camera.transform.localPosition.z;
+        camera.transform.localPosition = kernel.transform.position - mapCorrectionPos;
     }
 
     // Update is called once per frame
@@ -101,9 +104,8 @@ public class CameraSwiper : MonoBehaviour
                 }
             }
             Debug.Log(tappedMapPos);
-            if (onPanel && 0 <= panelMenu.PanelNo//パネル生成
-                &&(map.GetMapData(floorNo, tappedMapPos) != null
-                && map.GetMapData(floorNo, tappedMapPos).panelNo == -1))
+            CellData c = map.GetMapData(floorNo, tappedMapPos);
+            if (onPanel && 0 <= panelMenu.PanelNo/*パネル生成*/&& c != null && c.panelNo == -1)
             {
                 GameObject g = Instantiate(panelOrigin);
                 g.GetComponent<Panel>().command = Data.commands[panelMenu.PanelNo].CreateInstance();
@@ -112,8 +114,9 @@ public class CameraSwiper : MonoBehaviour
                 map.SetPanelData(floorNo, tappedMapPos, panelMenu.PanelNo);
             }
             else if (!onPanel && 0 <= robotMenu.RobotNo // ロボ生成
-                &&(map.GetMapData(floorNo, tappedMapPos) != null
-                && map.GetMapData(floorNo, tappedMapPos).objNo == -1))
+                && c != null
+                && c.objNo == -1
+                && c.tile.activeSelf)
             {
                 GameObject g = Instantiate(robotMenu.robotOrigin);
                 RobotController rc = g.GetComponent<RobotController>();

@@ -559,6 +559,11 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: edc5c53ca37a9b14cb1ea25076a0841e, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &343926854 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1118709583780334, guid: 2f6f1b761c9beeb4ba26d54715ecf121,
+    type: 2}
+  m_PrefabInternal: {fileID: 1639231144}
 --- !u!1 &477571301
 GameObject:
   m_ObjectHideFlags: 0
@@ -2404,9 +2409,9 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 1118709583780334, guid: 2f6f1b761c9beeb4ba26d54715ecf121, type: 2}
-      propertyPath: m_IsActive
-      value: 1
+    - target: {fileID: 4010864038809540, guid: 2f6f1b761c9beeb4ba26d54715ecf121, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 2f6f1b761c9beeb4ba26d54715ecf121, type: 2}
@@ -2685,6 +2690,8 @@ MonoBehaviour:
   wireV: {fileID: 1929113659564214, guid: b3b8b6c8d728c394cb9f0e09f17bbb79, type: 2}
   width: 40
   height: 40
+  minRectSize: 6
+  roomLim: 15
 --- !u!4 &1829307846
 Transform:
   m_ObjectHideFlags: 0
@@ -2713,6 +2720,7 @@ MonoBehaviour:
   generator: {fileID: 1829307845}
   mapdataDebug: []
   onTest: 1
+  kernel: {fileID: 0}
 --- !u!1 &1869399149
 GameObject:
   m_ObjectHideFlags: 0
@@ -2952,6 +2960,7 @@ MonoBehaviour:
   panelOrigin: {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400,
     type: 2}
   dammySprite: {fileID: 170687746}
+  kernel: {fileID: 343926854}
   onPanel: 0
 --- !u!114 &1943434476
 MonoBehaviour:

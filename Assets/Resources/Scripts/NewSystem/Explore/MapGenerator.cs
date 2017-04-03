@@ -12,12 +12,9 @@ public class MapGenerator : MonoBehaviour
     public int[][,] Mapdata { get { return mapdata; } }
     [SerializeField]
     GameObject wireH, wireV;
-    [SerializeField]
-    int width, height;
-    const int MASU = 32;
+    [SerializeField]//ブロックサイズ最小値,実際部屋サイズは-2,最大部屋数基準+roomRan
+    int width, height, minRectSize = 5, roomLim = 15;
     int stX, stY;//初期座標
-    int minRectSize = 5;//ブロックサイズ最小値,実際部屋サイズは-2
-    int roomLim = 15;//最大部屋数基準+roomRan
     int roomRan = 3;
     int roomLimTemp;
     int roomCo = 1;
@@ -25,6 +22,8 @@ public class MapGenerator : MonoBehaviour
     int floors = 3;//3階立て
     class Block
     {
+        public bool[] aisleDireOn;
+        public List<Vector2> vs, poss;
         public int x, y, w, h;
         public int rX, rY, rW, rH;//部屋Rect
         public List<Block> adjBlocks;//隣接ブロックの番号
@@ -34,6 +33,7 @@ public class MapGenerator : MonoBehaviour
         public int roomNo;
         public Block(int x, int y, int w, int h,int floorNo)
         {
+            aisleDireOn = new bool[4];
             this.x = x;
             this.y = y;
             this.w = w;
@@ -76,7 +76,7 @@ public class MapGenerator : MonoBehaviour
         mapdata = new int[floors][,];
         blocks = new List<Block>[floors];
         rooms = new List<Block>[floors];
-        for (int i = 0; i < floors; i++)
+        for (int i = 0; i < floors; i++)//マップ初期化
         {
             mapdata[i] = new int[width, height];
             for (int x = 0; x < width; x++)
@@ -100,8 +100,17 @@ public class MapGenerator : MonoBehaviour
         CheckAdjacent();
         DelAdjacents();
         //Debug.Log(CheckRoute());
+        SetKernelPos();//カーネル位置設定
         MakeAllStairs();
         MakeAllRooms();
+        /*for (int i = 0; true; i++)
+        {
+            if (0 < rooms[0][i].adjBlocks.Count)
+            {
+                MakeAisle(rooms[0][i], 0);
+                break;
+            }
+        }*/
         MakeAllAisles();
         MakeWall();
     }
@@ -295,33 +304,34 @@ public class MapGenerator : MonoBehaviour
 
     void CheckAdjacent()//隣接チェック
     {
+        int dire;
         for (int i = 0; i < floors; i++)
         {
             for (int j = 0; j < rooms[i].Count; j++)
             {
                 for (int k = j; k < rooms[i].Count; k++)
                 {
-                    int dire = -1;
+                    dire = -1;
                     if(OnAdjacent(rooms[i][j].x, rooms[i][j].w,rooms[i][k].x, rooms[i][k].w))//タテ隣接
                     {
                         if(rooms[i][j].y + rooms[i][j].h + lineSize == rooms[i][k].y)
                         {
-                            dire = 0;
+                            dire = (int)Direction.Down;
                         }
                         else if(rooms[i][k].y + rooms[i][k].h + lineSize == rooms[i][j].y)
                         {
-                            dire = 2;
+                            dire = (int)Direction.Up;
                         }
                     }
                     else if(OnAdjacent(rooms[i][j].y, rooms[i][j].h, rooms[i][k].y, rooms[i][k].h))//ヨコ隣接
                     {
                         if (rooms[i][j].x + rooms[i][j].w + lineSize == rooms[i][k].x)
                         {
-                            dire = 1;
+                            dire = (int)Direction.Right;
                         }
                         else if (rooms[i][k].x + rooms[i][k].w + lineSize == rooms[i][j].x)
                         {
-                            dire = 3;
+                            dire = (int)Direction.Left;
                         }
                     }
                     if (0 <= dire)
@@ -339,9 +349,9 @@ public class MapGenerator : MonoBehaviour
                         if (OnFloorAdjucent(rooms[i][j], rooms[i - 1][k]))
                         {
                             rooms[i][j].adjBlocks.Add(rooms[i-1][k]);
-                            rooms[i][j].adjDire.Add(5);//階層下,方向5
+                            rooms[i][j].adjDire.Add((int)Direction.Fdown);//階層下,方向5
                             rooms[i-1][k].adjBlocks.Add(rooms[i][j]);
-                            rooms[i-1][k].adjDire.Add(6);
+                            rooms[i - 1][k].adjDire.Add((int)Direction.Fup);
                         }
                     }
                 }
@@ -364,6 +374,29 @@ public class MapGenerator : MonoBehaviour
             && OnAdjacent(b1.y + 1, b1.h - 2, b2.y + 1, b2.h - 2);
     }
 
+    bool SetKernelPos()//ランダムで部屋を選び、カーネル座標をセット
+    {
+        int loopLim = 100;
+        Block room;
+        for (int i = 0; i < loopLim; i++)
+        {
+            room = rooms[0][Random.Range(0, rooms[0].Count)];
+            if (room.adjDire.IndexOf((int)Direction.Fdown) == -1
+                && room.adjDire.IndexOf((int)Direction.Fup) == -1)//階段のない部屋を選択
+            {
+                Vector2 pos
+                    = new Vector2(room.x + Random.Range(2, room.w - 2), room.y + Random.Range(2, room.h - 2));
+                mapdata[0][(int)pos.x, (int)pos.y] = (int)MapPart.kernel;
+                room.sPos.Add(pos - Vector2.one);
+                room.sPos.Add(pos + Vector2.one);
+                room.sPos.Add(pos + Vector2.right + Vector2.down);
+                room.sPos.Add(pos + Vector2.left + Vector2.up);
+                return true;
+            }
+        }
+        return false;
+    }
+
     void MakeAllStairs()
     {
         for (int i = 1; i < floors; i++)
@@ -372,9 +405,15 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int k = 0; k < rooms[i][j].adjBlocks.Count; k++)
                 {
-                    if (rooms[i][j].adjDire[k] == 5)//下とつながるときだけ
+                    if (rooms[i][j].adjDire[k] == (int)Direction.Fdown)//下とつながるときだけ
                     {
                         MakeStair(rooms[i][j], rooms[i][j].adjBlocks[k]);
+                        int delIndex = rooms[i][j].adjBlocks[k].adjBlocks.IndexOf(rooms[i][j]);
+                        rooms[i][j].adjBlocks[k].adjBlocks.RemoveAt(delIndex);//相手の隣接削除
+                        rooms[i][j].adjBlocks[k].adjDire.RemoveAt(delIndex);
+                        rooms[i][j].adjBlocks.RemoveAt(k);//自分の隣接削除
+                        rooms[i][j].adjDire.RemoveAt(k);
+                        k--;
                     }
                 }
             }
@@ -394,14 +433,14 @@ public class MapGenerator : MonoBehaviour
             y = Random.Range(cY, cYlim);
         }
         while (1 < mapdata[b1.floorNo][x, y] && 1 < mapdata[b2.floorNo][x, y]);
-        mapdata[b1.floorNo][x, y] = 3;
-        mapdata[b2.floorNo][x, y] = 4;
+        mapdata[b1.floorNo][x, y] = (int)MapPart.stairD;
+        mapdata[b2.floorNo][x, y] = (int)MapPart.stairU;
         Vector2 pos = new Vector2(x, y);
         b1.sPos.Add(pos);
         b2.sPos.Add(pos);
     }
 
-    bool CheckStair(Block b)
+    bool CheckObject(Block b)//blockのroom内におけるオブジェクト存在チェック,room内にすべて含有しているか
     {
         for (int i = 0; i < b.sPos.Count; i++)
         {
@@ -420,31 +459,31 @@ public class MapGenerator : MonoBehaviour
         {
             for (int j = 0; j < rooms[i].Count; j++)
             {
-                MakeRoom(i, j);
+                MakeRoom(rooms[i][j]);
             }
         }
     }
 
-    void MakeRoom(int floorNo, int blockNo)
+    void MakeRoom(Block block)
     {
         int w, h, x, y;
         do
         {
-            w = Random.Range(minRectSize - 2, rooms[floorNo][blockNo].w - 1);
-            h = Random.Range(minRectSize - 2, rooms[floorNo][blockNo].h - 1);
-            x = rooms[floorNo][blockNo].x + Random.Range(1, rooms[floorNo][blockNo].w - w);
-            y = rooms[floorNo][blockNo].y + Random.Range(1, rooms[floorNo][blockNo].h - h);
-            rooms[floorNo][blockNo].SetRoom(x, y, w, h);
+            w = Random.Range(minRectSize - 2, block.w - 1);
+            h = Random.Range(minRectSize - 2, block.h - 1);
+            x = block.x + Random.Range(1, block.w - w);
+            y = block.y + Random.Range(1, block.h - h);
+            block.SetRoom(x, y, w, h);
         }
-        while (!CheckStair(rooms[floorNo][blockNo]));
+        while (!CheckObject(block));
         for (int i = 0; i < w; i++)
         {
             for (int j = 0; j < h; j++)
             {
                 //Debug.Log(new Vector2(x + i, y + j));
-                if (mapdata[floorNo][x + i, y + j] == 0)
+                if (mapdata[block.floorNo][x + i, y + j] == 0)
                 {
-                    mapdata[floorNo][x + i, y + j] = 1;//床にする
+                    mapdata[block.floorNo][x + i, y + j] = 1;//床にする
                 }
             }
         }
@@ -452,90 +491,173 @@ public class MapGenerator : MonoBehaviour
 
     void MakeAllAisles()//通路
     {
-        for (int h = 0; h < floors; h++)
+        //Vector2 v;
+        Vector2 p1 = Vector2.zero, p2 = Vector2.zero;
+        for (int h = 0; h < /*floors*/1; h++)
         {
-            List<Vector2> v = new List<Vector2>();
-            List<Vector2> pos1 = new List<Vector2>();
-            List<Vector2> pos2 = new List<Vector2>();
             for (int i = 0; i < rooms[h].Count; i++)
             {
                 for (int j = 0; j < rooms[h][i].adjBlocks.Count; j++)
                 {
-                    if (rooms[h][i].adjDire[j] <= 3)
-                    {
-                        Vector2 p1, p2;
-                        p1 = Vector2.zero;
-                        p2 = Vector2.zero;
-                        v.Add(MakeAisle(rooms[h][i],rooms[h][i].adjDire[j], ref p1));
-                        int delIndex = rooms[h][i].adjBlocks[j].adjBlocks.IndexOf(rooms[h][i]);
-                        rooms[h][i].adjBlocks[j].adjBlocks.RemoveAt(delIndex);
-                        rooms[h][i].adjBlocks[j].adjDire.RemoveAt(delIndex);
-                        MakeAisle(rooms[h][i].adjBlocks[j], (rooms[h][i].adjDire[j] + 2) % 4, ref p2);//相手
-                        pos1.Add(new Vector2(p1.x, p1.y));
-                        pos2.Add(new Vector2(p2.x, p2.y));
-                    }
+                    //if (rooms[h][i].adjDire[j] <= 3)
+                    //{
+                    /*v=MakeAisle(rooms[h][i],rooms[h][i].adjDire[j], ref p1);
+                    MakeAisle(rooms[h][i].adjBlocks[j], (rooms[h][i].adjDire[j] + 2) % 4, ref p2);//相手
+                MakeAisleOnSplit(h, p1, p2, v);*/
+                    MakeAisle(rooms[h][i], j);
+                    int delIndex = rooms[h][i].adjBlocks[j].adjBlocks.IndexOf(rooms[h][i]);
+                    rooms[h][i].adjBlocks[j].adjBlocks.RemoveAt(delIndex);
+                    rooms[h][i].adjBlocks[j].adjDire.RemoveAt(delIndex);
+                    //}
                 }
             }
-            for (int i = 0; i < v.Count; i++)
+            /*for (int i = 0; i < v.Count; i++)
             {
                 MakeAisleOnSplit(h, pos1[i], pos2[i], v[i]);
-            }
+            }*/
         }
     }
 
-    Vector2 MakeAisle(Block room,int dire,ref Vector2 p)
+    void MakeAisle(Block room,int index)//通路設定
     {
-        Vector2 v = Vector2.zero;//通路を掘る方向
-        p = Vector2.zero;//掘り始め位置
+        Block room2 = room.adjBlocks[index];
+        Vector2 v = Vector2.zero, vh;//通路を掘る方向,その垂直方向
+        Vector2 p1 = Vector2.zero, p2 = Vector2.zero;//掘り始め位置
+        int length1 = 0, length2 = 0, range1 = 0, range2 = 0;
+        v = GetAislePos(room, room.adjDire[index], ref p1, ref length1);//位置1,方向取得
+        GetAislePos(room2, (room.adjDire[index] + 2) % 4, ref p2, ref length2);//位置2取得
+        vh = GetAisleSplitVector(p1, p2, v);
+        //Debug.Log("vec" + v);
+        //Debug.Log(p1 + "d:" + range1 + "and" + p2 + "d:" + range2);
+        p1 = CheckOtherAisles(room, p1, vh);
+        p2 = CheckOtherAisles(room, p2, -vh);
+        DigAisle(room.floorNo,ref p1, v, length1);
+        DigAisle(room2.floorNo, ref p2, -v, length2);
+        MakeAisleOnSplit(room.floorNo, p1, p2, v);
+    }
+
+    Vector2 GetAislePos(Block room, int dire,ref Vector2 p,ref int length)
+    {
+        Vector2 v = Vector2.zero;
+        Vector2 velTemp = Vector2.zero;
+        Vector2 posOrigin = Vector2.zero;
+        int range = 0, ranNext = 0;
+        switch(dire)
+        {
+            case (int)Direction.Down:
+                length = room.y + room.h - room.rY - room.rH;
+                range = room.rW - lineSize;
+                v = Vector2.up;
+                velTemp = Vector2.right;
+                posOrigin = new Vector2(room.rX, room.rY + room.rH - 1);
+                break;
+            case (int)Direction.Right:
+                length = room.x + room.w - room.rX - room.rW;
+                range = room.rH - lineSize;
+                v = Vector2.right;
+                velTemp = Vector2.up;
+                posOrigin = new Vector2(room.rX + room.rW - 1, room.rY);
+                break;
+            case (int)Direction.Up:
+                length = room.rY - room.y;
+                range = room.rW - lineSize;
+                v = Vector2.down;
+                velTemp = Vector2.right;
+                posOrigin = new Vector2(room.rX, room.rY);
+                break;
+            case (int)Direction.Left:
+                length = room.rX - room.x;
+                range = room.rH - lineSize;
+                v = Vector2.left;
+                velTemp = Vector2.up;
+                posOrigin = new Vector2(room.rX, room.rY);
+                break;
+        }
         do
         {
-            switch (dire)
-            {
-                case 0://down
-                    v = Vector2.up;
-                    p = new Vector2(room.rX 
-                        + Random.Range(0, room.rW - lineSize + 1),
-                        room.rY + room.rH - 1);
-                    break;
-                case 1://right
-                    v = Vector2.right;
-                    p = new Vector2(room.rX + room.rW - 1,
-                        room.rY + Random.Range(0, room.rH - lineSize + 1));
-                    break;
-                case 2://up
-                    v = Vector2.down;
-                    p = new Vector2(room.rX
-                        + Random.Range(0, room.rW - lineSize + 1), room.rY);
-                    break;
-                case 3:
-                    v = Vector2.left;
-                    p = new Vector2(room.rX,
-                        room.rY + Random.Range(0, room.rH - lineSize + 1));
-                    break;
-            }
-        } while ((int)MapPart.wall<mapdata[room.floorNo][(int)p.x,(int)p.y]//通路に階段
-        ||mapdata[room.floorNo][(int)(p.x + v.x - Mathf.Abs(v.y)), (int)(p.y + v.y - Mathf.Abs(v.x))] == 1
+            ranNext = Random.Range(0, range + 1);
+            p = posOrigin + velTemp * ranNext;
+            Debug.Log(dire+"and"+posOrigin+"and"+ room.rW + "and" + room.rH + "and" + range +"and"+ranNext + "and" + p);
+        } while ((int)MapPart.wall < mapdata[room.floorNo][(int)p.x, (int)p.y]//通路に障害物
+        || mapdata[room.floorNo][(int)(p.x + v.x - Mathf.Abs(v.y)),
+        (int)(p.y + v.y - Mathf.Abs(v.x))] == (int)MapPart.floor
         || mapdata[room.floorNo][(int)(p.x + v.x + Mathf.Abs(v.y) * lineSize),
-        (int)(p.y + v.y + Mathf.Abs(v.x) * lineSize)] == 1);
-        int k = 1;
-        while (mapdata[room.floorNo][(int)(p.x + v.x * k), (int)(p.y + v.y * k)] != -1)
-        {
-            for (int i = 0; i < lineSize; i++)
-            {
-                mapdata[room.floorNo][(int)(p.x + v.x * k + Mathf.Abs(v.y) * i),
-                    (int)(p.y + v.y * k + Mathf.Abs(v.x) * i)] = 1;
-            }
-            k++;
-        }
-        p += v * k;
+        (int)(p.y + v.y + Mathf.Abs(v.x) * lineSize)] == (int)MapPart.floor);
+        p += v;//pを一つ分移動
         return v;
+    }
+
+    Vector2 CheckOtherAisles(Block block, Vector2 pos, Vector2 v)
+    {
+        int lim = 0;
+        if (v.x != 0)//ヨコ
+        {
+            lim = 0 < v.x ? block.rX + block.rW - (int)pos.x - lineSize + 1 : (int)pos.x - block.rX + 1;
+        }
+        else//タテ
+        {
+            lim = 0 < v.y ? block.rY + block.rH - (int)pos.y - lineSize + 1 : (int)pos.y - block.rY + 1;
+        }
+        for (int i = 0; i < lim; i++)
+        {
+            //Debug.Log(pos + v * i);
+            if (mapdata[block.floorNo][(int)(pos.x + v.x * i), (int)(pos.y + v.y * i)] == (int)MapPart.floor)
+            {
+                return pos + v * i;
+            }
+        }
+        return pos;
+    }
+
+    void DigAisle(int floor, ref Vector2 pos, Vector2 vec, int length)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            if (mapdata[floor][(int)(pos.x + vec.x * i), (int)(pos.y + vec.y * i)] == (int)MapPart.floor)
+            {
+                break;
+            }
+            else
+            {
+                mapdata[floor][(int)(pos.x + vec.x * i), (int)(pos.y + vec.y * i)] = (int)MapPart.floor;
+            }
+        }
+        pos += vec * length;
+    }
+
+    Vector2 GetAisleSplitVector(Vector2 p1,Vector2 p2,Vector2 vec)
+    {
+        if(vec.x!=0)
+        {
+            if(p2.y<p1.y)
+            {
+                return Vector2.down;
+            }
+            else
+            {
+                return Vector2.up;
+            }
+        }
+        else
+        {
+            if (p2.x < p1.x)
+            {
+                return Vector2.left;
+            }
+            else
+            {
+                return Vector2.right;
+            }
+        }
     }
 
     void MakeAisleOnSplit(int floorNo,Vector2 p1, Vector2 p2,Vector2 v)//区切り線上に通路生成
     {
-        if (v.x != 0)//p1,p2位置調整
+        //Vector2 dire;
+        //p1,p2位置調整
+        if (v.x != 0)//横方向だったら
         {
-            if (p2.x < p1.x)
+            if (p2.x < p1.x)//x座標そろえる
             {
                 p1.x = p2.x;
             }
@@ -543,10 +665,17 @@ public class MapGenerator : MonoBehaviour
             {
                 p2.x = p1.x;
             }
+            /*if(p2.y<p1.y)//y座標スワップ
+            {
+                p1.y += p2.y;
+                p2.y = p1.y - p2.y;
+                p1.y -= p2.y;
+            }
+            dire = Vector2.up;*/
         }
         else
         {
-            if (p2.y < p1.y)
+            if (p2.y < p1.y)//y座標そろえる
             {
                 p1.y = p2.y;
             }
@@ -554,10 +683,17 @@ public class MapGenerator : MonoBehaviour
             {
                 p2.y = p1.y;
             }
+            /*if (p2.x < p1.x)//x座標スワップ
+            {
+                p1.x += p2.x;
+                p2.x = p1.x - p2.x;
+                p1.x -= p2.x;
+            }
+            dire = Vector2.right;*/
         }
         int length = (int)((p1 - p2).magnitude);
         Vector2 dire = length == 0 ? Vector2.right : (p2 - p1) / length;
-        if (dire.x + dire.y < 0)
+        if (dire.x + dire.y < 0)//
         {
             p1 -= dire * (lineSize - 1);
         }
@@ -604,5 +740,10 @@ public class MapGenerator : MonoBehaviour
             w.transform.position = new Vector3(0, iniY - y - 0.5f, 0.1f);
             w.transform.localScale = new Vector3(width * 0.1f, 1, 0.01f);
         }
+    }
+
+    enum Direction
+    {
+        Down = 0, Right, Up, Left, Fdown = 5, Fup = 6
     }
 }

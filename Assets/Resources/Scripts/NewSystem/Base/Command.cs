@@ -315,10 +315,11 @@ public class Go : Command
                     break;
             }
             CellData c = obj.Map.GetMapData(obj.Floor, obj.transform.position + mPos);
-            if (c.partNo == (int)MapPart.floor && c.objNo == 0)
+            if (c.partNo == (int)MapPart.floor && c.objNo == (int)ObjType.can)
             {
                 c.objNo = obj.No;
-                obj.Map.SetObjData(obj.Floor, obj.transform.position + mPos, -1);
+                obj.Map.SetObjData(obj.Floor, obj.transform.position, (int)ObjType.cannot);
+                c.tile.SetActive(true);
             }
             else
             {
@@ -332,7 +333,7 @@ public class Go : Command
             obj.transform.position 
                 = new Vector3(Mathf.Round(obj.transform.position.x),
                 Mathf.Round(obj.transform.position.y), 0);
-            obj.Map.SetObjData(obj.Floor,obj.transform.position - mPos, 0);
+            obj.Map.SetObjData(obj.Floor, obj.transform.position - mPos, (int)ObjType.can);
             count = 0;
             return true;
         }

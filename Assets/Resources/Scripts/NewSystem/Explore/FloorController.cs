@@ -61,9 +61,8 @@ public class FloorController : MonoBehaviour
         {
             if (map.MapData[floorNo][i % map.MapWidth, i / map.MapWidth].partNo == (int)MapPart.floor)
             {
-                texture.SetPixels(iniX + i % map.MapWidth * selSize, 
-                    texSize - iniY - i / map.MapWidth * selSize,
-                    selSize, selSize, colors);
+                texture.SetPixels(iniX + i % map.MapWidth * selSize,
+                    texSize - iniY - (i / map.MapWidth+1) * selSize, selSize, selSize, colors);
             }
         }
         Debug.Log("OK?");
