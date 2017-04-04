@@ -238,10 +238,10 @@ public class MapGenerator : MonoBehaviour
                 b2.adjBlocks.RemoveAt(index2);
                 b2.adjDire.RemoveAt(index2);
 
-                if (CheckRoute() && (1 < b1.adjDire.Count || b1.adjDire[0] <= 3)
-                    && (1 < b2.adjDire.Count || b2.adjDire[0] <= 3))//階段だけでつながっていない
+                if (CheckRoute() &&  b1.adjDire[0] <= 3
+                    && b2.adjDire[0] <= 3)//階段だけでつながっていない
                 {
-                    adjCo -= 2;
+                    adjCo -= 1;
                 }
                 else
                 {
@@ -493,7 +493,7 @@ public class MapGenerator : MonoBehaviour
     {
         //Vector2 v;
         Vector2 p1 = Vector2.zero, p2 = Vector2.zero;
-        for (int h = 0; h < /*floors*/1; h++)
+        for (int h = 0; h < floors; h++)
         {
             for (int i = 0; i < rooms[h].Count; i++)
             {
@@ -523,14 +523,13 @@ public class MapGenerator : MonoBehaviour
         Block room2 = room.adjBlocks[index];
         Vector2 v = Vector2.zero, vh;//通路を掘る方向,その垂直方向
         Vector2 p1 = Vector2.zero, p2 = Vector2.zero;//掘り始め位置
-        int length1 = 0, length2 = 0, range1 = 0, range2 = 0;
+        int length1 = 0, length2 = 0;
         v = GetAislePos(room, room.adjDire[index], ref p1, ref length1);//位置1,方向取得
         GetAislePos(room2, (room.adjDire[index] + 2) % 4, ref p2, ref length2);//位置2取得
         vh = GetAisleSplitVector(p1, p2, v);
-        //Debug.Log("vec" + v);
-        //Debug.Log(p1 + "d:" + range1 + "and" + p2 + "d:" + range2);
-        p1 = CheckOtherAisles(room, p1, vh);
-        p2 = CheckOtherAisles(room, p2, -vh);
+        p1 = CheckOtherAisles(room, p1, vh,v,length1);
+        p2 = CheckOtherAisles(room2, p2, -vh,-v, length2);
+        //Debug.Log(p1 + "and" + p2);
         DigAisle(room.floorNo,ref p1, v, length1);
         DigAisle(room2.floorNo, ref p2, -v, length2);
         MakeAisleOnSplit(room.floorNo, p1, p2, v);
@@ -577,7 +576,7 @@ public class MapGenerator : MonoBehaviour
         {
             ranNext = Random.Range(0, range + 1);
             p = posOrigin + velTemp * ranNext;
-            Debug.Log(dire+"and"+posOrigin+"and"+ room.rW + "and" + room.rH + "and" + range +"and"+ranNext + "and" + p);
+            //Debug.Log(dire+"and"+posOrigin+"and"+ room.rW + "and" + room.rH + "and" + range +"and"+ranNext + "and" + p);
         } while ((int)MapPart.wall < mapdata[room.floorNo][(int)p.x, (int)p.y]//通路に障害物
         || mapdata[room.floorNo][(int)(p.x + v.x - Mathf.Abs(v.y)),
         (int)(p.y + v.y - Mathf.Abs(v.x))] == (int)MapPart.floor
@@ -587,23 +586,42 @@ public class MapGenerator : MonoBehaviour
         return v;
     }
 
-    Vector2 CheckOtherAisles(Block block, Vector2 pos, Vector2 v)
+    //各部屋において、同じ方向に重複している通路を検出し、その座標を返す
+    Vector2 CheckOtherAisles(Block block, Vector2 pos, Vector2 vh,Vector2 v,int length)
     {
         int lim = 0;
-        if (v.x != 0)//ヨコ
+        Vector2 posTemp = pos;
+        //既に通路が出来ている場合、位置を部屋位置端まで移動させて調査する
+        if (mapdata[block.floorNo][(int)(pos.x + v.x * length), (int)(pos.y + v.y * length)] == (int)MapPart.floor
+            || mapdata[block.floorNo][(int)(pos.x + v.x * length + vh.x),
+            (int)(pos.y + v.y * length + vh.y)] == (int)MapPart.floor
+            || mapdata[block.floorNo][(int)(pos.x + v.x * length - vh.x),
+            (int)(pos.y + v.y * length - vh.y)] == (int)MapPart.floor)
         {
-            lim = 0 < v.x ? block.rX + block.rW - (int)pos.x - lineSize + 1 : (int)pos.x - block.rX + 1;
+            if (vh.x != 0)
+            {
+                posTemp.x = 0 < vh.x ? block.rX : block.rX + block.rW - lineSize;
+            }
+            else
+            {
+                posTemp.y = 0 < vh.y ? block.rY : block.rY + block.rH - lineSize;
+            }
+        }
+        if (vh.x != 0)//ヨコ
+        {
+            lim = 0 < vh.x ? block.rX + block.rW - (int)posTemp.x - lineSize + 1 : (int)posTemp.x - block.rX + 1;
         }
         else//タテ
         {
-            lim = 0 < v.y ? block.rY + block.rH - (int)pos.y - lineSize + 1 : (int)pos.y - block.rY + 1;
+            lim = 0 < vh.y ? block.rY + block.rH - (int)posTemp.y - lineSize + 1 : (int)posTemp.y - block.rY + 1;
         }
         for (int i = 0; i < lim; i++)
         {
             //Debug.Log(pos + v * i);
-            if (mapdata[block.floorNo][(int)(pos.x + v.x * i), (int)(pos.y + v.y * i)] == (int)MapPart.floor)
+            if (mapdata[block.floorNo][(int)(posTemp.x + vh.x * i),
+                (int)(posTemp.y + vh.y * i)] == (int)MapPart.floor)
             {
-                return pos + v * i;
+                return posTemp + vh * i;
             }
         }
         return pos;
