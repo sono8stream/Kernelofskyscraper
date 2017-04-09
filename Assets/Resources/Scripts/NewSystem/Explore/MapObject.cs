@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MapObject : MonoBehaviour {
 
+    protected int range = 1;
     protected int dire = 0;//方向
     public int Dire
     {
@@ -37,7 +38,7 @@ public class MapObject : MonoBehaviour {
     // Use this for initialization
     protected void Start()
     {
-        no = map.RecObj(this);
+        no = map.RecObj(this, range);
     }
 
     // Update is called once per frame

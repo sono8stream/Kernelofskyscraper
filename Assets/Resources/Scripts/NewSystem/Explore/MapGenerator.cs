@@ -103,14 +103,6 @@ public class MapGenerator : MonoBehaviour
         SetKernelPos();//カーネル位置設定
         MakeAllStairs();
         MakeAllRooms();
-        /*for (int i = 0; true; i++)
-        {
-            if (0 < rooms[0][i].adjBlocks.Count)
-            {
-                MakeAisle(rooms[0][i], 0);
-                break;
-            }
-        }*/
         MakeAllAisles();
         MakeWall();
     }
@@ -376,7 +368,7 @@ public class MapGenerator : MonoBehaviour
 
     bool SetKernelPos()//ランダムで部屋を選び、カーネル座標をセット
     {
-        int loopLim = 100;
+        int loopLim = 200;
         Block room;
         for (int i = 0; i < loopLim; i++)
         {
@@ -387,10 +379,16 @@ public class MapGenerator : MonoBehaviour
                 Vector2 pos
                     = new Vector2(room.x + Random.Range(2, room.w - 2), room.y + Random.Range(2, room.h - 2));
                 mapdata[0][(int)pos.x, (int)pos.y] = (int)MapPart.kernel;
+                Vector2 iniPos = pos - Vector2.one;
+                for (int j = 0; j < 9; j++)
+                {
+                    room.sPos.Add(iniPos + Mathf.Round(j / 3) * Vector2.up + j % 3 * Vector2.right);
+                }
                 room.sPos.Add(pos - Vector2.one);
                 room.sPos.Add(pos + Vector2.one);
                 room.sPos.Add(pos + Vector2.right + Vector2.down);
                 room.sPos.Add(pos + Vector2.left + Vector2.up);
+                Debug.Log("Set Kernel");
                 return true;
             }
         }
@@ -440,12 +438,13 @@ public class MapGenerator : MonoBehaviour
         b2.sPos.Add(pos);
     }
 
-    bool CheckObject(Block b)//blockのroom内におけるオブジェクト存在チェック,room内にすべて含有しているか
+    bool CheckObject(Block b, Vector2 pos)//blockのroom内におけるオブジェクト存在チェック,room内にすべて含有しているか
     {
         for (int i = 0; i < b.sPos.Count; i++)
         {
-            if (b.sPos[i].x < b.rX || b.rX + b.rW - 1 < b.sPos[i].x
-                || b.sPos[i].y < b.rY || b.rY + b.rH - 1 < b.sPos[i].y)
+            if ((pos.x + pos.y < 0) && (b.sPos[i].x < b.rX || b.rX + b.rW - 1 < b.sPos[i].x
+                || b.sPos[i].y < b.rY || b.rY + b.rH - 1 < b.sPos[i].y)//部屋解析
+                    || b.sPos[i] == pos)
             {
                 return false;
             }
@@ -475,7 +474,7 @@ public class MapGenerator : MonoBehaviour
             y = block.y + Random.Range(1, block.h - h);
             block.SetRoom(x, y, w, h);
         }
-        while (!CheckObject(block));
+        while (!CheckObject(block,-Vector2.one));
         for (int i = 0; i < w; i++)
         {
             for (int j = 0; j < h; j++)
@@ -491,7 +490,6 @@ public class MapGenerator : MonoBehaviour
 
     void MakeAllAisles()//通路
     {
-        //Vector2 v;
         Vector2 p1 = Vector2.zero, p2 = Vector2.zero;
         for (int h = 0; h < floors; h++)
         {
@@ -499,22 +497,12 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int j = 0; j < rooms[h][i].adjBlocks.Count; j++)
                 {
-                    //if (rooms[h][i].adjDire[j] <= 3)
-                    //{
-                    /*v=MakeAisle(rooms[h][i],rooms[h][i].adjDire[j], ref p1);
-                    MakeAisle(rooms[h][i].adjBlocks[j], (rooms[h][i].adjDire[j] + 2) % 4, ref p2);//相手
-                MakeAisleOnSplit(h, p1, p2, v);*/
                     MakeAisle(rooms[h][i], j);
                     int delIndex = rooms[h][i].adjBlocks[j].adjBlocks.IndexOf(rooms[h][i]);
                     rooms[h][i].adjBlocks[j].adjBlocks.RemoveAt(delIndex);
                     rooms[h][i].adjBlocks[j].adjDire.RemoveAt(delIndex);
-                    //}
                 }
             }
-            /*for (int i = 0; i < v.Count; i++)
-            {
-                MakeAisleOnSplit(h, pos1[i], pos2[i], v[i]);
-            }*/
         }
     }
 
@@ -529,7 +517,7 @@ public class MapGenerator : MonoBehaviour
         vh = GetAisleSplitVector(p1, p2, v);
         p1 = CheckOtherAisles(room, p1, vh,v,length1);
         p2 = CheckOtherAisles(room2, p2, -vh,-v, length2);
-        //Debug.Log(p1 + "and" + p2);
+        Debug.Log(p1 + "and" + p2);
         DigAisle(room.floorNo,ref p1, v, length1);
         DigAisle(room2.floorNo, ref p2, -v, length2);
         MakeAisleOnSplit(room.floorNo, p1, p2, v);
@@ -576,8 +564,9 @@ public class MapGenerator : MonoBehaviour
         {
             ranNext = Random.Range(0, range + 1);
             p = posOrigin + velTemp * ranNext;
-            //Debug.Log(dire+"and"+posOrigin+"and"+ room.rW + "and" + room.rH + "and" + range +"and"+ranNext + "and" + p);
-        } while ((int)MapPart.wall < mapdata[room.floorNo][(int)p.x, (int)p.y]//通路に障害物
+            Debug.Log(dire+"and"+posOrigin+"and"+ room.rW + "and" + room.rH + "and" + range +"and"+ranNext + "and" + p);
+        } while (/*(int)MapPart.wall < mapdata[room.floorNo][(int)p.x, (int)p.y]*///通路に障害物
+        !CheckObject(room,p)
         || mapdata[room.floorNo][(int)(p.x + v.x - Mathf.Abs(v.y)),
         (int)(p.y + v.y - Mathf.Abs(v.x))] == (int)MapPart.floor
         || mapdata[room.floorNo][(int)(p.x + v.x + Mathf.Abs(v.y) * lineSize),

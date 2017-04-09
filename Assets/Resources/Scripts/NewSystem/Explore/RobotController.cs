@@ -6,18 +6,19 @@ using UnityEngine;
 
 public class RobotController : MapObject
 {
-    Robot robot;
-    public Robot Robot
-    {
-        get { return robot; }
-        set { robot = value; }
-    }
-    int comCX, comCY;//コマンドリストの中心
+    #region Property
+    //public
+    public Robot robot;
+    public bool canMove;
+
+    //private
     [SerializeField]
     int comNo;//実行中のコマンド番号
+    int comCX, comCY;//コマンドリストの中心
     int comListNo;
     int waitCo;
     int waitLim;
+    #endregion
 
     // Use this for initialization
     new void Start()
@@ -32,13 +33,22 @@ public class RobotController : MapObject
     // Update is called once per frame
     void Update()
     {
+        if (!canMove) { return; }
         if (waitCo == waitLim)
         {
             waitCo = 0;
-            if (0 <= comNo && robot.Command[comNo].Run(this))
+            if (comNo == -1)
             {
-                Debug.Log(robot.Command[comNo].name);
-                ReadCommand();
+                if (map.GetMapData(floor, transform.localPosition).panel == null
+                || map.GetMapData(floor, transform.localPosition).panel.command.Run(this))//足元見るよ
+                {
+                    ReadCommand();
+                }
+            }
+            else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
+            {
+                //Debug.Log(robot.Command[comNo].name);
+                comNo = -1;
             }
         }
         else
@@ -78,37 +88,6 @@ public class RobotController : MapObject
                 int tY = comCY;
                 tX = robot.head.ComPriList[comListNo][d] % robot.head.Range;
                 tY = robot.head.ComPriList[comListNo][d] / robot.head.Range;
-                /*switch (d)//dire=0が上、反時計回り
-                { 
-                    case 0:miss
-                        tY -= r;
-                        break;
-                    case 1:
-                        tX -= r;
-                        tY -= r;
-                        break;
-                    case 2:
-                        tX -= r;
-                        break;
-                    case 3:
-                        tX -= r;
-                        tY += r;
-                        break;
-                    case 4:
-                        tY += r;
-                        break;
-                    case 5:
-                        tX += r;
-                        tY += r;
-                        break;
-                    case 6:
-                        tX += r;
-                        break;
-                    case 7:
-                        tX += r;
-                        tY -= r;
-                        break;
-                }*/
                 int ttX = tX - comCX;
                 int ttY = tY - comCY;
                 switch (dire)//方向で回転させる
@@ -135,7 +114,7 @@ public class RobotController : MapObject
                 if (0 <= tX && tX < robot.head.Range
                     && 0 <= tY && tY < robot.head.Range
                     && 0 <= robot.head.ComList[comListNo][tY, tX]
-                    && map.GetMapData(floor, transform.position
+                    && map.GetMapData(floor, transform.localPosition
                     + new Vector3(ttX, ttY, 0)).partNo == (int)MapPart.wall/*かべあるとき、条件子*/)
                 {
                     return robot.head.ComList[comListNo][tY, tX];

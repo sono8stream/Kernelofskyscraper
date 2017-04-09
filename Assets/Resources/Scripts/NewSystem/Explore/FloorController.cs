@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class FloorController : MonoBehaviour
 {
     [SerializeField]
+    GameObject cursorGO;
+    [SerializeField]
     MapLoader map;
     [SerializeField]
     Image mapImage;
@@ -16,6 +18,10 @@ public class FloorController : MonoBehaviour
     [SerializeField]
     Text floorText;
     int floorNo;
+    public int FloorNo
+    {
+        get { return floorNo; }
+    }
     float barDivision;
 
     // Use this for initialization
@@ -76,6 +82,7 @@ public class FloorController : MonoBehaviour
     {
         Vector3 pos = camera.transform.localPosition;
         camera.transform.SetParent(map.transform.FindChild("Floor" + (floorNo + 1).ToString()));
+        cursorGO.transform.SetParent(camera.transform.parent);
         camera.transform.localPosition = pos;
     }
 

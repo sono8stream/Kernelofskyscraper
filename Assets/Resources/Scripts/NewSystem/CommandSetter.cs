@@ -70,7 +70,7 @@ public class CommandSetter : MonoBehaviour
     public void UpdateRobot(Robot robot)
     {
         this.robot = robot;
-        rCon.Robot = robot;
+        rCon.robot = robot;
         comListNo = 0;
         choiceNo = -1;
         isOnPriNo = false;

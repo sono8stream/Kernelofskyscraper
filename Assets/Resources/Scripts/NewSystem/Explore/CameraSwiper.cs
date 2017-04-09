@@ -15,12 +15,17 @@ public class CameraSwiper : MonoBehaviour
     [SerializeField]
     RobotMenu robotMenu;
     [SerializeField]
+    FloorController floorCon;
+    [SerializeField]
     GameObject panelOrigin;
     [SerializeField]
-    GameObject dammySprite;
+    GameObject cursorGO;
     [SerializeField]
     GameObject kernel;
     MapObject selectedObject;
+    [SerializeField]
+    StatusController status;
+    RobotController roboRC;
     Vector3 keyDownPos;
     Vector3 touchingPos;
     Vector3 tappedMapPos;
@@ -29,7 +34,6 @@ public class CameraSwiper : MonoBehaviour
     Vector3 accel;
     bool cameraIsFixing;//カメラ固定状態
     public bool onPanel;
-    int floorNo;
     #region for Scroll
     float swipeMargin;
     float period;//スクロール時間
@@ -52,6 +56,7 @@ public class CameraSwiper : MonoBehaviour
         rangeY = map.MapHeight * 0.5f + marginY;
         posZ = camera.transform.localPosition.z;
         camera.transform.localPosition = kernel.transform.position - mapCorrectionPos;
+        roboRC = null;
     }
 
     // Update is called once per frame
@@ -69,8 +74,60 @@ public class CameraSwiper : MonoBehaviour
             LimitScroll(map.MapWidth, map.MapHeight, false);
             velocity += accel;
         }
-        //Debug.Log(camera.ViewportToWorldPoint(Input.mousePosition));
-        dammySprite.transform.position = SetToMapPos();
+        if (Input.GetKey(KeyCode.W))//移動
+        {
+            if (roboRC)
+            {
+                roboRC.Dire = 2;
+                roboRC.transform.eulerAngles = Vector3.forward * 180;
+            }
+            else
+            {
+                velocity += Vector3.up * speed;
+                accel = -velocity / 10;
+            }
+        }
+        if (Input.GetKey(KeyCode.A))//移動
+        {
+            if (roboRC)
+            {
+                roboRC.Dire = 3;
+                roboRC.transform.eulerAngles = Vector3.forward * 270;
+            }
+            else
+            {
+                velocity += Vector3.left * speed;
+                accel = -velocity / 10;
+            }
+        }
+        if (Input.GetKey(KeyCode.S))//移動
+        {
+            if (roboRC)
+            {
+                roboRC.Dire = 0;
+                roboRC.transform.eulerAngles = Vector3.zero;
+            }
+            else
+            {
+                velocity += Vector3.down * speed;
+                accel = -velocity / 10;
+            }
+        }
+        if (Input.GetKey(KeyCode.D))//移動
+        {
+            if (roboRC)
+            {
+                roboRC.Dire = 1;
+                roboRC.transform.eulerAngles = Vector3.forward * 90;
+            }
+            else
+            {
+                velocity += Vector3.right * speed;
+                accel = -velocity / 10;
+            }
+        }
+        SetRobotDirection();
+        cursorGO.transform.position = SetToMapPos();
     }
 
 
@@ -94,37 +151,37 @@ public class CameraSwiper : MonoBehaviour
             && keyDownPos.y - swipeMargin < posTemp.y && posTemp.y < keyDownPos.y + swipeMargin)
         {
             tappedMapPos = camera.ScreenToWorldPoint(touchingPos) + mapCorrectionPos;
-            //aTapPoint = new Vector3(aTapPoint.x, aTapPoint.y, 0);
-            Collider[] aCollider = Physics.OverlapSphere(tappedMapPos, 0.4f);
-            foreach (Collider col in aCollider)
+            Debug.Log(tappedMapPos);
+            CellData c = map.GetMapData(floorCon.FloorNo, cursorGO.transform.localPosition);
+            if (Input.GetMouseButtonUp(0))
             {
-                if (col && col.tag == "Robot")
+                if (onPanel && 0 <= panelMenu.PanelNo && c != null && c.panel == null
+                    && status.ChangeCapacity(-10))//Generate a panel
                 {
-                    selectedObject = col.gameObject.GetComponent<MapObject>();
+                    GameObject g = Instantiate(panelOrigin);
+                    g.GetComponent<Panel>().command = Data.commands[panelMenu.PanelNo].CreateInstance();
+                    g.transform.position = cursorGO.transform.position + Vector3.back * 0.05f;
+                    g.transform.SetParent(cursorGO.transform.parent);
+                    g.transform.localScale = Vector3.one;
+                    c.panel = g.GetComponent<Panel>();
+                }
+                else if (!onPanel && 0 <= robotMenu.RobotNo // Generate a robot
+                    && c != null && c.objNo == -1 && c.tile.activeSelf && status.ChangeEnergy(-10))
+                {
+                    GameObject g = Instantiate(robotMenu.robotOrigin);
+                    roboRC = g.GetComponent<RobotController>();
+                    roboRC.robot = (Robot)UserData.instance.robotRecipe[robotMenu.RobotNo].DeepCopy();
+                    roboRC.robot.Initiate();
+                    roboRC.Floor = floorCon.FloorNo;
+                    Debug.Log(roboRC.robot.Command.Count);
+                    g.transform.position = cursorGO.transform.position;
+                    g.transform.SetParent(cursorGO.transform.parent);
+                    g.transform.localScale = Vector3.one;
                 }
             }
-            Debug.Log(tappedMapPos);
-            CellData c = map.GetMapData(floorNo, tappedMapPos);
-            if (onPanel && 0 <= panelMenu.PanelNo/*パネル生成*/&& c != null && c.panelNo == -1)
+            else if(Input.GetMouseButtonUp(1))//右クリック、パネル削除
             {
-                GameObject g = Instantiate(panelOrigin);
-                g.GetComponent<Panel>().command = Data.commands[panelMenu.PanelNo].CreateInstance();
-                g.transform.position = dammySprite.transform.position;
-                g.transform.localScale = Vector3.one;
-                map.SetPanelData(floorNo, tappedMapPos, panelMenu.PanelNo);
-            }
-            else if (!onPanel && 0 <= robotMenu.RobotNo // ロボ生成
-                && c != null
-                && c.objNo == -1
-                && c.tile.activeSelf)
-            {
-                GameObject g = Instantiate(robotMenu.robotOrigin);
-                RobotController rc = g.GetComponent<RobotController>();
-                rc.Robot = (Robot)UserData.instance.robotRecipe[robotMenu.RobotNo].DeepCopy();
-                rc.Robot.Initiate();
-                Debug.Log(rc.Robot.Command.Count);
-                g.transform.position = dammySprite.transform.position;
-                g.transform.localScale = Vector3.one;
+                Destroy(c.panel.gameObject);
             }
         }
         else
@@ -141,7 +198,7 @@ public class CameraSwiper : MonoBehaviour
     {
         if (camera.transform.localPosition.x <  - rangeX)
         {
-            camera.transform.position = new Vector3( - rangeX, camera.transform.localPosition.y, posZ);
+            camera.transform.localPosition = new Vector3( - rangeX, camera.transform.localPosition.y, posZ);
             if (bound)
             {
                 velocity.x = speed;
@@ -177,7 +234,6 @@ public class CameraSwiper : MonoBehaviour
             }
             accel = velocity / (-10);
         }
-        //setDire.GetComponent<RectTransform>().anchoredPosition = SetToScreenPos(setPos + Vector2.down);
     }
 
     Vector3 SetToMapPos()
@@ -207,5 +263,15 @@ public class CameraSwiper : MonoBehaviour
             ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
             ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));
         return worldObject_ScreenPosition;
+    }
+
+    void SetRobotDirection()
+    {
+        if ((Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.A)
+            || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.D)) && roboRC)//移動
+        {
+            roboRC.canMove = true;
+            roboRC = null;
+        }
     }
 }

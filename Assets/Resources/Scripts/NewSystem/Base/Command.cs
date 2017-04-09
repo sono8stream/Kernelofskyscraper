@@ -5,9 +5,11 @@ using UnityEngine;
 
 public abstract class Command
 {
+    public bool isDestroyed;//the panel judges to destroy or not.
     public string name;//名前
     public Sprite sprite;//アイコン
     public Vector3 angle;
+
     public Command(string name, Sprite sprite, Vector3 angle)
     {
         this.name = name;
@@ -63,6 +65,7 @@ public class North : Command
     }
 }
 
+#region MoveType
 public class South : Command
 {
     float sp;
@@ -314,11 +317,12 @@ public class Go : Command
                     mPos = Vector3.left;
                     break;
             }
-            CellData c = obj.Map.GetMapData(obj.Floor, obj.transform.position + mPos);
-            if (c.partNo == (int)MapPart.floor && c.objNo == (int)ObjType.can)
+            CellData c = obj.Map.GetMapData(obj.Floor, obj.transform.localPosition + mPos);
+            if ((c.partNo == (int)MapPart.floor || c.partNo == (int)MapPart.stairD || c.partNo == (int)MapPart.stairU)
+                && c.objNo == (int)ObjType.can)
             {
                 c.objNo = obj.No;
-                obj.Map.SetObjData(obj.Floor, obj.transform.position, (int)ObjType.cannot);
+                obj.Map.SetObjData(obj.Floor, obj.transform.localPosition, (int)ObjType.cannot);
                 c.tile.SetActive(true);
             }
             else
@@ -326,20 +330,83 @@ public class Go : Command
                 return true;
             }
         }
-        obj.transform.position += mPos * sp;
+        obj.transform.localPosition += mPos * sp;
         count++;
         if (count == period)
         {
-            obj.transform.position 
-                = new Vector3(Mathf.Round(obj.transform.position.x),
-                Mathf.Round(obj.transform.position.y), 0);
-            obj.Map.SetObjData(obj.Floor, obj.transform.position - mPos, (int)ObjType.can);
+            obj.transform.localPosition
+                = new Vector3(Mathf.Round(obj.transform.localPosition.x), Mathf.Round(obj.transform.position.y), 0);
+            obj.Map.SetObjData(obj.Floor, obj.transform.localPosition - mPos, (int)ObjType.can);
+            CellData c = obj.Map.GetMapData(obj.Floor, obj.transform.localPosition);
+            if (c.partNo == (int)MapPart.stairD||c.partNo==(int)MapPart.stairU)//下る
+            {
+                Vector3 posTemp = obj.transform.localPosition;
+                int floorTemp= c.partNo == (int)MapPart.stairD ? obj.Floor - 1 : obj.Floor + 1;
+                if (obj.Map.GetMapData(floorTemp, posTemp).objNo == (int)ObjType.can)
+                {
+                    obj.Floor = floorTemp;
+                    obj.transform.SetParent(
+                        obj.transform.parent.parent.FindChild("Floor" + (obj.Floor + 1).ToString()));
+                    obj.transform.localPosition = posTemp;
+                    c.objNo = (int)ObjType.can;
+                    obj.Map.SetObjData(obj.Floor, posTemp, obj.No);
+                }
+            }
             count = 0;
             return true;
         }
         return false;
     }
 }
+#endregion
+
+#region RecoverType
+public class EnergyRecover : Command
+{
+    StatusController status;
+
+    public EnergyRecover()
+        : base("EnergyRecover", Data.panelSprites[(int)PanelSpritesName.eRecover], Vector3.zero)
+    {
+        status = GameObject.Find("StatusMenu").GetComponent<StatusController>();
+    }
+
+    public override Command Copy()
+    {
+        return new EnergyRecover();
+    }
+
+    public override bool Run(MapObject obj)
+    {
+        status.ChangeEnergy(10);
+        isDestroyed = true;
+        return true;
+    }
+}
+
+public class CapacityRecover : Command
+{
+    StatusController status;
+
+    public CapacityRecover()
+        : base("CapacityRecover", Data.panelSprites[(int)PanelSpritesName.cRecover], Vector3.zero)
+    {
+        status = GameObject.Find("StatusMenu").GetComponent<StatusController>();
+    }
+
+    public override Command Copy()
+    {
+        return new CapacityRecover();
+    }
+
+    public override bool Run(MapObject obj)
+    {
+        status.ChangeCapacity(10);
+        isDestroyed = true;
+        return true;
+    }
+}
+#endregion
 
 public class DefaultCommand : Command
 {

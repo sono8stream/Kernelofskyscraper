@@ -94,6 +94,7 @@ public class MapLoader : MonoBehaviour
                 }
             }
         }*/
+        DebugMapdata();
     }
 
     void DebugMapdata()
@@ -104,8 +105,8 @@ public class MapLoader : MonoBehaviour
             string sub = "";
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
-                string c = mapData[0][j, i].partNo == (int)MapPart.floor ? " " : "■";
-                sub += mapData[0][j, i].ToString();
+                string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
+                sub += mapData[1][j, i].objNo.ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -232,6 +233,7 @@ public class MapLoader : MonoBehaviour
                             if (kernel != null)
                             {
                                 kernel.transform.position = new Vector3(iniX + x, iniY - y, 0);
+                                Debug.Log("Found Kernel");
                             }
                             break;
                     }
@@ -374,12 +376,12 @@ public class MapLoader : MonoBehaviour
         { mapData[floorNo][x, y].objNo = objNo; }
     }
 
-    public void SetPanelData(int floorNo, Vector2 pos, int panelNo)
+    public void SetPanelData(int floorNo, Vector2 pos, Panel panel)
     {
         int x = 0, y = 0;
         PosToMapIndex(pos, ref x, ref y);
         if (InMap(x, y))
-        { mapData[floorNo][x, y].panelNo = panelNo; }
+        { mapData[floorNo][x, y].panel = panel; }
     }
 
     public void SetTileData(int floorNo, Vector2 pos, bool on)
@@ -401,11 +403,17 @@ public class MapLoader : MonoBehaviour
         return 0 <= x && x < mapWidth && 0 <= y && y < mapHeight;
     }
 
-    public int RecObj(MapObject obj)//オブジェクトに番号をセットする用
+    public int RecObj(MapObject obj,int range)//オブジェクトに番号をセットする用
     {
         objs.Add(obj);
-        SetObjData(obj.Floor, obj.transform.position, objs.Count - 1);
-        return objs.Count;
+        Vector3 iniPos= -Vector2.one * (range - range % 2) / 2;
+        Vector3 corPos;
+        for (int i = 0; i < range * range; i++)
+        {
+            corPos = new Vector3(i % range, i / range);
+            SetObjData(obj.Floor, obj.transform.localPosition+iniPos+corPos, objs.Count - 1);
+        }
+        return objs.Count - 1;
     }
 
     public void DelObjNo(int no)//オブジェクト番号をつぶして更新
@@ -426,21 +434,21 @@ public class CellData
 {
     public int partNo;//マスの構造、床、階段など
     public int objNo;//MapObject番号、存在しなければ0
-    public int panelNo;//パネル番号、存在しなければ-1
+    public Panel panel;//パネル番号、存在しなければ-1
     public GameObject tile;
 
-    public CellData(int partNo, int objNo = (int)ObjType.can, int panelNo = -1)
+    public CellData(int partNo, int objNo = (int)ObjType.can)
     {
         this.partNo = partNo;
         this.objNo = objNo;
-        this.panelNo = panelNo;
+        panel = null;
     }
 
     public void Update(int partNo)
     {
         this.partNo = partNo;
         objNo = (int)ObjType.can;
-        panelNo = -1;
+        panel = null;
     }
 }
 
