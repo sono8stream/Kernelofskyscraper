@@ -3833,6 +3833,7 @@ MonoBehaviour:
   height: 20
   minRectSize: 6
   roomLim: 5
+  floors: 5
 --- !u!4 &1829307846
 Transform:
   m_ObjectHideFlags: 0
@@ -3859,8 +3860,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mp_layout: {fileID: 0}
   generator: {fileID: 1829307845}
+  flrCon: {fileID: 772549106}
   mapdataDebug: []
-  onTest: 1
+  onTest: 0
   kernel: {fileID: 1639231145}
 --- !u!1 &1838412306
 GameObject:

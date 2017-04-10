@@ -39,7 +39,7 @@ public class FloorController : MonoBehaviour
 
     }
 
-    void UpdateMapImage()
+    public void UpdateMapImage()
     {
         if (mapImage == null)
         { Debug.Log("koko"); return; }
@@ -65,10 +65,11 @@ public class FloorController : MonoBehaviour
 
         for (int i = 0; i < map.MapWidth * map.MapHeight; i++)
         {
-            if (map.MapData[floorNo][i % map.MapWidth, i / map.MapWidth].partNo == (int)MapPart.floor)
+            if (map.MapData[floorNo][i % map.MapWidth, i / map.MapWidth].tile.activeSelf
+                && map.MapData[floorNo][i % map.MapWidth, i / map.MapWidth].partNo == (int)MapPart.floor)
             {
                 texture.SetPixels(iniX + i % map.MapWidth * selSize,
-                    texSize - iniY - (i / map.MapWidth+1) * selSize, selSize, selSize, colors);
+                    texSize - iniY - (i / map.MapWidth + 1) * selSize, selSize, selSize, colors);
             }
         }
         Debug.Log("OK?");

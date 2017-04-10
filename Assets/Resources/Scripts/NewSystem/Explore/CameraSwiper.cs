@@ -179,7 +179,7 @@ public class CameraSwiper : MonoBehaviour
                     g.transform.localScale = Vector3.one;
                 }
             }
-            else if(Input.GetMouseButtonUp(1))//右クリック、パネル削除
+            else if (Input.GetMouseButtonUp(1) && c.panel)//右クリック、パネル削除
             {
                 Destroy(c.panel.gameObject);
             }

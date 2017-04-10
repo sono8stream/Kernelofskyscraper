@@ -13,13 +13,12 @@ public class MapGenerator : MonoBehaviour
     [SerializeField]
     GameObject wireH, wireV;
     [SerializeField]//ブロックサイズ最小値,実際部屋サイズは-2,最大部屋数基準+roomRan
-    int width, height, minRectSize = 5, roomLim = 15;
+    int width, height, minRectSize = 5, roomLim = 15, floors = 3;
     int stX, stY;//初期座標
     int roomRan = 3;
     int roomLimTemp;
     int roomCo = 1;
     int lineSize = 1;
-    int floors = 3;//3階立て
     class Block
     {
         public bool[] aisleDireOn;

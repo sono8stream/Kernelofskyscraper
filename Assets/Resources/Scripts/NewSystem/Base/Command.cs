@@ -45,23 +45,23 @@ public class North : Command
 
     public override bool Run(MapObject obj)
     {
-        if (obj.Dire != 2)
+        if (obj.Dire == 2)
+        {
+            return true;
+        }
+        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        {
+            obj.Dire = 2;
+            //obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
+            return true;
+        }
+        else
         {
             float dif = ANGLE - obj.transform.eulerAngles.z;
             Vector3 mPos = Vector3.forward * dif / Mathf.Abs(dif);
             obj.transform.eulerAngles += mPos * sp;
-            if (obj.transform.eulerAngles.z != ANGLE)
-            {
-                obj.Dire = 2;
-                obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
-        return true;
     }
 }
 
@@ -71,7 +71,7 @@ public class South : Command
     float sp;
     const float ANGLE = 0f;
 
-    public South() : base("South", Data.panelSprites[(int)PanelSpritesName.go], Vector3.forward*180)
+    public South() : base("South", Data.panelSprites[(int)PanelSpritesName.go], Vector3.forward * 180)
     {
         sp = 10f;
     }
@@ -83,23 +83,23 @@ public class South : Command
 
     public override bool Run(MapObject obj)
     {
-        if (obj.Dire != 0)
+        if (obj.Dire == 0)
+        {
+            return true;
+        }
+        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        {
+            obj.Dire = 0;
+            //obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
+            return true;
+        }
+        else
         {
             float dif = ANGLE - obj.transform.eulerAngles.z;
             Vector3 mPos = Vector3.forward * dif / Mathf.Abs(dif);
             obj.transform.eulerAngles += mPos * sp;
-            if (obj.transform.eulerAngles.z != ANGLE)
-            {
-                obj.Dire = 0;
-                obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
-        return true;
     }
 }
 
@@ -120,23 +120,23 @@ public class East : Command
 
     public override bool Run(MapObject obj)
     {
-        if (obj.Dire != 1)
+        if (obj.Dire == 1)
+        {
+            return true;
+        }
+        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        {
+            obj.Dire = 1;
+            //obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
+            return true;
+        }
+        else
         {
             float dif = ANGLE - obj.transform.eulerAngles.z;
             Vector3 mPos = Vector3.forward * dif / Mathf.Abs(dif);
             obj.transform.eulerAngles += mPos * sp;
-            if (obj.transform.eulerAngles.z != ANGLE)
-            {
-                obj.Dire = 1;
-                obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
-        return true;
     }
 }
 
@@ -157,23 +157,23 @@ public class West : Command
 
     public override bool Run(MapObject obj)
     {
-        if (obj.Dire != 3)
+        if (obj.Dire == 3)
+        {
+            return true;
+        }
+        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        {
+            obj.Dire = 3;
+            //obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
+            return true;
+        }
+        else
         {
             float dif = ANGLE - obj.transform.eulerAngles.z;
             Vector3 mPos = Vector3.forward * dif / Mathf.Abs(dif);
             obj.transform.eulerAngles += mPos * sp;
-            if (obj.transform.eulerAngles.z != ANGLE)
-            {
-                obj.Dire = 3;
-                obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
-        return true;
     }
 }
 
@@ -324,6 +324,7 @@ public class Go : Command
                 c.objNo = obj.No;
                 obj.Map.SetObjData(obj.Floor, obj.transform.localPosition, (int)ObjType.cannot);
                 c.tile.SetActive(true);
+                obj.Map.flrCon.UpdateMapImage();
             }
             else
             {
@@ -347,9 +348,11 @@ public class Go : Command
                     obj.Floor = floorTemp;
                     obj.transform.SetParent(
                         obj.transform.parent.parent.FindChild("Floor" + (obj.Floor + 1).ToString()));
+                    obj.Map.SetObjData(obj.Floor, posTemp, obj.No);
                     obj.transform.localPosition = posTemp;
                     c.objNo = (int)ObjType.can;
-                    obj.Map.SetObjData(obj.Floor, posTemp, obj.No);
+                    c.tile.SetActive(true);
+                    obj.Map.flrCon.UpdateMapImage();
                 }
             }
             count = 0;

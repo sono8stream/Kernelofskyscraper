@@ -7,6 +7,7 @@ public class MapLoader : MonoBehaviour
 {
     public TextAsset mp_layout;//マップ情報を記述したテキスト
     public MapGenerator generator;
+    public FloorController flrCon;
     public string[] mapdataDebug;
     [SerializeField]
     bool onTest;
@@ -79,21 +80,6 @@ public class MapLoader : MonoBehaviour
             DebugMapdata();
             DrawMap();
         }
-        /*if (!onTest && f < mapData.Length)
-        {
-            mapData[f][x, y].tile.SetActive(true);
-            x++;
-            if (x == mapWidth)
-            {
-                x = 0;
-                y++;
-                if (y == mapHeight)
-                {
-                    y = 0;
-                    f++;
-                }
-            }
-        }*/
         DebugMapdata();
     }
 
@@ -106,7 +92,7 @@ public class MapLoader : MonoBehaviour
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
                 string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
-                sub += mapData[1][j, i].objNo.ToString();
+                sub += mapData[0][j, i].objNo.ToString();
             }
             mapdataDebug[i] = sub;
         }
