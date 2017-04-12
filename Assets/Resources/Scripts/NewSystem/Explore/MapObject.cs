@@ -5,6 +5,9 @@ using UnityEngine;
 public class MapObject : MonoBehaviour {
 
     protected int range = 1;
+    public int Range { get { return range; } }
+    protected int viewRange = 1;
+    public int ViewRange { get { return range; } }
     protected int dire = 0;//方向
     public int Dire
     {

@@ -323,7 +323,14 @@ public class Go : Command
             {
                 c.objNo = obj.No;
                 obj.Map.SetObjData(obj.Floor, obj.transform.localPosition, (int)ObjType.cannot);
-                c.tile.SetActive(true);
+                Vector3 iniPos = -Vector2.one * (obj.ViewRange - obj.ViewRange % 2) / 2;
+                Vector3 corPos;
+                for (int i = 0; i < obj.ViewRange * obj.ViewRange; i++)
+                {
+                    corPos = new Vector2(i % obj.ViewRange, i / obj.ViewRange);
+                    obj.Map.GetMapData(obj.Floor,
+                        obj.transform.localPosition + mPos + iniPos + corPos).tile.SetActive(true);
+                }
                 obj.Map.flrCon.UpdateMapImage();
             }
             else

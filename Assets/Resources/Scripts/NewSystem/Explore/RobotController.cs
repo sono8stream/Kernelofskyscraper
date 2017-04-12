@@ -28,6 +28,7 @@ public class RobotController : MapObject
         ReadCommand();
         waitCo = 0;
         waitLim = 1;
+        viewRange = 3;
     }
 
     // Update is called once per frame
@@ -40,7 +41,7 @@ public class RobotController : MapObject
             if (comNo == -1)
             {
                 if (map.GetMapData(floor, transform.localPosition).panel == null
-                || map.GetMapData(floor, transform.localPosition).panel.command.Run(this))//足元見るよ
+                || map.GetMapData(floor, transform.localPosition).panel.Run(this))//足元見るよ
                 {
                     ReadCommand();
                 }

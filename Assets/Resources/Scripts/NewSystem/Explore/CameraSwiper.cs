@@ -166,7 +166,8 @@ public class CameraSwiper : MonoBehaviour
                     c.panel = g.GetComponent<Panel>();
                 }
                 else if (!onPanel && 0 <= robotMenu.RobotNo // Generate a robot
-                    && c != null && c.objNo == -1 && c.tile.activeSelf && status.ChangeEnergy(-10))
+                    && c != null &&c.panel!=null
+                    && c.objNo == -1 && c.panel.sanctuary && status.ChangeEnergy(-10))
                 {
                     GameObject g = Instantiate(robotMenu.robotOrigin);
                     roboRC = g.GetComponent<RobotController>();

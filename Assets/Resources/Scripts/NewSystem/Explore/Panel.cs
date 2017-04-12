@@ -7,22 +7,35 @@ public class Panel : MonoBehaviour
     public string name;
     public Command command;//実行するコマンド
     public bool once;//一度しか作動しない
+    public bool sanctuary;//ロボ配置可能位置かどうか
 
     // Use this for initialization
     void Start()
     {
-        name = command.name;
-        Transform iconT = transform.FindChild("Icon");
-        iconT.GetComponent<SpriteRenderer>().sprite = command.sprite;
-        iconT.eulerAngles = command.angle;
+        if (command != null)
+        {
+            name = command.name;
+            Transform iconT = transform.FindChild("Icon");
+            iconT.GetComponent<SpriteRenderer>().sprite = command.sprite;
+            iconT.eulerAngles = command.angle;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(command.isDestroyed)
+        if (command != null && command.isDestroyed)
         {
             Destroy(gameObject);
         }
+    }
+
+    public bool Run(MapObject obj)
+    {
+        if (command == null)
+        {
+            return true;
+        }
+        return command.Run(obj);
     }
 }

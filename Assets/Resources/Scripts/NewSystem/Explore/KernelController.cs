@@ -9,13 +9,17 @@ public class KernelController : MapObject {
     {
         range = 3;
         base.Start();
-        int lightRange = 5;
+        int lightRange = 7;
         Vector3 iniPos = -Vector2.one * (lightRange - lightRange % 2) / 2;
         Vector3 corPos;
         for (int i = 0; i < lightRange * lightRange; i++)
         {
             corPos = new Vector3(i % lightRange, i / lightRange);
             map.SetTileData(floor, transform.localPosition + iniPos + corPos, true);
+        }
+        foreach(Panel p in transform.FindChild("Sanctuaries").GetComponentsInChildren<Panel>())
+        {
+            map.SetPanelData(floor, transform.localPosition + p.transform.localPosition, p);
         }
     }
 
