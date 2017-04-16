@@ -34,6 +34,7 @@ public class Data//基幹データ部
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/go"));
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/eneRecover"));
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/capaRecover"));
+        panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/switch"));
 
         commands = new List<Command>();
         commands.Add(new North());
@@ -51,10 +52,10 @@ public class Data//基幹データ部
 
 public enum PanelSpritesName
 {
-    def = 0, left, turn, go,eRecover,cRecover
+    def = 0, left, turn, go,eRecover,cRecover,switchPanel
 }
 
 public enum CommandType
 {
-    north = 0, south, east, west, left, right, turn,eRecover,cRecover
+    north = 0, south, east, west, left, right, turn
 }

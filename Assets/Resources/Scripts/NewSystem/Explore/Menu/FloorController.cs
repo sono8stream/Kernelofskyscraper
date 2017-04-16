@@ -72,7 +72,6 @@ public class FloorController : MonoBehaviour
                     texSize - iniY - (i / map.MapWidth + 1) * selSize, selSize, selSize, colors);
             }
         }
-        Debug.Log("OK?");
         texture.Apply();
         mapImage.sprite = Sprite.Create(texture, new Rect(0, 0, texSize, texSize), Vector2.zero);
 

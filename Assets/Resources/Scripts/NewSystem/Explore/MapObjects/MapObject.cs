@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class MapObject : MonoBehaviour {
 
-    protected int range = 1;
+    protected int range = 1;//大きさ
     public int Range { get { return range; } }
-    protected int viewRange = 1;
-    public int ViewRange { get { return range; } }
+    protected int viewRange;//視野の大きさ
+    public int ViewRange { get { return viewRange; } }
     protected int dire = 0;//方向
     public int Dire
     {
@@ -42,6 +42,8 @@ public class MapObject : MonoBehaviour {
     protected void Start()
     {
         no = map.RecObj(this, range);
+        viewRange = 1;
+        Debug.Log("origin" + viewRange);
     }
 
     // Update is called once per frame

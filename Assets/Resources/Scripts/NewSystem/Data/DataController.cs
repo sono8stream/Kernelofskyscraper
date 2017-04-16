@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DataController : MonoBehaviour {
+public class DataController : MonoBehaviour
+{
 
     static SaveManager saveManager;
 
@@ -36,7 +37,6 @@ public class DataController : MonoBehaviour {
 
     private void OnApplicationQuit()
     {
-        Debug.Log("Loaded??");
         saveManager.save(UserData.instance);
     }
 }

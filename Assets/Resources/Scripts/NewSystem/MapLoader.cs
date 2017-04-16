@@ -13,6 +13,8 @@ public class MapLoader : MonoBehaviour
     bool onTest;
     [SerializeField]
     KernelController kernel;
+    [SerializeField]
+    GameObject cursorGO;
     int mapWidth;
     int mapHeight;
     public int MapWidth
@@ -40,9 +42,14 @@ public class MapLoader : MonoBehaviour
         if (generator != null)
         {
             generator.InitiateMap();
-            mapWidth = generator.Mapdata[0].GetLength(0);
-            mapHeight = generator.Mapdata[0].GetLength(1);
+            mapWidth = generator.MapData[0].GetLength(0);
+            mapHeight = generator.MapData[0].GetLength(1);
             InitiateMapData();
+            /*for (int i = 0; i < generator.rooms[0].Count; i++)
+            {
+                Block b = generator.rooms[0][i];
+                Debug.Log(new Rect(b.x, b.y, b.w, b.h));
+            }*/
         }
         else
         {
@@ -51,19 +58,11 @@ public class MapLoader : MonoBehaviour
         floorMargin = 20;
         DrawMap();
         objs = new List<MapObject>();
-        /*if ((mapdata.GetLength(0) & 1) == 0)//x位置補正
-        {
-            transform.position += Vector3.left * 0.5f;
-        }
-        if ((mapdata.GetLength(1) & 1) == 0)//x位置補正
-        {
-            transform.position += Vector3.up * 0.5f;
-        }*/
     }
 
     void Start()
     {
-        DebugMapdata();
+        DebugMapData();
         f = 0;
         x = 0;
         y = 0;
@@ -77,13 +76,13 @@ public class MapLoader : MonoBehaviour
             DelMap();
             generator.InitiateMap();
             UpdateMapData();
-            DebugMapdata();
+            DebugMapData();
             DrawMap();
         }
-        DebugMapdata();
+        DebugMapData();
     }
 
-    void DebugMapdata()
+    void DebugMapData()
     {
         mapdataDebug = new string[mapHeight];
         for (int i = 0; i < mapdataDebug.Length; i++)//タテループ
@@ -91,7 +90,7 @@ public class MapLoader : MonoBehaviour
             string sub = "";
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
-                string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
+                //string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
                 sub += mapData[0][j, i].objNo.ToString();
             }
             mapdataDebug[i] = sub;
@@ -152,15 +151,15 @@ public class MapLoader : MonoBehaviour
 
     void InitiateMapData()
     {
-        mapData = new CellData[generator.Mapdata.Length][,];
-        for (int i = 0; i < generator.Mapdata.Length; i++)
+        mapData = new CellData[generator.MapData.Length][,];
+        for (int i = 0; i < generator.MapData.Length; i++)
         {
             mapData[i] = new CellData[mapWidth, mapHeight];
             for (int j = 0; j < mapWidth; j++)
             {
                 for (int k = 0; k < mapHeight; k++)
                 {
-                    mapData[i][j, k] = new CellData(generator.Mapdata[i][j, k]);
+                    mapData[i][j, k] = new CellData(generator.MapData[i][j, k]);
                 }
             }
         }
@@ -168,13 +167,13 @@ public class MapLoader : MonoBehaviour
 
     void UpdateMapData()
     {
-        for (int i = 0; i < generator.Mapdata.Length; i++)
+        for (int i = 0; i < generator.MapData.Length; i++)
         {
             for (int j = 0; j < mapWidth; j++)
             {
                 for (int k = 0; k < mapHeight; k++)
                 {
-                    mapData[i][j, k].Update(generator.Mapdata[i][j, k]);
+                    mapData[i][j, k].Update(generator.MapData[i][j, k]);
                 }
             }
         }
@@ -182,13 +181,13 @@ public class MapLoader : MonoBehaviour
 
     void DrawMap()
     {
-        string floorPath = "Prefabs/New3D/Floor";
-        string wallPath = "Prefabs/New3D/Wall";
-        string stairUPath = "Prefabs/New3D/StairU";
-        string stairDPath = "Prefabs/New3D/StairD";
+        string[] partPaths = new string[5] { "Prefabs/New3D/Floor" , "Prefabs/New3D/Wall" ,
+            "Prefabs/New3D/StairU" ,"Prefabs/New3D/StairD","Prefabs/New3D/Kernel_3D"};//MapPartのパス
+        Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
+        string[] gimmickPaths = new string[2] { "Prefabs/New3D/Panel", "Prefabs/New3D/Door" };
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
-        Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
+
         for (int i = 0; i < mapData.Length; i++)
         {
             GameObject map = new GameObject("Floor" + (i + 1).ToString());
@@ -198,48 +197,67 @@ public class MapLoader : MonoBehaviour
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    GameObject g = null;
-                    switch (mapData[i][x, y].partNo)
-                    {
-                        case (int)MapPart.floor://floor
-                            g = Instantiate(Resources.Load<GameObject>(floorPath), map.transform);
-                            break;
-                        case (int)MapPart.wall://wall
-                            g = Instantiate(Resources.Load<GameObject>(wallPath), map.transform);
-                            //AdjustCeiling(x, y, obj.transform, ceilingTextures);
-                            break;
-                        case (int)MapPart.stairD://下階段
-                            g = Instantiate(Resources.Load<GameObject>(stairDPath), map.transform);
-                            break;
-                        case (int)MapPart.stairU://上階段
-                            g = Instantiate(Resources.Load<GameObject>(stairUPath), map.transform);
-                            break;
-                        case (int)MapPart.kernel:
-                            g = Instantiate(Resources.Load<GameObject>(floorPath), map.transform);
-                            if (kernel != null)
-                            {
-                                kernel.transform.position = new Vector3(iniX + x, iniY - y, 0);
-                                Debug.Log("Found Kernel");
-                            }
-                            break;
-                    }
-                    if (g != null)
-                    {
-                        g.transform.localPosition = new Vector3(iniX + x, iniY - y, 0);
-                        if (onTest)
-                        {
-                            g.SetActive(true);
-                        }
-                        mapData[i][x, y].tile = g;
-                    }
+                    SetMapPart(map, i, x, y, iniX, iniY, partPaths);
+                    SetGimmick(map, i, x, y, iniX, iniY, gimmickPaths);
                 }
             }
+        }
+    }
+
+    void SetMapPart(GameObject mapGO, int floor, int x, int y, float iniX, float iniY, string[] paths)
+    {
+        if (mapData[floor][x, y].partNo < 0 || paths.Length <= mapData[floor][x, y].partNo)
+        {
+            return;
+        }
+        GameObject g = Instantiate(Resources.Load<GameObject>(paths[mapData[floor][x, y].partNo]), mapGO.transform);
+        g.transform.localPosition = new Vector3(iniX + x, iniY - y, 0);
+        if (onTest)
+        {
+            g.SetActive(true);
+        }
+        mapData[floor][x, y].tile = g;
+    }
+
+    void SetGimmick(GameObject mapGO, int floor, int x, int y,float iniX,float iniY,string[] paths)
+    {
+        GameObject g = null;
+        GameObject t = null;
+        int no = generator.MapGimmickData[floor][x, y];
+
+        switch (no & 0xff)//下位ビット
+        {
+            case (int)GimmickType.eRecovPanel:
+                g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
+                g.GetComponent<Panel>().command = new EnergyRecover();
+                break;
+            case (int)GimmickType.cRecovPanel:
+                g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
+                g.GetComponent<Panel>().command = new CapacityRecover();
+                break;
+            case (int)GimmickType.destroySwitch:
+                g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
+                g.GetComponent<Panel>().command = new DestroySwitch();
+                t = Instantiate(Resources.Load<GameObject>(paths[1]), mapGO.transform);
+                t.transform.localPosition 
+                    = new Vector3(iniX + ((no & 0xff0000)>>16), iniY - ((no & 0xff00)>>8), -0.01f);
+                break;
+            case (int)GimmickType.door:
+
+                break;
+        }
+
+        if (g != null)
+        {
+            g.transform.localPosition = new Vector3(iniX + x, iniY - y, -0.01f);
+            mapData[floor][x, y].panel = g.GetComponent<Panel>();
         }
     }
 
     void DelMap()
     {
         GameObject.Find("MainCamera").transform.SetParent(null);
+        cursorGO.transform.SetParent(null);
         foreach (Transform child in transform)
         {
             Destroy(child.gameObject);
@@ -389,15 +407,15 @@ public class MapLoader : MonoBehaviour
         return 0 <= x && x < mapWidth && 0 <= y && y < mapHeight;
     }
 
-    public int RecObj(MapObject obj,int range)//オブジェクトに番号をセットする用
+    public int RecObj(MapObject obj, int range)//オブジェクトに番号をセットする用
     {
         objs.Add(obj);
-        Vector3 iniPos= -Vector2.one * (range - range % 2) / 2;
+        Vector3 iniPos = -Vector2.one * (range - range % 2) / 2;
         Vector3 corPos;
         for (int i = 0; i < range * range; i++)
         {
             corPos = new Vector3(i % range, i / range);
-            SetObjData(obj.Floor, obj.transform.localPosition+iniPos+corPos, objs.Count - 1);
+            SetObjData(obj.Floor, obj.transform.localPosition + iniPos + corPos, objs.Count - 1);
         }
         return objs.Count - 1;
     }
@@ -410,6 +428,36 @@ public class MapLoader : MonoBehaviour
             SetObjData(objs[i].Floor, objs[i].transform.position, i - 1);
         }
         objs.RemoveAt(no);
+    }
+
+    public void VisualizeRoom(int floor, Vector2 pos)//部屋を照らす
+    {
+        Block b = GetPosRoom(floor, pos);
+        if (b == null)
+        {
+            return;
+        }
+        for (int i = 0; i < (b.rW + 2) * (b.rH + 2); i++)
+        {
+            mapData[floor][b.rX - 1 + i % (b.rW + 2), b.rY - 1 + i / (b.rW + 2)].tile.SetActive(true);
+        }
+    }
+
+    Block GetPosRoom(int floor, Vector2 pos)
+    {
+        Block b;
+        int x = 0, y = 0;
+        PosToMapIndex(pos, ref x, ref y);
+        for (int i = 0; i < generator.rooms[floor].Count; i++)
+        {
+            b = generator.rooms[floor][i];
+            if (b.rX <= x && x <= b.rX + b.rW - 1 && b.rY <= y && y <= b.rY + b.rH - 1)
+            {
+                generator.rooms[floor].RemoveAt(i);
+                return b;
+            }
+        }
+        return null;
     }
 }
 
@@ -440,7 +488,12 @@ public class CellData
 
 public enum MapPart
 {
-    floor = 1, wall, stairD, stairU, kernel
+    none = -1, floor, wall, stairD, stairU, kernel,
+}
+
+public enum GimmickType
+{
+    none = 0, eRecovPanel, cRecovPanel,destroySwitch,door
 }
 
 public enum ObjType

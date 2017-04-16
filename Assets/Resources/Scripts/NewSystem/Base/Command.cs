@@ -28,6 +28,8 @@ public abstract class Command
     public abstract bool Run(MapObject obj);
 }
 
+
+#region MoveType
 public class North : Command
 {
     float sp;
@@ -65,7 +67,6 @@ public class North : Command
     }
 }
 
-#region MoveType
 public class South : Command
 {
     float sp;
@@ -331,6 +332,7 @@ public class Go : Command
                     obj.Map.GetMapData(obj.Floor,
                         obj.transform.localPosition + mPos + iniPos + corPos).tile.SetActive(true);
                 }
+                obj.Map.VisualizeRoom(obj.Floor, obj.transform.localPosition);
                 obj.Map.flrCon.UpdateMapImage();
             }
             else
@@ -413,6 +415,49 @@ public class CapacityRecover : Command
     {
         status.ChangeCapacity(10);
         isDestroyed = true;
+        return true;
+    }
+}
+#endregion
+
+#region gimmickType
+public class DestroySwitch : Command
+{
+    MapObject gimmick;
+
+    public DestroySwitch() : base("Switch", Data.panelSprites[(int)PanelSpritesName.switchPanel], Vector3.zero)
+    {
+    }
+
+    public override Command Copy()
+    {
+        return new DestroySwitch();
+    }
+
+    public override bool Run(MapObject obj)
+    {
+        UnityEngine.Object.Destroy(gimmick.gameObject);
+        isDestroyed = true;
+        return true;
+    }
+}
+
+public class StopSwitch : Command
+{
+    MapObject gimmick;
+
+    public StopSwitch() : base("Switch", null, Vector3.zero)
+    {
+    }
+
+    public override Command Copy()
+    {
+        return new DestroySwitch();
+    }
+
+    public override bool Run(MapObject obj)
+    {
+
         return true;
     }
 }

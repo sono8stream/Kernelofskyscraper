@@ -29,6 +29,7 @@ public class RobotController : MapObject
         waitCo = 0;
         waitLim = 1;
         viewRange = 3;
+        Debug.Log("viewRange" + viewRange.ToString());
     }
 
     // Update is called once per frame
