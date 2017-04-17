@@ -24,6 +24,7 @@ public class MapGenerator : MonoBehaviour
     int roomLimTemp;
     int roomCo = 1;
     int lineSize = 1;
+    int kRoomIndex;//カーネルのある部屋番号
     List<Block>[] blocks;//区切りリスト
     public List<Block>[] rooms;//完全に区分けられた部屋リスト
 
@@ -81,6 +82,7 @@ public class MapGenerator : MonoBehaviour
         SetDoors();
     }
 
+    #region GenerateMapPart
     void SplitMap(int floorNo)
     {
         int blockNo;
@@ -240,31 +242,30 @@ public class MapGenerator : MonoBehaviour
         {
             for (int j = 0; j < rooms[i].Count; j++)
             {
-                rooms[i][j].roomNo = 0;
+                rooms[i][j].roomNo = -1;
             }
         }
-        SetNo(rooms[0][0]);
+        SetNo(rooms[0][kRoomIndex], 0);
         for (int i = 0; i < floors; i++)
         {
             for (int j = 0; j < rooms[i].Count; j++)
             {
-                if (rooms[i][j].roomNo == 0)
+                if (rooms[i][j].roomNo == -1)
                 { return false; }
             }
         }
         return true;
     }
 
-    void SetNo(Block b)
+    void SetNo(Block b, int no)
     {
-        if (b.roomNo == 1)
-        {
-            return;
-        }
-        b.roomNo = 1;
+        b.roomNo = no;
         for (int i = 0; i < b.adjBlocks.Count; i++)
         {
-            SetNo(b.adjBlocks[i]);
+            if (b.adjBlocks[i].roomNo == -1 || no + 1 < b.adjBlocks[i].roomNo)
+            {
+                SetNo(b.adjBlocks[i], no + 1);
+            }
         }
     }
 
@@ -346,6 +347,7 @@ public class MapGenerator : MonoBehaviour
         Block room;
         for (int i = 0; i < loopLim; i++)
         {
+            kRoomIndex = Random.Range(0, rooms[0].Count);
             room = rooms[0][Random.Range(0, rooms[0].Count)];
             if (room.adjDire.IndexOf((int)Direction.Fdown) == -1
                 && room.adjDire.IndexOf((int)Direction.Fup) == -1)//階段のない部屋を選択
@@ -719,7 +721,9 @@ public class MapGenerator : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region GenerateGimmick
     void SetPanels()//回復パネル設置
     {
         int index, x, y;
@@ -813,6 +817,9 @@ public class MapGenerator : MonoBehaviour
         }
         return posList.ToArray();
     }
+
+
+    #endregion
 
     void DrawWire()
     {
