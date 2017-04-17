@@ -182,7 +182,7 @@ public class MapLoader : MonoBehaviour
     void DrawMap()
     {
         string[] partPaths = new string[5] { "Prefabs/New3D/Floor" , "Prefabs/New3D/Wall" ,
-            "Prefabs/New3D/StairU" ,"Prefabs/New3D/StairD","Prefabs/New3D/Kernel_3D"};//MapPartのパス
+            "Prefabs/New3D/StairD","Prefabs/New3D/StairU" ,"Prefabs/New3D/Kernel_3D"};//MapPartのパス
         Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
         string[] gimmickPaths = new string[2] { "Prefabs/New3D/Panel", "Prefabs/New3D/Door" };
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;

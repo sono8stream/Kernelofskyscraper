@@ -762,12 +762,12 @@ public class MapGenerator : MonoBehaviour
 
     void SetDoors()
     {
-        int index, x, y, aIndex, co = 0;
+        int index, x, y, aIndex, co = 0, loopCo = 0, loopLim = 20;
         Vector2 p;
         Vector2[] dPosArray;
         for (int i = 0; i < floors; i++)
         {
-            while (co < 2)
+            while (co < 2&&loopCo<loopLim)
             {
                 index = Random.Range(0, rooms[i].Count);
                 x = Random.Range(1, rooms[i][index].rW - 1);
@@ -784,8 +784,10 @@ public class MapGenerator : MonoBehaviour
                     rooms[i][index].sPos.Add(p);
                     co++;
                 }
+                loopCo++;
             }
             co = 0;
+            loopCo = 0;
         }
     }
 
@@ -794,25 +796,40 @@ public class MapGenerator : MonoBehaviour
         int i = 0;
         int iniX = b.rX - 1;
         int iniY = b.rY - 1;
+        int adjIndex = -1;
         List<Vector2> posList = new List<Vector2>();
         Vector2 pos;
 
         while (i < (b.rW + 2) * 2 + b.rH * 2)
         {
             pos = new Vector2(iniX + i % (b.rW + 2), iniY + i / (b.rW + 2));
-            if (mapGimmickData[b.floorNo][(int)pos.x, (int)pos.y] == (int)GimmickType.none
-                && mapData[b.floorNo][(int)pos.x, (int)pos.y] == (int)MapPart.floor)
-            {
-                posList.Add(pos);
-            }
             int y = i / (b.rW + 2);
-            if (0 < y && y < b.rH + 1 && i % (b.rW + 2) == 0)
+            adjIndex = -1;
+            if (y == 0)//上
             {
+                adjIndex = b.adjDire.IndexOf((int)Direction.Up);
+                i++;
+            }
+            else if (y == b.rH + 1)//下
+            {
+                adjIndex = b.adjDire.IndexOf((int)Direction.Down);
+                i++;
+            }
+            else if (i % (b.rW + 2) == 0)//左
+            {
+                adjIndex = b.adjDire.IndexOf((int)Direction.Left);
                 i += b.rW + 1;
             }
-            else
+            else//右
             {
+                adjIndex = b.adjDire.IndexOf((int)Direction.Right);
                 i++;
+            }
+            if (mapGimmickData[b.floorNo][(int)pos.x, (int)pos.y] == (int)GimmickType.none
+                && mapData[b.floorNo][(int)pos.x, (int)pos.y] == (int)MapPart.floor
+                && 0 <= adjIndex && b.roomNo <= b.adjBlocks[adjIndex].roomNo)
+            {
+                posList.Add(pos);
             }
         }
         return posList.ToArray();
