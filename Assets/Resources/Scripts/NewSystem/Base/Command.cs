@@ -15,7 +15,6 @@ public abstract class Command
         this.name = name;
         this.sprite = sprite;
         this.angle = angle;
-        Debug.Log(GetType());
     }
 
     public Command CreateInstance()

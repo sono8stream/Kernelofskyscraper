@@ -72,8 +72,8 @@ public class MapGenerator : MonoBehaviour
         }
         CheckAdjacent();
         DelAdjacents();
-        //Debug.Log(CheckRoute());
         SetKernelPos();//カーネル位置設定
+        Debug.Log(CheckRoute());
         MakeAllStairs();
         MakeAllRooms();
         MakeAllAisles();
@@ -473,10 +473,18 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int j = 0; j < rooms[h][i].adjBlocks.Count; j++)
                 {
-                    MakeAisle(rooms[h][i], j);
-                    int delIndex = rooms[h][i].adjBlocks[j].adjBlocks.IndexOf(rooms[h][i]);
-                    rooms[h][i].adjBlocks[j].adjBlocks.RemoveAt(delIndex);
-                    rooms[h][i].adjBlocks[j].adjDire.RemoveAt(delIndex);
+                    if (0 <= rooms[h][i].adjDire[j])
+                    {
+                        MakeAisle(rooms[h][i], j);
+                        int delIndex = rooms[h][i].adjBlocks[j].adjBlocks.IndexOf(rooms[h][i]);
+                        rooms[h][i].adjBlocks[j].adjDire[delIndex] *= -1;
+                        rooms[h][i].adjBlocks[j].adjDire[delIndex]--;
+                    }
+                    else
+                    {
+                        rooms[h][i].adjDire[j] *= -1;
+                        rooms[h][i].adjDire[j]--;
+                    }
                 }
             }
         }
@@ -765,6 +773,7 @@ public class MapGenerator : MonoBehaviour
         int index, x, y, aIndex, co = 0, loopCo = 0, loopLim = 20;
         Vector2 p;
         Vector2[] dPosArray;
+        Debug.Log(kRoomIndex);
         for (int i = 0; i < floors; i++)
         {
             while (co < 2&&loopCo<loopLim)
@@ -799,38 +808,49 @@ public class MapGenerator : MonoBehaviour
         int adjIndex = -1;
         List<Vector2> posList = new List<Vector2>();
         Vector2 pos;
+        /*Debug.Log(b.floorNo);
+        Debug.Log(b.x + "," + b.y);
+        Debug.Log(b.roomNo);*/
 
-        while (i < (b.rW + 2) * 2 + b.rH * 2)
+        while (i < (b.rW + 2) *( b.rH + 2))
         {
             pos = new Vector2(iniX + i % (b.rW + 2), iniY + i / (b.rW + 2));
             int y = i / (b.rW + 2);
-            adjIndex = -1;
-            if (y == 0)//上
-            {
-                adjIndex = b.adjDire.IndexOf((int)Direction.Up);
-                i++;
-            }
-            else if (y == b.rH + 1)//下
-            {
-                adjIndex = b.adjDire.IndexOf((int)Direction.Down);
-                i++;
-            }
-            else if (i % (b.rW + 2) == 0)//左
-            {
-                adjIndex = b.adjDire.IndexOf((int)Direction.Left);
-                i += b.rW + 1;
-            }
-            else//右
-            {
-                adjIndex = b.adjDire.IndexOf((int)Direction.Right);
-                i++;
-            }
+
             if (mapGimmickData[b.floorNo][(int)pos.x, (int)pos.y] == (int)GimmickType.none
-                && mapData[b.floorNo][(int)pos.x, (int)pos.y] == (int)MapPart.floor
-                && 0 <= adjIndex && b.roomNo <= b.adjBlocks[adjIndex].roomNo)
+                && mapData[b.floorNo][(int)pos.x, (int)pos.y] == (int)MapPart.floor)
             {
-                posList.Add(pos);
+                adjIndex = -1;//隣接するブロックとの順位を取得
+                if (y == 0)//上
+                {
+                    adjIndex = b.adjDire.IndexOf((int)Direction.Up);
+                }
+                else if (y == b.rH + 1)//下
+                {
+                    adjIndex = b.adjDire.IndexOf((int)Direction.Down);
+                }
+                else if (i % (b.rW + 2) == 0)//左
+                {
+                    adjIndex = b.adjDire.IndexOf((int)Direction.Left);
+                }
+                else//右
+                {
+                    adjIndex = b.adjDire.IndexOf((int)Direction.Right);
+                }
+
+                Debug.Log(pos);
+                if (0 <= adjIndex)
+                {
+                    Debug.Log(b.adjBlocks[adjIndex].roomNo);
+                }
+
+                if (0 <= adjIndex && b.roomNo <= b.adjBlocks[adjIndex].roomNo)
+                {
+                    posList.Add(pos);
+                    Debug.Log("OK");
+                }
             }
+            i = i % (b.rW + 2) == 0 ? i + b.rW + 1 : i + 1;
         }
         return posList.ToArray();
     }
