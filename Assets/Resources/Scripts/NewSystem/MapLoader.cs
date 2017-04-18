@@ -9,6 +9,7 @@ public class MapLoader : MonoBehaviour
     public MapGenerator generator;
     public FloorController flrCon;
     public string[] mapdataDebug;
+
     [SerializeField]
     bool onTest;
     [SerializeField]
@@ -33,6 +34,8 @@ public class MapLoader : MonoBehaviour
         get { return mapData; }
     }
     List<MapObject> objs;
+    public List<MapObject> Objs
+    { get { return objs; } }
     Texture2D ceilingTexture;
 
     // Use this for initialization
@@ -426,7 +429,7 @@ public class MapLoader : MonoBehaviour
         for (int i = 0; i < range * range; i++)
         {
             corPos = new Vector3(i % range, i / range);
-            SetObjData(obj.Floor, obj.transform.localPosition + iniPos + corPos, objs.Count - 1);
+            SetObjData(obj.floor, obj.transform.localPosition + iniPos + corPos, objs.Count - 1);
         }
         return objs.Count - 1;
     }
@@ -436,7 +439,7 @@ public class MapLoader : MonoBehaviour
         CellData c;
         for (int i = no; i < objs.Count; i++)
         {
-            SetObjData(objs[i].Floor, objs[i].transform.position, i - 1);
+            SetObjData(objs[i].floor, objs[i].transform.position, i - 1);
         }
         objs.RemoveAt(no);
     }

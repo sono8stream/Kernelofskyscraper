@@ -78,7 +78,7 @@ public class CameraSwiper : MonoBehaviour
         {
             if (roboRC)
             {
-                roboRC.Dire = 2;
+                roboRC.dire = 2;
                 roboRC.transform.eulerAngles = Vector3.forward * 180;
             }
             else
@@ -91,7 +91,7 @@ public class CameraSwiper : MonoBehaviour
         {
             if (roboRC)
             {
-                roboRC.Dire = 3;
+                roboRC.dire = 3;
                 roboRC.transform.eulerAngles = Vector3.forward * 270;
             }
             else
@@ -104,7 +104,7 @@ public class CameraSwiper : MonoBehaviour
         {
             if (roboRC)
             {
-                roboRC.Dire = 0;
+                roboRC.dire = 0;
                 roboRC.transform.eulerAngles = Vector3.zero;
             }
             else
@@ -117,7 +117,7 @@ public class CameraSwiper : MonoBehaviour
         {
             if (roboRC)
             {
-                roboRC.Dire = 1;
+                roboRC.dire = 1;
                 roboRC.transform.eulerAngles = Vector3.forward * 90;
             }
             else
@@ -173,7 +173,7 @@ public class CameraSwiper : MonoBehaviour
                     roboRC = g.GetComponent<RobotController>();
                     roboRC.robot = (Robot)UserData.instance.robotRecipe[robotMenu.RobotNo].DeepCopy();
                     roboRC.robot.Initiate();
-                    roboRC.Floor = floorCon.FloorNo;
+                    roboRC.floor = floorCon.FloorNo;
                     Debug.Log(roboRC.robot.Command.Count);
                     g.transform.position = cursorGO.transform.position;
                     g.transform.SetParent(cursorGO.transform.parent);

@@ -10,6 +10,7 @@ public class Panel : MonoBehaviour
     public bool sanctuary;//ロボ配置可能位置かどうか
     public bool cannotBreak;//破壊可能
     public int campNo;//誰にはたらくパネルか
+    public bool isTrap;
 
     // Use this for initialization
     void Start()

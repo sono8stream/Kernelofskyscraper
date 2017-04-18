@@ -4,34 +4,20 @@ using UnityEngine;
 
 public class MapObject : MonoBehaviour {
 
+    #region Members
+    //public
+    public int campNo;
+    public int dire;//方向
+    public int floor;
+    public MapLoader map;
+
     protected int range = 1;//大きさ
     public int Range { get { return range; } }
     protected int viewRange;//視野の大きさ
     public int ViewRange { get { return viewRange; } }
-    protected int dire = 0;//方向
-    public int Dire
-    {
-        get { return dire; }
-        set { dire = value; }
-    }
     protected int no;//オブジェクト番号
-    public int No
-    {
-        get { return no; }
-    }
-    protected int floor;
-    public int Floor
-    {
-        get { return floor;}
-        set { floor = value; }
-    }
-
-    protected MapLoader map;
-    public MapLoader Map
-    {
-        get { return map; }
-        set { map = value; }
-    }
+    public int No { get { return no; } }
+    #endregion
 
     void Awake()
     {

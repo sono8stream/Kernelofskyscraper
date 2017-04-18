@@ -10,7 +10,6 @@ public class RobotController : MapObject
     //public
     public Robot robot;
     public bool canMove;
-    public int campNo;
 
     //private
     [SerializeField]
@@ -19,6 +18,9 @@ public class RobotController : MapObject
     int comListNo;
     int waitCo;
     int waitLim;
+
+    Predicate<int> flag;
+    Command c;
     #endregion
 
     // Use this for initialization
@@ -40,7 +42,11 @@ public class RobotController : MapObject
         if (waitCo == waitLim)
         {
             waitCo = 0;
-            if (comNo == -1)
+            if (comNo == -2&& flag(0) && c.Run(this))//コマンド読み込み
+            {
+                comNo = -1;
+            }
+            else if(comNo==-1)
             {
                 Panel p = map.GetMapData(floor, transform.localPosition).panel;
                 if (p == null || campNo != p.campNo || p.Run(this))//足元見るよ
@@ -51,7 +57,7 @@ public class RobotController : MapObject
             else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
             {
                 //Debug.Log(robot.Command[comNo].name);
-                comNo = -1;
+                comNo = -2;
             }
         }
         else
@@ -142,5 +148,20 @@ public class RobotController : MapObject
             }
         }
         return new Vector2(comCX, comCY);
+    }
+
+    bool PartInFront(int no)
+    {
+        return map.GetMapData(floor, transform.localPosition).partNo == no;
+    }
+
+    bool EnemyInFront(int no)
+    {
+        return map.Objs[map.GetMapData(floor, transform.localPosition).objNo].campNo == (int)CampState.enemy;
+    }
+
+    bool TrapInFront(int no)
+    {
+        return map.GetMapData(floor, transform.localPosition).panel.isTrap;
     }
 }
