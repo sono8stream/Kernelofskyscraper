@@ -8,6 +8,8 @@ public class Panel : MonoBehaviour
     public Command command;//実行するコマンド
     public bool once;//一度しか作動しない
     public bool sanctuary;//ロボ配置可能位置かどうか
+    public bool cannotBreak;//破壊可能
+    public int campNo;//誰にはたらくパネルか
 
     // Use this for initialization
     void Start()
@@ -38,4 +40,9 @@ public class Panel : MonoBehaviour
         }
         return command.Run(obj);
     }
+}
+
+public enum CampState
+{
+    ally = 0, enemy = 1, neutral
 }

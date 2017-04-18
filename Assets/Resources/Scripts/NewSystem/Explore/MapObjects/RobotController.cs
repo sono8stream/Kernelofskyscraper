@@ -10,6 +10,7 @@ public class RobotController : MapObject
     //public
     public Robot robot;
     public bool canMove;
+    public int campNo;
 
     //private
     [SerializeField]
@@ -41,8 +42,8 @@ public class RobotController : MapObject
             waitCo = 0;
             if (comNo == -1)
             {
-                if (map.GetMapData(floor, transform.localPosition).panel == null
-                || map.GetMapData(floor, transform.localPosition).panel.Run(this))//足元見るよ
+                Panel p = map.GetMapData(floor, transform.localPosition).panel;
+                if (p == null || campNo != p.campNo || p.Run(this))//足元見るよ
                 {
                     ReadCommand();
                 }

@@ -424,13 +424,16 @@ public class DestroySwitch : Command
 {
     MapObject gimmick;
 
-    public DestroySwitch() : base("Switch", Data.panelSprites[(int)PanelSpritesName.switchPanel], Vector3.zero)
+    public DestroySwitch(MapObject g) 
+        : base("Switch", Data.panelSprites[(int)PanelSpritesName.switchPanel], Vector3.zero)
     {
+        gimmick = g;
+        Debug.Log(g.transform.localPosition);
     }
 
     public override Command Copy()
     {
-        return new DestroySwitch();
+        return new DestroySwitch(gimmick);
     }
 
     public override bool Run(MapObject obj)
@@ -445,13 +448,14 @@ public class StopSwitch : Command
 {
     MapObject gimmick;
 
-    public StopSwitch() : base("Switch", null, Vector3.zero)
+    public StopSwitch(MapObject g) : base("Switch", null, Vector3.zero)
     {
+        gimmick = g;
     }
 
     public override Command Copy()
     {
-        return new DestroySwitch();
+        return new StopSwitch(gimmick);
     }
 
     public override bool Run(MapObject obj)

@@ -166,7 +166,7 @@ public class CameraSwiper : MonoBehaviour
                     c.panel = g.GetComponent<Panel>();
                 }
                 else if (!onPanel && 0 <= robotMenu.RobotNo // Generate a robot
-                    && c != null &&c.panel!=null
+                    && c != null && c.panel != null
                     && c.objNo == -1 && c.panel.sanctuary && status.ChangeEnergy(-10))
                 {
                     GameObject g = Instantiate(robotMenu.robotOrigin);
@@ -180,7 +180,7 @@ public class CameraSwiper : MonoBehaviour
                     g.transform.localScale = Vector3.one;
                 }
             }
-            else if (Input.GetMouseButtonUp(1) && c.panel)//右クリック、パネル削除
+            else if (Input.GetMouseButtonUp(1) && c.panel && !c.panel.cannotBreak)//右クリック、パネル削除
             {
                 Destroy(c.panel.gameObject);
             }

@@ -223,24 +223,35 @@ public class MapLoader : MonoBehaviour
     {
         GameObject g = null;
         GameObject t = null;
+        Panel p;
         int no = generator.MapGimmickData[floor][x, y];
 
         switch (no & 0xff)//下位ビット
         {
             case (int)GimmickType.eRecovPanel:
                 g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
-                g.GetComponent<Panel>().command = new EnergyRecover();
+                p = g.GetComponent<Panel>();
+                p.command = new EnergyRecover();
+                p.cannotBreak = true;
+                p.campNo = (int)CampState.ally;
                 break;
             case (int)GimmickType.cRecovPanel:
                 g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
-                g.GetComponent<Panel>().command = new CapacityRecover();
+                p = g.GetComponent<Panel>();
+                p.command = new CapacityRecover();
+                p.cannotBreak = true;
+                p.campNo = (int)CampState.ally;
                 break;
             case (int)GimmickType.destroySwitch:
                 g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
-                g.GetComponent<Panel>().command = new DestroySwitch();
                 t = Instantiate(Resources.Load<GameObject>(paths[1]), mapGO.transform);
-                t.transform.localPosition 
-                    = new Vector3(iniX + ((no & 0xff0000)>>16), iniY - ((no & 0xff00)>>8), -0.01f);
+                t.transform.localPosition
+                    = new Vector3(iniX + ((no & 0xff0000) >> 16), iniY - ((no & 0xff00) >> 8), -0.01f);
+                p = g.GetComponent<Panel>();
+                p.command = new DestroySwitch(t.GetComponent<MapObject>());
+                p.cannotBreak = true;
+                p.campNo = (int)CampState.ally;
+
                 break;
             case (int)GimmickType.door:
 
