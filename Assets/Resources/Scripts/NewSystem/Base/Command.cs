@@ -39,6 +39,7 @@ public class North : Command
     public North() : base("North", Data.panelSprites[(int)PanelSpritesName.go], Vector3.zero)
     {
         sp = 10f;
+        initial = true;
     }
 
     public override Command Copy()
@@ -57,7 +58,7 @@ public class North : Command
             mod = obj.transform.FindChild("mod");
             initial = false;
         }
-        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        if (Mathf.Round(mod.eulerAngles.z) == ANGLE)
         {
             obj.dire = 2;
             initial = true;
@@ -81,6 +82,7 @@ public class South : Command
     public South() : base("South", Data.panelSprites[(int)PanelSpritesName.go], Vector3.forward * 180)
     {
         sp = 10f;
+        initial = true;
     }
 
     public override Command Copy()
@@ -99,7 +101,7 @@ public class South : Command
             mod = obj.transform.FindChild("mod");
             initial = false;
         }
-        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        if (Mathf.Round(mod.eulerAngles.z) == ANGLE)
         {
             obj.dire = 0;
             initial = true;
@@ -142,7 +144,7 @@ public class East : Command
             mod = obj.transform.FindChild("mod");
             initial = false;
         }
-        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        if (Mathf.Round(mod.eulerAngles.z) == ANGLE)
         {
             obj.dire = 1;
             initial = true;
@@ -185,7 +187,7 @@ public class West : Command
             mod = obj.transform.FindChild("mod");
             initial = false;
         }
-        if (Mathf.Round(obj.transform.eulerAngles.z) == ANGLE)
+        if (Mathf.Round(mod.eulerAngles.z) == ANGLE)
         {
             obj.dire = 3;
             //obj.transform.eulerAngles = new Vector3(0, 0, ANGLE);

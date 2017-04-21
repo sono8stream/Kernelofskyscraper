@@ -16,6 +16,7 @@ public class CameraSwiper : MonoBehaviour
     RobotMenu robotMenu;
     [SerializeField]
     FloorController floorCon;
+    public int Floor { get { return floorCon.FloorNo; } }
     [SerializeField]
     GameObject panelOrigin;
     [SerializeField]
@@ -25,7 +26,6 @@ public class CameraSwiper : MonoBehaviour
     MapObject selectedObject;
     [SerializeField]
     StatusController status;
-    RobotController roboRC;
     Vector3 keyDownPos;
     Vector3 touchingPos;
     Vector3 tappedMapPos;
@@ -51,12 +51,11 @@ public class CameraSwiper : MonoBehaviour
     {
         swipeMargin = 5;
         mapCorrectionPos = Vector3.back * 0.01f - camera.transform.localPosition;
-        period = 80;
+        period = 120;
         rangeX = map.MapWidth * 0.5f;
         rangeY = map.MapHeight * 0.5f + marginY;
         posZ = camera.transform.localPosition.z;
         camera.transform.localPosition = kernel.transform.position - mapCorrectionPos;
-        roboRC = null;
     }
 
     // Update is called once per frame
@@ -74,59 +73,8 @@ public class CameraSwiper : MonoBehaviour
             LimitScroll(map.MapWidth, map.MapHeight, false);
             velocity += accel;
         }
-        if (Input.GetKey(KeyCode.W))//移動
-        {
-            if (roboRC)
-            {
-                roboRC.dire = 2;
-                roboRC.transform.eulerAngles = Vector3.forward * 180;
-            }
-            else
-            {
-                velocity += Vector3.up * speed;
-                accel = -velocity / 10;
-            }
-        }
-        if (Input.GetKey(KeyCode.A))//移動
-        {
-            if (roboRC)
-            {
-                roboRC.dire = 3;
-                roboRC.transform.eulerAngles = Vector3.forward * 270;
-            }
-            else
-            {
-                velocity += Vector3.left * speed;
-                accel = -velocity / 10;
-            }
-        }
-        if (Input.GetKey(KeyCode.S))//移動
-        {
-            if (roboRC)
-            {
-                roboRC.dire = 0;
-                roboRC.transform.eulerAngles = Vector3.zero;
-            }
-            else
-            {
-                velocity += Vector3.down * speed;
-                accel = -velocity / 10;
-            }
-        }
-        if (Input.GetKey(KeyCode.D))//移動
-        {
-            if (roboRC)
-            {
-                roboRC.dire = 1;
-                roboRC.transform.eulerAngles = Vector3.forward * 90;
-            }
-            else
-            {
-                velocity += Vector3.right * speed;
-                accel = -velocity / 10;
-            }
-        }
-        SetRobotDirection();
+        MoveCamera();
+
         cursorGO.transform.position = SetToMapPos();
     }
 
@@ -169,15 +117,7 @@ public class CameraSwiper : MonoBehaviour
                     && c != null && c.panel != null
                     && c.objNo == -1 && c.panel.sanctuary && status.ChangeEnergy(-10))
                 {
-                    GameObject g = Instantiate(robotMenu.robotOrigin);
-                    roboRC = g.GetComponent<RobotController>();
-                    roboRC.robot = (Robot)UserData.instance.robotRecipe[robotMenu.RobotNo].DeepCopy();
-                    roboRC.robot.Initiate();
-                    roboRC.floor = floorCon.FloorNo;
-                    Debug.Log(roboRC.robot.Command.Count);
-                    g.transform.position = cursorGO.transform.position;
-                    g.transform.SetParent(cursorGO.transform.parent);
-                    g.transform.localScale = Vector3.one;
+                    robotMenu.GenerateRobot(cursorGO.transform);
                 }
             }
             else if (Input.GetMouseButtonUp(1) && c.panel && !c.panel.cannotBreak)//右クリック、パネル削除
@@ -237,6 +177,30 @@ public class CameraSwiper : MonoBehaviour
         }
     }
 
+    void MoveCamera()
+    {
+        if (Input.GetKey(KeyCode.T))//移動
+        {
+            velocity += Vector3.up * speed / 2;
+            accel = -velocity / 10;
+        }
+        if (Input.GetKey(KeyCode.F))//移動
+        {
+            velocity += Vector3.left * speed / 2;
+            accel = -velocity / 10;
+        }
+        if (Input.GetKey(KeyCode.G))//移動
+        {
+            velocity += Vector3.down * speed / 2;
+            accel = -velocity / 10;
+        }
+        if (Input.GetKey(KeyCode.H))//移動
+        {
+            velocity += Vector3.right * speed / 2;
+            accel = -velocity / 10;
+        }
+    }
+
     Vector3 SetToMapPos()
     {
         float centerX = camera.rect.width / 2 - 0.5f;
@@ -264,15 +228,5 @@ public class CameraSwiper : MonoBehaviour
             ((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f)),
             ((viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f)));
         return worldObject_ScreenPosition;
-    }
-
-    void SetRobotDirection()
-    {
-        if ((Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.A)
-            || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.D)) && roboRC)//移動
-        {
-            roboRC.canMove = true;
-            roboRC = null;
-        }
     }
 }

@@ -29,7 +29,6 @@ public class MapObject : MonoBehaviour {
     {
         no = map.RecObj(this, range);
         viewRange = 1;
-        Debug.Log("origin" + viewRange);
     }
 
     // Update is called once per frame

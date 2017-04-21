@@ -12,6 +12,8 @@ public class RobotMenu : MonoBehaviour
     float buttonPosX;
     [SerializeField]
     CameraSwiper swiper;
+    [SerializeField]
+    Text commandText;
     public GameObject robotOrigin;
     GameObject panelGOrigin;
     List<Button> commandBs;
@@ -20,10 +22,17 @@ public class RobotMenu : MonoBehaviour
     {
         get { return robotNo; }
     }
+    RobotController roboRC;
+
+    List<byte> commandCodes;//Command code on RobotController
+    bool onFlag;
+    int codeIndex;
+    int waitLim = 5;
+    int waitCo;
 
     void Awake()
     {
-
+        commandCodes = new List<byte>();
     }
 
     // Use this for initialization
@@ -32,12 +41,17 @@ public class RobotMenu : MonoBehaviour
         panelGOrigin = Resources.Load<GameObject>("Prefabs/Custom/PanelButton");
         InitiateCommandBs();
         robotNo = -1;
+        roboRC = null;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (roboRC != null)
+        {
+            SetRobotDirection();
+            SetCommandCode();
+        }
     }
 
     void InitiateCommandBs()
@@ -75,5 +89,192 @@ public class RobotMenu : MonoBehaviour
         selectImage.transform.eulerAngles = Vector3.zero;
         selectImage.enabled = true;
         swiper.onPanel = false;
+    }
+
+    void SetRobotDirection()
+    {
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            roboRC.dire = 2;
+            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 180;
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            roboRC.dire = 3;
+            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 270;
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            roboRC.dire = 0;
+            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 0;
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            roboRC.dire = 1;
+            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 90;
+        }
+    }
+
+    void SetCommandCode()
+    {
+        if (waitCo < waitLim)
+        {
+            waitCo++;
+            return;
+        }
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftShift))//flag
+        {
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                SetFlag();
+                commandCodes.Insert(codeIndex, (int)CodeName.Wall);
+                codeIndex++;
+                UpdateText();
+            }
+            else if (Input.GetKeyDown(KeyCode.X))
+            {
+                SetFlag();
+                commandCodes.Insert(codeIndex, (int)CodeName.Enemy);
+                codeIndex++;
+                UpdateText();
+            }
+            else if (Input.GetKeyDown(KeyCode.C))
+            {
+                SetFlag();
+                commandCodes.Insert(codeIndex, (int)CodeName.Trap);
+                codeIndex++;
+                UpdateText();
+            }
+            else if (Input.GetKeyDown(KeyCode.V))
+            {
+                SetCommand();
+                commandCodes.Insert(codeIndex, (int)CodeName.Left);
+                codeIndex++;
+                UpdateText();
+            }
+            else if (Input.GetKeyDown(KeyCode.B))
+            {
+                Debug.Log("?");
+                SetCommand();
+                commandCodes.Insert(codeIndex, (int)CodeName.Right);
+                codeIndex++;
+                UpdateText();
+            }
+            else if (Input.GetKeyDown(KeyCode.N))
+            {
+                SetCommand();
+                commandCodes.Insert(codeIndex, (int)CodeName.Turn);
+                codeIndex++;
+                UpdateText();
+            }
+        }
+        else if(Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            codeIndex = 0 < codeIndex ? codeIndex - 1 : 0;
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            codeIndex = codeIndex < commandCodes.Count ? codeIndex + 1 : commandCodes.Count;
+        }
+        else if (Input.GetKey(KeyCode.Backspace) && 0 < codeIndex)
+        {
+            DelCode();
+            UpdateText();
+        }
+        else if (Input.GetKeyDown(KeyCode.Semicolon))//終点
+        {
+            waitCo = 0;
+            commandCodes.Insert(codeIndex, (int)CodeName.End);
+            codeIndex++;
+            UpdateText();
+        }
+        else if(Input.GetKeyDown(KeyCode.Return))
+        {
+            roboRC.SetAction(commandCodes.ToArray());
+            roboRC.canMove = true;
+            roboRC = null;
+            commandCodes = new List<byte>();
+        }
+    }
+
+    void SetFlag()
+    {
+        waitCo = 0;
+        codeIndex = commandCodes.Count;
+
+        if (onFlag)
+        {
+            commandCodes.Insert(codeIndex, (int)CodeName.And);
+            codeIndex++;
+        }
+        else
+        {
+            commandCodes.Insert(codeIndex, (int)CodeName.If);
+            codeIndex++;
+            onFlag = true;
+        }
+    }
+
+    void SetCommand()
+    {
+        waitCo = 0;
+        codeIndex = commandCodes.Count;
+
+        if (onFlag)
+        {
+            while (0 < codeIndex && commandCodes[codeIndex - 1] != (int)CodeName.End)
+            {
+                codeIndex--;
+                if (commandCodes[codeIndex] == (int)CodeName.If)
+                {
+
+                    break;
+                }
+            }
+        }
+        if (0 < codeIndex && commandCodes[codeIndex - 1] != (int)CodeName.End)
+        {
+            commandCodes.Insert(codeIndex, (int)CodeName.And);
+            codeIndex++;
+        }
+    }
+
+    void DelCode()
+    {
+        commandCodes.RemoveAt(codeIndex - 1);
+        codeIndex--;
+        if(0 < codeIndex && (commandCodes[codeIndex - 1] == (int)CodeName.If
+            || commandCodes[codeIndex - 1] == (int)CodeName.And))
+        {
+            if(commandCodes[codeIndex-1] == (int)CodeName.If)
+            {
+                onFlag = false;
+            }
+            commandCodes.RemoveAt(codeIndex - 1);
+            codeIndex--;
+        }
+    }
+
+    void UpdateText()
+    {
+        string t = "";
+        for (int i = 0; i < commandCodes.Count; i++)
+        {
+            t += roboRC.CodeList[commandCodes[i]].text + " ";
+        }
+        commandText.text = t;
+    }
+
+    public void GenerateRobot(Transform cursorTransform)
+    {
+        GameObject g = Instantiate(robotOrigin);
+        roboRC = g.GetComponent<RobotController>();
+        roboRC.robot = (Robot)UserData.instance.robotRecipe[RobotNo].DeepCopy();
+        roboRC.robot.Initiate();
+        roboRC.floor = swiper.Floor;
+        Debug.Log(roboRC.robot.Command.Count);
+        g.transform.position = cursorTransform.position;
+        g.transform.SetParent(cursorTransform.parent);
+        g.transform.localScale = Vector3.one;
     }
 }

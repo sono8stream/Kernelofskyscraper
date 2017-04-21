@@ -19,8 +19,11 @@ public class RobotController : MapObject
     int waitCo;
     int waitLim;
 
-    Predicate<int> flag;
-    Command c;
+    List<Code> codeList;
+    public List<Code> CodeList { get { return codeList; } }
+    List<List<Func<bool>>> flag;
+    List<List<Command>> c;
+    int orderNo, codeNo;
     #endregion
 
     // Use this for initialization
@@ -33,6 +36,9 @@ public class RobotController : MapObject
         waitLim = 1;
         viewRange = 3;
         Debug.Log("viewRange" + viewRange.ToString());
+        InitiateCodeList();
+        Debug.Log(codeList.Count);
+        codeNo = -1;
     }
 
     // Update is called once per frame
@@ -42,21 +48,48 @@ public class RobotController : MapObject
         if (waitCo == waitLim)
         {
             waitCo = 0;
-            if (comNo == -2&& flag(0) && c.Run(this))//コマンド読み込み
-            {
-                comNo = -1;
-            }
-            else if(comNo==-1)
+            Debug.Log(comNo);
+            if (comNo == -2)//パネル読み込み
             {
                 Panel p = map.GetMapData(floor, transform.localPosition).panel;
+                Debug.Log("おかしい??");
                 if (p == null || campNo != p.campNo || p.Run(this))//足元見るよ
                 {
-                    ReadCommand();
+                    Debug.Log("ここ??");
+                    comNo = -1;
+                }
+            }
+            else if(comNo==-1)//コマンド読み込み
+            {
+                if (0 <= codeNo || CheckFlags(flag[orderNo]))
+                {
+                    Debug.Log(codeNo);
+                    if (0 < c[orderNo].Count && c[orderNo][codeNo].Run(this))
+                    {
+                        codeNo++;
+                        if (codeNo == c.Count)
+                        {
+                            codeNo = -1;
+                            /*orderNo++;
+                            if (orderNo == flag.Count)
+                            {
+                                orderNo = -1;
+                            }*/
+                        }
+                    }
+                }
+                else
+                {
+                    orderNo++;
+                    if (orderNo == flag.Count)
+                    {
+                        orderNo = 0;
+                        ReadCommand();
+                    }
                 }
             }
             else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
             {
-                //Debug.Log(robot.Command[comNo].name);
                 comNo = -2;
             }
         }
@@ -152,16 +185,126 @@ public class RobotController : MapObject
 
     bool PartInFront(int no)
     {
-        return map.GetMapData(floor, transform.localPosition).partNo == no;
+        Debug.Log("CheckWall");
+        return map.GetMapData(floor, transform.localPosition + DtoV(dire)).partNo == no;
     }
 
-    bool EnemyInFront(int no)
+    bool EnemyInFront()
     {
         return map.Objs[map.GetMapData(floor, transform.localPosition).objNo].campNo == (int)CampState.enemy;
     }
 
-    bool TrapInFront(int no)
+    bool TrapInFront()
     {
         return map.GetMapData(floor, transform.localPosition).panel.isTrap;
     }
+
+    bool CheckFlags(List<Func<bool>> flags)
+    {
+        bool b = true;
+        for (int i = 0; i < flags.Count; i++)
+        {
+            b &= flags[i]();
+        }
+        codeNo = b ? 0 : -1;
+        return b;
+    }
+
+    public void SetAction(byte[] codes)//コマンドコードを読んで条件をセット
+    {
+        bool onFlag = false;
+
+        flag = new List<List<Func<bool>>>();
+        flag.Add(new List<Func<bool>>());
+
+        c = new List<List<Command>>();
+        c.Add(new List<Command>());
+
+        orderNo = 0;
+
+        for (int i = 0; i < codes.Length; i++)
+        {
+            Debug.Log("おかしくね？" + codes[i]);
+            if (codeList[codes[i]].value == 0xff)//Ifのばあい
+            {
+                Debug.Log("IF on");
+                onFlag = true;
+            }
+            else if (codeList[codes[i]].value == 0xfd)//;のばあい
+            {
+                orderNo++;
+            }
+            else
+            {
+                if (onFlag)
+                {
+                    switch (codeList[codes[i]].value)
+                    {
+                        case 0x01:
+                            flag[orderNo].Add(() => PartInFront((int)MapPart.wall));
+                            break;
+                        case 0x02:
+                            flag[orderNo].Add(() => EnemyInFront());
+                            break;
+                        case 0x03:
+                            flag[orderNo].Add(() => TrapInFront());
+                            break;
+                    }
+                    Debug.Log("Flag Setter");
+                }
+                else
+                {
+                    switch (codeList[codes[i]].value)
+                    {
+                        case 0x01:
+                            c[orderNo].Add(new Left());
+                            break;
+                        case 0x02:
+                            c[orderNo].Add(new Right());
+                            break;
+                        case 0x03:
+                            c[orderNo].Add(new Turn());
+                            break;
+                    }
+                }
+            }
+        }
+
+        Debug.Log(flag.Count);
+        Debug.Log(flag[0].Count);
+
+        orderNo = 0;
+    }
+
+    void InitiateCodeList()
+    {
+        codeList = new List<Code>();
+        codeList.Add(new Code(0xff,"If"));
+        codeList.Add(new Code(0xfe, "&"));
+        codeList.Add(new Code(0xfd, ";"));
+        codeList.Add(new Code(0x01, "Wall in front"));
+        codeList.Add(new Code(0x02, "Enemy in front"));
+        codeList.Add(new Code(0x03, "Trap in front"));
+        codeList.Add(new Code(0x01, "Left"));
+        codeList.Add(new Code(0x02, "Right"));
+        codeList.Add(new Code(0x03, "Turn"));
+
+    }
+}
+
+public class Code
+{
+    public byte value;
+    public string text;
+
+    public Code(byte no,string text)
+    {
+        value = no;
+        this.text = text;
+    }
+}
+
+public enum CodeName
+{
+    If = 0, And, End, Wall, Enemy, Trap, Left, Right, Turn
 }

@@ -219,6 +219,10 @@ public class MapLoader : MonoBehaviour
         {
             g.SetActive(true);
         }
+        if (mapData[floor][x, y].partNo == (int)MapPart.kernel)
+        {
+            GameObject.Find("MainCamera").transform.position += g.transform.position;
+        }
         mapData[floor][x, y].tile = g;
     }
 
