@@ -201,10 +201,14 @@ public class RobotController : MapObject
 
     bool CheckFlags(List<Func<bool>> flags)
     {
-        bool b = true;
-        for (int i = 0; i < flags.Count; i++)
+        bool b = false;
+        if (0<flag[orderNo].Count)
         {
-            b &= flags[i]();
+            b = true;
+            for (int i = 0; i < flags.Count; i++)
+            {
+                b &= flags[i]();
+            }
         }
         codeNo = b ? 0 : -1;
         return b;

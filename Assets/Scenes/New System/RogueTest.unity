@@ -3381,7 +3381,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: 
 --- !u!222 &1499941456
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3604,6 +3604,7 @@ GameObject:
   - component: {fileID: 1630807683}
   - component: {fileID: 1630807682}
   - component: {fileID: 1630807681}
+  - component: {fileID: 1630807686}
   m_Layer: 0
   m_Name: MainCamera
   m_TagString: MainCamera
@@ -3679,6 +3680,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: -30, y: 0, z: 0}
+--- !u!114 &1630807686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1630807680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776b8af2ab695b34990176a2f731c0b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1639231144
 Prefab:
   m_ObjectHideFlags: 0
@@ -4098,7 +4110,7 @@ MonoBehaviour:
   generator: {fileID: 1829307845}
   flrCon: {fileID: 772549106}
   mapdataDebug: []
-  onTest: 0
+  onTest: 1
   kernel: {fileID: 1639231145}
   cursorGO: {fileID: 170687746}
 --- !u!1 &1838412306

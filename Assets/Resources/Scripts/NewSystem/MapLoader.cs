@@ -79,7 +79,6 @@ public class MapLoader : MonoBehaviour
             DelMap();
             generator.InitiateMap();
             UpdateMapData();
-            DebugMapData();
             DrawMap();
         }
         DebugMapData();
@@ -205,6 +204,8 @@ public class MapLoader : MonoBehaviour
                 }
             }
         }
+
+        flrCon.UpdateMapImage();
     }
 
     void SetMapPart(GameObject mapGO, int floor, int x, int y, float iniX, float iniY, string[] paths)

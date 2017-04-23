@@ -75,7 +75,7 @@ public class CameraSwiper : MonoBehaviour
         }
         MoveCamera();
 
-        cursorGO.transform.position = SetToMapPos();
+        //cursorGO.transform.position = SetToMapPos();
     }
 
 

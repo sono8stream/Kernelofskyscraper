@@ -11,8 +11,6 @@ public class Data//基幹データ部
 
     public static void Initiate()
     {
-        Debug.Log("OK");
-
         items = new List<Item>();
         items.Add(new Item("Bマテリアル", 10));
         items.Add(new Item("Sマテリアル", 12));
