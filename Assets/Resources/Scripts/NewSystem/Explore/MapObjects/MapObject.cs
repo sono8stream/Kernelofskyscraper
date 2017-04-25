@@ -10,6 +10,7 @@ public class MapObject : MonoBehaviour {
     public int dire;//方向
     public int floor;
     public MapLoader map;
+    public bool isVanishing;
 
     protected int range = 1;//大きさ
     public int Range { get { return range; } }
@@ -32,9 +33,9 @@ public class MapObject : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update()
+    protected void Update()
     {
-
+        if (isVanishing) { Vanish(); return; }
     }
 
     protected Vector3 DtoV(int direction)
@@ -56,5 +57,14 @@ public class MapObject : MonoBehaviour {
                 break;
         }
         return pos;
+    }
+    
+    protected void Vanish()
+    {
+        transform.FindChild("mod").localScale *= 0.5f;
+        if (transform.FindChild("mod").localScale.x < 0.01)
+        {
+            Destroy(gameObject);
+        }
     }
 }

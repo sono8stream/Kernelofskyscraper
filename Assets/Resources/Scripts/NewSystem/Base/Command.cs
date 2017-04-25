@@ -359,12 +359,14 @@ public class Go : Command
                 obj.map.VisualizeRoom(obj.floor, obj.transform.localPosition);
                 obj.map.flrCon.UpdateMapImage();
             }
-            else
+            else//移動不可
             {
+                obj.isVanishing = true;
                 return true;
             }
         }
         obj.transform.localPosition += mPos * sp;
+
         count++;
         if (count == period)
         {

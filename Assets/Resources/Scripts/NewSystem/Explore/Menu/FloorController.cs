@@ -7,6 +7,8 @@ public class FloorController : MonoBehaviour
 {
     [SerializeField]
     GameObject cursorGO;
+        [SerializeField]
+        RectTransform mapCursorRT;
     [SerializeField]
     MapLoader map;
     [SerializeField]
@@ -18,11 +20,15 @@ public class FloorController : MonoBehaviour
     [SerializeField]
     Text floorText;
     int floorNo;
-    public int FloorNo
-    {
-        get { return floorNo; }
-    }
+    public int FloorNo { get { return floorNo; } }
     float barDivision;
+
+    int selSize;//1マス分のピクセルサイズ
+    int texSize;//テクスチャサイズ
+    int iniX, iniY;
+    Texture2D texture;
+    Color[] colors;
+    float cCorrectionY = 12;
 
     // Use this for initialization
     void Start()
@@ -30,6 +36,8 @@ public class FloorController : MonoBehaviour
         int length = map.MapData.Length;
         scrollBar.numberOfSteps = length;
         barDivision = 1 < length ? 1.0f / (2 * length - 2) : 1;
+
+        InitiateMapImage();
         UpdateMapImage();
     }
 
@@ -39,15 +47,13 @@ public class FloorController : MonoBehaviour
 
     }
 
-    public void UpdateMapImage()
+    void InitiateMapImage()
     {
         if (mapImage == null)
         { Debug.Log("koko"); return; }
-        int texSize = (int)mapImage.GetComponent<RectTransform>().sizeDelta.x;//テクスチャサイズ
-        int selSize;//1マス分のピクセルサイズ
-        int iniX, iniY;
-        Texture2D texture = new Texture2D(texSize, texSize);
-        Color[] colors;
+        texSize = (int)mapImage.GetComponent<RectTransform>().sizeDelta.x;
+        texture = new Texture2D(texSize, texSize);
+
         if (map.MapHeight < map.MapWidth)
         {
             iniX = 0;
@@ -60,22 +66,38 @@ public class FloorController : MonoBehaviour
             selSize = texSize / map.MapHeight;
             iniX = (texSize - selSize * map.MapWidth) / 2;
         }
+
+        mapCursorRT.sizeDelta = new Vector2(16, 12) * selSize;
         colors = new Color[selSize * selSize];
         StaticMethodsCollection.ForArray(ref colors, x => { return Color.white; });
+    }
 
+    public void UpdateMapImage()
+    {
         for (int i = 0; i < map.MapWidth * map.MapHeight; i++)
         {
             if (map.MapData[floorNo][i % map.MapWidth, i / map.MapWidth].tile.activeSelf
                 && map.MapData[floorNo][i % map.MapWidth, i / map.MapWidth].partNo == (int)MapPart.floor)
             {
-                texture.SetPixels(iniX + i % map.MapWidth * selSize,
-                    texSize - iniY - (i / map.MapWidth + 1) * selSize, selSize, selSize, colors);
+                StaticMethodsCollection.ForArray(ref colors, x => { return Color.white; });
             }
+            else
+            {
+                StaticMethodsCollection.ForArray(ref colors, x => { return Color.black; });
+            }
+            texture.SetPixels(iniX + i % map.MapWidth * selSize,
+                texSize - iniY - (i / map.MapWidth + 1) * selSize, selSize, selSize, colors);
         }
         texture.Apply();
         mapImage.sprite = Sprite.Create(texture, new Rect(0, 0, texSize, texSize), Vector2.zero);
 
         UpdateCameraPos();
+    }
+
+    public void MoveMapCursor()//マップ上のカーソルを動かす,ヨコ17マス、タテ12マス 16:12でよいよ
+    {
+        mapCursorRT.anchoredPosition 
+            = (camera.transform.localPosition + Vector3.up * cCorrectionY) * selSize;
     }
 
     void UpdateCameraPos()

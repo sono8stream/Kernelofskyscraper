@@ -2109,6 +2109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cursorGO: {fileID: 170687746}
+  mapCursorRT: {fileID: 1607002273}
   map: {fileID: 1829307847}
   mapImage: {fileID: 1076862200}
   scrollBar: {fileID: 1017514851}
@@ -3556,7 +3557,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 161, y: -113}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1607002274
@@ -3571,7 +3572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0.5882353, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3734,23 +3735,7 @@ Prefab:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 2f6f1b761c9beeb4ba26d54715ecf121, type: 2}
   m_IsPrefabParent: 0
 --- !u!114 &1639231145 stripped
@@ -4110,7 +4095,7 @@ MonoBehaviour:
   generator: {fileID: 1829307845}
   flrCon: {fileID: 772549106}
   mapdataDebug: []
-  onTest: 1
+  onTest: 0
   kernel: {fileID: 1639231145}
   cursorGO: {fileID: 170687746}
 --- !u!1 &1838412306

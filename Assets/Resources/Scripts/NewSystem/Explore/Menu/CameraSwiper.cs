@@ -74,8 +74,9 @@ public class CameraSwiper : MonoBehaviour
             velocity += accel;
         }
         MoveCamera();
+        floorCon.MoveMapCursor();
 
-        //cursorGO.transform.position = SetToMapPos();
+        cursorGO.transform.position = SetToMapPos();
     }
 
 

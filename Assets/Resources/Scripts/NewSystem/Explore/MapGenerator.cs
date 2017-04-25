@@ -831,7 +831,7 @@ public class MapGenerator : MonoBehaviour
 
     Vector2[] AislePosArrayOnRoomEdge(Block b)
     {
-        //int i = 0;
+        int i = 0;
         int iniX = b.rX - 1;
         int iniY = b.rY - 1;
         int adjIndex = -1;
@@ -841,7 +841,7 @@ public class MapGenerator : MonoBehaviour
         Debug.Log(b.x + "," + b.y);
         Debug.Log(b.roomNo);*/
 
-        /*while (i < (b.rW + 2) * (b.rH + 2))
+        while (i < (b.rW + 2) * (b.rH + 2))
         {
             pos = new Vector2(iniX + i % (b.rW + 2), iniY + i / (b.rW + 2));
             int y = i / (b.rW + 2);
@@ -874,14 +874,21 @@ public class MapGenerator : MonoBehaviour
                     Debug.Log(b.adjBlocks[adjIndex].roomNo);
                 }
 
-                if (0 <= adjIndex && b.roomNo < b.adjBlocks[adjIndex].roomNo)
+                if (0 <= adjIndex && CheckRoute(b, b.adjBlocks[adjIndex],
+                    adjIndex, b.adjBlocks[adjIndex].adjBlocks.IndexOf(b)))//ルートチェック
                 {
+                    int index2= b.adjBlocks[adjIndex].adjBlocks.IndexOf(b);
+                    b.adjBlocks[adjIndex].adjBlocks.RemoveAt(index2);
+                    b.adjBlocks[adjIndex].adjDire.RemoveAt(index2);
+                    b.adjBlocks.RemoveAt(adjIndex);
+                    b.adjDire.RemoveAt(adjIndex);
+
                     posList.Add(pos);
                     Debug.Log("OK");
                 }
             }
             i = i % (b.rW + 2) == 0 ? i + b.rW + 1 : i + 1;
-        }*/
+        }
 
         /*int dire;
         Block adjBlock;

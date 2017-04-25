@@ -42,8 +42,10 @@ public class RobotController : MapObject
     }
 
     // Update is called once per frame
-    void Update()
+    new void Update()
     {
+        base.Update();
+
         if (!canMove) { return; }
         if (waitCo == waitLim)
         {
@@ -70,11 +72,6 @@ public class RobotController : MapObject
                         if (codeNo == c.Count)
                         {
                             codeNo = -1;
-                            /*orderNo++;
-                            if (orderNo == flag.Count)
-                            {
-                                orderNo = -1;
-                            }*/
                         }
                     }
                 }
