@@ -18,25 +18,18 @@ public class MapLoader : MonoBehaviour
     GameObject cursorGO;
     int mapWidth;
     int mapHeight;
-    public int MapWidth
-    {
-        get { return mapWidth; }
-    }
-    public int MapHeight
-    {
-        get { return mapHeight; }
-    }
+    public int MapWidth { get { return mapWidth; } }
+    public int MapHeight { get { return mapHeight; } }
     int floorMargin;//フロア間の距離
     int f, x, y;//階数,x,y座標
     CellData[][,] mapData;//サイズは縦横いずれも奇数推奨
-    public CellData[][,] MapData
-    {
-        get { return mapData; }
-    }
+    public CellData[][,] MapData { get { return mapData; } }
     List<MapObject> objs;
     public List<MapObject> Objs
     { get { return objs; } }
     Texture2D ceilingTexture;
+    GameObject[] flrGOs;
+    public GameObject[] FloorGOs { get { return flrGOs; } }
 
     // Use this for initialization
     void Awake()
@@ -190,6 +183,8 @@ public class MapLoader : MonoBehaviour
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
 
+        flrGOs = new GameObject[mapData.Length];
+
         for (int i = 0; i < mapData.Length; i++)
         {
             GameObject map = new GameObject("Floor" + (i + 1).ToString());
@@ -203,6 +198,7 @@ public class MapLoader : MonoBehaviour
                     SetGimmick(map, i, x, y, iniX, iniY, gimmickPaths);
                 }
             }
+            flrGOs[i] = map;
         }
     }
 
@@ -218,9 +214,22 @@ public class MapLoader : MonoBehaviour
         {
             g.SetActive(true);
         }
-        if (mapData[floor][x, y].partNo == (int)MapPart.kernel)
+        switch (mapData[floor][x, y].partNo)
         {
-            GameObject.Find("MainCamera").transform.position += g.transform.position;
+            case (int)MapPart.stairD:
+                g.GetComponent<Panel>().command
+                    = new Warp(g.transform.localPosition + Vector3.forward * (floor - 1));
+                SetPanelData(floor, g.transform.localPosition, g.GetComponent<Panel>());
+                break;
+            case (int)MapPart.stairU:
+                g.GetComponent<Panel>().command
+                    = new Warp(g.transform.localPosition + Vector3.forward * (floor + 1));
+                SetPanelData(floor, g.transform.localPosition, g.GetComponent<Panel>());
+                break;
+            case (int)MapPart.kernel:
+                Debug.Log("DetectedKernel");
+                GameObject.Find("MainCamera").transform.position += g.transform.position;
+                break;
         }
         mapData[floor][x, y].tile = g;
     }
@@ -439,10 +448,18 @@ public class MapLoader : MonoBehaviour
 
     public void DelObjNo(int no)//オブジェクト番号をつぶして更新
     {
-        CellData c;
-        for (int i = no; i < objs.Count; i++)
+        for (int i = no + 1; i < objs.Count; i++)
         {
-            SetObjData(objs[i].floor, objs[i].transform.position, i - 1);
+            if (GetMapData(objs[i].floor, objs[i].transform.localPosition).objNo == i)
+            {
+                SetObjData(objs[i].floor, objs[i].transform.position, i - 1);
+            }
+            objs[i].no--;
+        }
+
+        if (GetMapData(objs[no].floor, objs[no].transform.localPosition).objNo == no)
+        {
+            SetObjData(objs[no].floor, objs[no].transform.position, (int)ObjType.can);
         }
         objs.RemoveAt(no);
     }
@@ -505,12 +522,12 @@ public class CellData
 
 public enum MapPart
 {
-    none = -1, floor, wall, stairD, stairU, kernel,
+    none = -1, floor, wall, stairD, stairU, kernel, fall
 }
 
 public enum GimmickType
 {
-    none = 0, eRecovPanel, cRecovPanel,destroySwitch,door
+    none = 0, eRecovPanel, cRecovPanel, destroySwitch, door
 }
 
 public enum ObjType

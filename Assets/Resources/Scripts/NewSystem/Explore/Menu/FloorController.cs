@@ -103,7 +103,7 @@ public class FloorController : MonoBehaviour
     void UpdateCameraPos()
     {
         Vector3 pos = camera.transform.localPosition;
-        camera.transform.SetParent(map.transform.FindChild("Floor" + (floorNo + 1).ToString()));
+        camera.transform.SetParent(map.FloorGOs[floorNo].transform);
         cursorGO.transform.SetParent(camera.transform.parent);
         camera.transform.localPosition = pos;
     }

@@ -304,6 +304,50 @@ public class Turn : Command
     }
 }
 
+public class Warp : Command
+{
+    const int coLim = 10;
+
+    Vector3 position;//z座標は階層を表す
+    int co;
+
+    public Warp(Vector3 pos) : base("Warp", null, Vector3.zero)
+    {
+        co = coLim;
+        position = pos;
+    }
+
+    public override Command Copy()
+    {
+        return new Warp(position);
+    }
+
+    public override bool Run(MapObject obj)
+    {
+        co--;
+        obj.transform.localScale += Vector3.one * (position.z - obj.floor) / coLim;
+        obj.transform.position += Vector3.forward * (position.z - obj.floor) / coLim;
+        if (co == 0)
+        {
+            obj.transform.localScale = Vector3.one;
+            MoveFloor(obj);
+            return true;
+        }
+        return false;
+    }
+
+    void MoveFloor(MapObject obj)
+    {
+        obj.floor = (int)position.z;
+        obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.can);
+
+        obj.transform.SetParent(obj.map.FloorGOs[(int)position.z].transform);
+        obj.transform.localPosition = (Vector2)position;
+
+        obj.map.SetObjData(obj.floor, obj.transform.localPosition, obj.no);
+    }
+}
+
 public class Go : Command
 {
     float sp;
@@ -343,10 +387,11 @@ public class Go : Command
                     break;
             }
             CellData c = obj.map.GetMapData(obj.floor, obj.transform.localPosition + mPos);
-            if ((c.partNo == (int)MapPart.floor || c.partNo == (int)MapPart.stairD || c.partNo == (int)MapPart.stairU)
+            if ((c.partNo == (int)MapPart.floor || 
+                c.partNo == (int)MapPart.stairD || c.partNo == (int)MapPart.stairU)
                 && c.objNo == (int)ObjType.can)
             {
-                c.objNo = obj.No;
+                c.objNo = obj.no;
                 obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.cannot);
                 Vector3 iniPos = -Vector2.one * (obj.ViewRange - obj.ViewRange % 2) / 2;
                 Vector3 corPos;
@@ -374,22 +419,21 @@ public class Go : Command
                 = new Vector3(Mathf.Round(obj.transform.localPosition.x), Mathf.Round(obj.transform.position.y), 0);
             obj.map.SetObjData(obj.floor, obj.transform.localPosition - mPos, (int)ObjType.can);
             CellData c = obj.map.GetMapData(obj.floor, obj.transform.localPosition);
-            if (c.partNo == (int)MapPart.stairD||c.partNo==(int)MapPart.stairU)//下る
+            /*if (c.partNo == (int)MapPart.stairD||c.partNo==(int)MapPart.stairU)//階段
             {
                 Vector3 posTemp = obj.transform.localPosition;
                 int floorTemp= c.partNo == (int)MapPart.stairD ? obj.floor - 1 : obj.floor + 1;
                 if (obj.map.GetMapData(floorTemp, posTemp).objNo == (int)ObjType.can)
                 {
                     obj.floor = floorTemp;
-                    obj.transform.SetParent(
-                        obj.transform.parent.parent.FindChild("Floor" + (obj.floor + 1).ToString()));
+                    obj.transform.SetParent(obj.map.FloorGOs[obj.floor].transform);
                     obj.map.SetObjData(obj.floor, posTemp, obj.No);
                     obj.transform.localPosition = posTemp;
                     c.objNo = (int)ObjType.can;
                     c.tile.SetActive(true);
                     obj.map.flrCon.UpdateMapImage();
                 }
-            }
+            }*/
             count = 0;
             return true;
         }

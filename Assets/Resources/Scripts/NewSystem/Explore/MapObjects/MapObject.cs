@@ -6,18 +6,18 @@ public class MapObject : MonoBehaviour {
 
     #region Members
     //public
+    public int no;//オブジェクト番号
     public int campNo;
     public int dire;//方向
     public int floor;
     public MapLoader map;
     public bool isVanishing;
+    public bool waitVanishing;
 
     protected int range = 1;//大きさ
     public int Range { get { return range; } }
     protected int viewRange;//視野の大きさ
     public int ViewRange { get { return viewRange; } }
-    protected int no;//オブジェクト番号
-    public int No { get { return no; } }
     #endregion
 
     void Awake()
@@ -64,6 +64,7 @@ public class MapObject : MonoBehaviour {
         transform.FindChild("mod").localScale *= 0.5f;
         if (transform.FindChild("mod").localScale.x < 0.01)
         {
+            map.DelObjNo(no);
             Destroy(gameObject);
         }
     }

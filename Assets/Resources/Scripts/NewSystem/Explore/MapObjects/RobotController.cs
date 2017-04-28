@@ -50,23 +50,24 @@ public class RobotController : MapObject
         if (waitCo == waitLim)
         {
             waitCo = 0;
-            Debug.Log(comNo);
             if (comNo == -2)//パネル読み込み
             {
                 Panel p = map.GetMapData(floor, transform.localPosition).panel;
-                Debug.Log("おかしい??");
-                if (p == null || campNo != p.campNo || p.Run(this))//足元見るよ
+                if (p != null && p.campNo != (int)CampState.neutral && p.campNo != campNo)
                 {
-                    Debug.Log("ここ??");
+                    p = null;
+                }
+                if (p == null || p.Run(this))//足元見るよ
+                {
                     comNo = -1;
                 }
             }
-            else if(comNo==-1)//コマンド読み込み
+            else if (comNo == -1)//コマンド読み込み
             {
                 if (0 <= codeNo || CheckFlags(flag[orderNo]))
                 {
                     Debug.Log(codeNo);
-                    if (0 < c[orderNo].Count && c[orderNo][codeNo].Run(this))
+                    if (c[orderNo].Count == 0 || c[orderNo][codeNo].Run(this))
                     {
                         codeNo++;
                         if (codeNo == c.Count)
@@ -87,6 +88,7 @@ public class RobotController : MapObject
             }
             else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
             {
+                isVanishing = waitVanishing;
                 comNo = -2;
             }
         }

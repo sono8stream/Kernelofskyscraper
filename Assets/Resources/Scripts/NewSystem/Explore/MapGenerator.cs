@@ -44,36 +44,39 @@ public class MapGenerator : MonoBehaviour
         mapGimmickData = new int[floors][,];
         blocks = new List<Block>[floors];
         rooms = new List<Block>[floors];
-        kRoomIndex = 0;
 
-        for (int i = 0; i < floors; i++)//マップ初期化
+        do
         {
-            mapData[i] = new int[width, height];
-            mapGimmickData[i] = new int[width, height];
-            blocks[i] = new List<Block>();
-            blocks[i].Add(new Block(0, 0, width, height, i));
-            rooms[i] = new List<Block>();
-
-            for (int x = 0; x < width; x++)
+            kRoomIndex = 0;
+            for (int i = 0; i < floors; i++)//マップ初期化
             {
-                for (int y = 0; y < height; y++)
+                mapData[i] = new int[width, height];
+                mapGimmickData[i] = new int[width, height];
+                blocks[i] = new List<Block>();
+                blocks[i].Add(new Block(0, 0, width, height, i));
+                rooms[i] = new List<Block>();
+
+                for (int x = 0; x < width; x++)
                 {
-                    mapData[i][x, y] = (int)MapPart.none;
-                    mapGimmickData[i][x, y] = (int)GimmickType.none;
+                    for (int y = 0; y < height; y++)
+                    {
+                        mapData[i][x, y] = (int)MapPart.none;
+                        mapGimmickData[i][x, y] = (int)GimmickType.none;
+                    }
                 }
             }
-        }
 
-        for (int i = 0; i < floors; i++)
-        {
-            roomLimTemp = roomLim + Random.Range(0, roomRan + 1);
-            roomCo = 1;
-            SplitMap(i);
-            rooms[i].AddRange(blocks[i]);
+            for (int i = 0; i < floors; i++)
+            {
+                roomLimTemp = roomLim + Random.Range(0, roomRan + 1);
+                roomCo = 1;
+                SplitMap(i);
+                rooms[i].AddRange(blocks[i]);
+            }
+            CheckAdjacent();
+            DelAdjacents();
         }
-        CheckAdjacent();
-        DelAdjacents();
-        SetKernelPos();//カーネル位置設定
+        while(!SetKernelPos());//カーネル位置設定
         Debug.Log(CheckRoute());
         MakeAllStairs();
         MakeAllRooms();

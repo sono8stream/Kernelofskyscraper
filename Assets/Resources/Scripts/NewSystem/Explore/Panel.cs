@@ -19,8 +19,11 @@ public class Panel : MonoBehaviour
         {
             name = command.name;
             Transform iconT = transform.FindChild("Icon");
-            iconT.GetComponent<SpriteRenderer>().sprite = command.sprite;
-            iconT.eulerAngles = command.angle;
+            if (iconT != null)
+            {
+                iconT.GetComponent<SpriteRenderer>().sprite = command.sprite;
+                iconT.eulerAngles = command.angle;
+            }
         }
     }
 
