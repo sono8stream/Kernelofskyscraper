@@ -16,17 +16,24 @@ public class MapLoader : MonoBehaviour
     KernelController kernel;
     [SerializeField]
     GameObject cursorGO;
+    [SerializeField]
+    GameObject[] mapParts;
+    [SerializeField]
+    GameObject[] mapGimmicks;
+
     int mapWidth;
     int mapHeight;
     public int MapWidth { get { return mapWidth; } }
     public int MapHeight { get { return mapHeight; } }
     int floorMargin;//フロア間の距離
     int f, x, y;//階数,x,y座標
+
     CellData[][,] mapData;//サイズは縦横いずれも奇数推奨
     public CellData[][,] MapData { get { return mapData; } }
+
     List<MapObject> objs;
-    public List<MapObject> Objs
-    { get { return objs; } }
+    public List<MapObject> Objs { get { return objs; } }
+
     Texture2D ceilingTexture;
     GameObject[] flrGOs;
     public GameObject[] FloorGOs { get { return flrGOs; } }
@@ -176,10 +183,7 @@ public class MapLoader : MonoBehaviour
 
     void DrawMap()
     {
-        string[] partPaths = new string[5] { "Prefabs/New3D/Floor" , "Prefabs/New3D/Wall" ,
-            "Prefabs/New3D/StairD","Prefabs/New3D/StairU" ,"Prefabs/New3D/Kernel_3D"};//MapPartのパス
         Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
-        string[] gimmickPaths = new string[2] { "Prefabs/New3D/Panel", "Prefabs/New3D/Door" };
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
 
@@ -194,21 +198,21 @@ public class MapLoader : MonoBehaviour
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    SetMapPart(map, i, x, y, iniX, iniY, partPaths);
-                    SetGimmick(map, i, x, y, iniX, iniY, gimmickPaths);
+                    SetMapPart(map, i, x, y, iniX, iniY);
+                    SetGimmick(map, i, x, y, iniX, iniY);
                 }
             }
             flrGOs[i] = map;
         }
     }
 
-    void SetMapPart(GameObject mapGO, int floor, int x, int y, float iniX, float iniY, string[] paths)
+    void SetMapPart(GameObject mapGO, int floor, int x, int y, float iniX, float iniY)
     {
-        if (mapData[floor][x, y].partNo < 0 || paths.Length <= mapData[floor][x, y].partNo)
+        if (mapData[floor][x, y].partNo < 0 || mapParts.Length <= mapData[floor][x, y].partNo)
         {
             return;
         }
-        GameObject g = Instantiate(Resources.Load<GameObject>(paths[mapData[floor][x, y].partNo]), mapGO.transform);
+        GameObject g = Instantiate(mapParts[mapData[floor][x, y].partNo], mapGO.transform);
         g.transform.localPosition = new Vector3(iniX + x, iniY - y, 0);
         if (onTest)
         {
@@ -234,7 +238,7 @@ public class MapLoader : MonoBehaviour
         mapData[floor][x, y].tile = g;
     }
 
-    void SetGimmick(GameObject mapGO, int floor, int x, int y,float iniX,float iniY,string[] paths)
+    void SetGimmick(GameObject mapGO, int floor, int x, int y,float iniX,float iniY)
     {
         GameObject g = null;
         GameObject t = null;
@@ -244,22 +248,22 @@ public class MapLoader : MonoBehaviour
         switch (no & 0xff)//下位ビット
         {
             case (int)GimmickType.eRecovPanel:
-                g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
+                g = Instantiate(mapGimmicks[0], mapGO.transform);
                 p = g.GetComponent<Panel>();
                 p.command = new EnergyRecover();
                 p.cannotBreak = true;
                 p.campNo = (int)CampState.ally;
                 break;
             case (int)GimmickType.cRecovPanel:
-                g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
+                g = Instantiate(mapGimmicks[0], mapGO.transform);
                 p = g.GetComponent<Panel>();
                 p.command = new CapacityRecover();
                 p.cannotBreak = true;
                 p.campNo = (int)CampState.ally;
                 break;
             case (int)GimmickType.destroySwitch:
-                g = Instantiate(Resources.Load<GameObject>(paths[0]), mapGO.transform);
-                t = Instantiate(Resources.Load<GameObject>(paths[1]), mapGO.transform);
+                g = Instantiate(mapGimmicks[0], mapGO.transform);
+                t = Instantiate(mapGimmicks[1], mapGO.transform);
                 t.transform.localPosition
                     = new Vector3(iniX + ((no & 0xff0000) >> 16), iniY - ((no & 0xff00) >> 8), -0.01f);
                 p = g.GetComponent<Panel>();

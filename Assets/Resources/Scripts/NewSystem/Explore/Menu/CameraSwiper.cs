@@ -105,6 +105,7 @@ public class CameraSwiper : MonoBehaviour
             if (Input.GetMouseButtonUp(0))
             {
                 if (onPanel && 0 <= panelMenu.PanelNo && c != null && c.panel == null
+                    && c.partNo == (int)MapPart.floor
                     && status.ChangeCapacity(-10))//Generate a panel
                 {
                     GameObject g = Instantiate(panelOrigin);

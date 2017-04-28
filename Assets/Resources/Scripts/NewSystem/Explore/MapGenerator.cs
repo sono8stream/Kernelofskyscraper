@@ -869,9 +869,7 @@ public class MapGenerator : MonoBehaviour
                 {
                     adjIndex = b.adjDire.IndexOf((int)Direction.Right);
                 }
-
-                Debug.Log(pos);
-                Debug.Log(b.roomNo);
+                
                 if (0 <= adjIndex)
                 {
                     Debug.Log(b.adjBlocks[adjIndex].roomNo);

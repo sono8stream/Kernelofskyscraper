@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class RobotMenu : MonoBehaviour
 {
+    public GameObject robotOrigin;
 
     [SerializeField]
     Image selectImage;
@@ -14,7 +15,6 @@ public class RobotMenu : MonoBehaviour
     CameraSwiper swiper;
     [SerializeField]
     Text commandText;
-    public GameObject robotOrigin;
     GameObject panelGOrigin;
     List<Button> commandBs;
     int robotNo;
@@ -193,6 +193,7 @@ public class RobotMenu : MonoBehaviour
             roboRC.SetAction(commandCodes.ToArray());
             roboRC.canMove = true;
             roboRC = null;
+            commandText.transform.parent.gameObject.SetActive(false);
             commandCodes = new List<byte>();
         }
     }
@@ -272,9 +273,12 @@ public class RobotMenu : MonoBehaviour
         roboRC.robot = (Robot)UserData.instance.robotRecipe[RobotNo].DeepCopy();
         roboRC.robot.Initiate();
         roboRC.floor = swiper.Floor;
-        Debug.Log(roboRC.robot.Command.Count);
+        
         g.transform.position = cursorTransform.position;
         g.transform.SetParent(cursorTransform.parent);
         g.transform.localScale = Vector3.one;
+
+        commandText.transform.parent.gameObject.SetActive(true);
+        UpdateText();
     }
 }

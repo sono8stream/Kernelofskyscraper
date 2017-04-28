@@ -64,13 +64,13 @@ public class RobotController : MapObject
             }
             else if (comNo == -1)//コマンド読み込み
             {
-                if (0 <= codeNo || CheckFlags(flag[orderNo]))
+                if (0<c[orderNo].Count&&(0 <= codeNo || CheckFlags(flag[orderNo])))
                 {
                     Debug.Log(codeNo);
-                    if (c[orderNo].Count == 0 || c[orderNo][codeNo].Run(this))
+                    if (c[orderNo][codeNo].Run(this))
                     {
                         codeNo++;
-                        if (codeNo == c.Count)
+                        if (c.Count <= codeNo)
                         {
                             codeNo = -1;
                         }
@@ -88,7 +88,7 @@ public class RobotController : MapObject
             }
             else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
             {
-                isVanishing = waitVanishing;
+                isVanishing = waitVanishing ? true : isVanishing;
                 comNo = -2;
             }
         }
@@ -184,7 +184,6 @@ public class RobotController : MapObject
 
     bool PartInFront(int no)
     {
-        Debug.Log("CheckWall");
         return map.GetMapData(floor, transform.localPosition + DtoV(dire)).partNo == no;
     }
 

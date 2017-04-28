@@ -324,14 +324,17 @@ public class Warp : Command
 
     public override bool Run(MapObject obj)
     {
-        co--;
-        obj.transform.localScale += Vector3.one * (position.z - obj.floor) / coLim;
-        obj.transform.position += Vector3.forward * (position.z - obj.floor) / coLim;
-        if (co == 0)
+        if (obj.map.GetMapData((int)position.z, position).objNo == (int)ObjType.can)
         {
-            obj.transform.localScale = Vector3.one;
-            MoveFloor(obj);
-            return true;
+            co--;
+            obj.transform.localScale += Vector3.one * (position.z - obj.floor) / coLim * 0.5f;
+            obj.transform.position += Vector3.back * (position.z - obj.floor) / coLim;
+            if (co == 0)
+            {
+                obj.transform.localScale = Vector3.one;
+                MoveFloor(obj);
+                return true;
+            }
         }
         return false;
     }
@@ -387,9 +390,7 @@ public class Go : Command
                     break;
             }
             CellData c = obj.map.GetMapData(obj.floor, obj.transform.localPosition + mPos);
-            if ((c.partNo == (int)MapPart.floor || 
-                c.partNo == (int)MapPart.stairD || c.partNo == (int)MapPart.stairU)
-                && c.objNo == (int)ObjType.can)
+            if (c.partNo != (int)MapPart.wall && c.objNo == (int)ObjType.can)
             {
                 c.objNo = obj.no;
                 obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.cannot);
@@ -406,6 +407,7 @@ public class Go : Command
             }
             else//移動不可
             {
+                Debug.Log("OK?");
                 obj.isVanishing = true;
                 return true;
             }
