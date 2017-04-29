@@ -348,6 +348,7 @@ public class Warp : Command
         obj.transform.localPosition = (Vector2)position;
 
         obj.map.SetObjData(obj.floor, obj.transform.localPosition, obj.no);
+        obj.FlashViewRange();
     }
 }
 
@@ -394,14 +395,7 @@ public class Go : Command
             {
                 c.objNo = obj.no;
                 obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.cannot);
-                Vector3 iniPos = -Vector2.one * (obj.ViewRange - obj.ViewRange % 2) / 2;
-                Vector3 corPos;
-                for (int i = 0; i < obj.ViewRange * obj.ViewRange; i++)
-                {
-                    corPos = new Vector2(i % obj.ViewRange, i / obj.ViewRange);
-                    obj.map.GetMapData(obj.floor,
-                        obj.transform.localPosition + mPos + iniPos + corPos).tile.SetActive(true);
-                }
+                obj.FlashViewRange();
                 obj.map.VisualizeRoom(obj.floor, obj.transform.localPosition);
                 obj.map.flrCon.UpdateMapImage();
             }

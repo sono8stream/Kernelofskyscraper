@@ -68,4 +68,17 @@ public class MapObject : MonoBehaviour {
             Destroy(gameObject);
         }
     }
+
+    public void FlashViewRange()
+    {
+        Vector3 iniPos = -Vector2.one * (viewRange - viewRange % 2) / 2;
+        Vector3 corPos;
+        for (int i = 0; i < viewRange * viewRange; i++)
+        {
+            corPos = new Vector2(i % viewRange, i / viewRange);
+            map.GetMapData(floor,
+                transform.localPosition + iniPos + corPos).tile.SetActive(true);
+        }
+        map.VisualizeRoom(floor, transform.localPosition);
+    }
 }

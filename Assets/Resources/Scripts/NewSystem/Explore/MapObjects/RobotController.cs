@@ -64,26 +64,14 @@ public class RobotController : MapObject
             }
             else if (comNo == -1)//コマンド読み込み
             {
-                if (0<c[orderNo].Count&&(0 <= codeNo || CheckFlags(flag[orderNo])))
+                switch(campNo)
                 {
-                    Debug.Log(codeNo);
-                    if (c[orderNo][codeNo].Run(this))
-                    {
-                        codeNo++;
-                        if (c.Count <= codeNo)
-                        {
-                            codeNo = -1;
-                        }
-                    }
-                }
-                else
-                {
-                    orderNo++;
-                    if (orderNo == flag.Count)
-                    {
-                        orderNo = 0;
-                        ReadCommand();
-                    }
+                    case (int)CampState.ally:
+                        RunOrder();
+                        break;
+                    case (int)CampState.enemy:
+                        RunAI();
+                        break;
                 }
             }
             else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
@@ -95,6 +83,75 @@ public class RobotController : MapObject
         else
         {
             waitCo++;
+        }
+    }
+
+    void RunOrder()
+    {
+        if (0 < c[orderNo].Count && (0 <= codeNo || CheckFlags(flag[orderNo])))
+        {
+            Debug.Log(codeNo);
+            if (c[orderNo][codeNo].Run(this))
+            {
+                codeNo++;
+                if (c.Count <= codeNo)
+                {
+                    codeNo = -1;
+                }
+            }
+        }
+        else
+        {
+            orderNo++;
+            if (orderNo == flag.Count)
+            {
+                orderNo = 0;
+                ReadCommand();
+            }
+        }
+    }
+
+    void RunAI()//AIの処理だよ
+    {
+        int no = 0;
+        for (int i = 0; i < viewRange * viewRange; i++)
+        {
+            no = map.GetMapData(floor, transform.localPosition + DtoV(i % 4) * (i / 4 + 1)).objNo;
+            if ((int)ObjType.can < no) { ApproachEnemy(map.Objs[no]); break; }
+        }
+        if (no == 0) { return; }
+    }
+
+    bool ApproachEnemy(MapObject enemy)
+    {
+        Vector2 vec = enemy.transform.localPosition - transform.localPosition;
+        int[,] costArray = new int[viewRange,viewRange];
+        int radius = (viewRange-viewRange%2) / 2;
+
+        SetCost(ref costArray, (viewRange * viewRange - 1) / 2, 1);
+        if (costArray[(int)vec.x+radius,(int)vec.y+radius] == 0)
+        {
+            return false;
+        }
+
+    }
+
+    void SetCost(ref int[,] costData, int x, int y, int cost, int radius)
+    {
+        costData[x, y] = cost;
+        for (int i = 0; i < 4; i++)
+        {
+            if (!(i == 0 && y == viewRange - 1) && !(i == 1 && x == viewRange - 1)
+                && !(i == 2 && y == 0) && !(i == 3 && x == 0)
+                && map.GetMapData(floor, transform.localPosition
+                + new Vector3(x - radius, y - radius, 0) + DtoV(i)).partNo
+                == (int)MapPart.floor)
+            {
+                if (cost < costData[x + (int)DtoV(i).x, y + (int)DtoV(i).y])
+                {
+                    SetCost(ref costData, x + (int)DtoV(i).x, y + (int)DtoV(i).y, cost + 1, radius);
+                }
+            }
         }
     }
 

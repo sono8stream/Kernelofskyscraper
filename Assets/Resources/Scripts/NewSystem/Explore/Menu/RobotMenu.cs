@@ -18,10 +18,7 @@ public class RobotMenu : MonoBehaviour
     GameObject panelGOrigin;
     List<Button> commandBs;
     int robotNo;
-    public int RobotNo
-    {
-        get { return robotNo; }
-    }
+    public int RobotNo { get { return robotNo; } }
     RobotController roboRC;
 
     List<byte> commandCodes;//Command code on RobotController
