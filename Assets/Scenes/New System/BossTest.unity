@@ -2855,6 +2855,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   robotOrigin: {fileID: 1462362532201608, guid: e023033600ad2d044af9cf565f39ba18,
     type: 2}
+  robotOriginE: {fileID: 1462362532201608, guid: 31e7302f64cac9243ac5b23c8859b903,
+    type: 2}
   selectImage: {fileID: 68436796}
   buttonPosX: -27.5
   swiper: {fileID: 1943434475}

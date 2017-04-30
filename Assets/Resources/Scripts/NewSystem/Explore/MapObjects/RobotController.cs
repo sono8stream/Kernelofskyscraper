@@ -34,7 +34,7 @@ public class RobotController : MapObject
         ReadCommand();
         waitCo = 0;
         waitLim = 1;
-        viewRange = 3;
+        viewRange = viewRange == 1 ? 3 : viewRange;
         Debug.Log("viewRange" + viewRange.ToString());
         InitiateCodeList();
         Debug.Log(codeList.Count);
@@ -113,27 +113,65 @@ public class RobotController : MapObject
 
     void RunAI()//AIの処理だよ
     {
-        int no = 0;
+        int no = (int)ObjType.can;
+        Vector3 iniPos = -Vector2.one * ((viewRange - viewRange % 2) / 2);
+        Vector3 distance = Vector2.one;
+        CellData c;
         for (int i = 0; i < viewRange * viewRange; i++)
         {
-            no = map.GetMapData(floor, transform.localPosition + DtoV(i % 4) * (i / 4 + 1)).objNo;
-            if ((int)ObjType.can < no) { ApproachEnemy(map.Objs[no]); break; }
+            if (i != (viewRange * viewRange - viewRange % 2) / 2)
+            {
+                distance = transform.localPosition + iniPos + new Vector3(i % viewRange, i / viewRange);
+                c = map.GetMapData(floor,distance);
+                no = c != null ? c.objNo : (int)ObjType.can;
+                if ((int)ObjType.can < no)
+                {
+                    Debug.Log(i%viewRange);
+                    comNo = ApproachEnemy(distance);
+                    break;
+                }
+            }
         }
-        if (no == 0) { return; }
+        //if (no == (int)ObjType.can) { return; }
     }
 
-    bool ApproachEnemy(MapObject enemy)
+    int ApproachEnemy(Vector3 enemyPos)
     {
-        Vector2 vec = enemy.transform.localPosition - transform.localPosition;
-        int[,] costArray = new int[viewRange,viewRange];
-        int radius = (viewRange-viewRange%2) / 2;
+        Vector2 vec = enemyPos - transform.localPosition;
+        Debug.Log(vec);
+        int[,] costArray = new int[viewRange, viewRange];
+        int radius = (viewRange - viewRange % 2) / 2;
 
-        SetCost(ref costArray, (viewRange * viewRange - 1) / 2, 1);
-        if (costArray[(int)vec.x+radius,(int)vec.y+radius] == 0)
+        SetCost(ref costArray, radius, radius, 1, radius);
+        int x = (int)vec.x + radius;
+        int y = (int)vec.y + radius;
+
+        if (costArray[x, y] == 0)
         {
-            return false;
+            return -1;
         }
-
+        else
+        {
+            GetRoute(costArray, ref x, ref y);
+            int d = VtoD(new Vector2(x - radius, y - radius));
+            int commandNo = -1;
+            switch ((dire - d + 4) % 4)
+            {
+                case 0:
+                    commandNo = (int)CommandID.go;
+                    break;
+                case 1:
+                    commandNo = (int)CommandID.right;
+                    break;
+                case 2:
+                    commandNo = (int)CommandID.turn;
+                    break;
+                case 3:
+                    commandNo = (int)CommandID.left;
+                    break;
+            }
+            return commandNo;
+        }
     }
 
     void SetCost(ref int[,] costData, int x, int y, int cost, int radius)
@@ -141,15 +179,36 @@ public class RobotController : MapObject
         costData[x, y] = cost;
         for (int i = 0; i < 4; i++)
         {
-            if (!(i == 0 && y == viewRange - 1) && !(i == 1 && x == viewRange - 1)
-                && !(i == 2 && y == 0) && !(i == 3 && x == 0)
+            if (!(i == 0 && y == 0) && !(i == 1 && x == viewRange - 1)
+                && !(i == 2 && y == viewRange - 1) && !(i == 3 && x == 0)
                 && map.GetMapData(floor, transform.localPosition
                 + new Vector3(x - radius, y - radius, 0) + DtoV(i)).partNo
                 == (int)MapPart.floor)
             {
-                if (cost < costData[x + (int)DtoV(i).x, y + (int)DtoV(i).y])
+                if (costData[x + (int)DtoV(i).x, y + (int)DtoV(i).y] == 0
+                    ||cost+1 < costData[x + (int)DtoV(i).x, y + (int)DtoV(i).y])
                 {
                     SetCost(ref costData, x + (int)DtoV(i).x, y + (int)DtoV(i).y, cost + 1, radius);
+                }
+            }
+        }
+    }
+
+    void GetRoute(int[,] costData,ref int x,ref int y)
+    {
+        int cost = costData[x, y];
+        while (2 < cost)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (!(i == 0 && y == 0) && !(i == 1 && x == viewRange - 1)
+                && !(i == 2 && y == viewRange - 1) && !(i == 3 && x == 0)
+                && costData[x + (int)DtoV(i).x, y + (int)DtoV(i).y] == cost - 1)
+                {
+                    x += (int)DtoV(i).x;
+                    y += (int)DtoV(i).y;
+                    cost--;
+                    break;
                 }
             }
         }

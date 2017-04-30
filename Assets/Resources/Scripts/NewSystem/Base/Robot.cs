@@ -241,3 +241,9 @@ public class Leg : Recipe
         c.Add(new Turn());
     }
 }
+
+public enum CommandID
+{
+    go = 1, left, right, turn
+}
+

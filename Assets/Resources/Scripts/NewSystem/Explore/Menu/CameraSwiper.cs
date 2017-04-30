@@ -115,11 +115,12 @@ public class CameraSwiper : MonoBehaviour
                     g.transform.localScale = Vector3.one;
                     c.panel = g.GetComponent<Panel>();
                 }
-                else if (!onPanel && 0 <= robotMenu.RobotNo // Generate a robot
-                    && c != null && c.panel != null
+                else if (!robotMenu.RoboRC && !onPanel && 0 <= robotMenu.RobotNo // Generate a robot
+                    && ((c != null && c.panel != null
                     && c.objNo == -1 && c.panel.sanctuary && status.ChangeEnergy(-10))
+                    || Input.GetKey(KeyCode.E)))
                 {
-                    robotMenu.GenerateRobot(cursorGO.transform);
+                    robotMenu.GenerateRobot(cursorGO.transform, Input.GetKey(KeyCode.E));
                 }
             }
             else if (Input.GetMouseButtonUp(1) && c.panel && !c.panel.cannotBreak)//右クリック、パネル削除

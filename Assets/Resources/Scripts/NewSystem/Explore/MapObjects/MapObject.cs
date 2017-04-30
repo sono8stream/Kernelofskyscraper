@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapObject : MonoBehaviour {
+public class MapObject : MonoBehaviour
+{
 
     #region Members
     //public
@@ -13,11 +14,10 @@ public class MapObject : MonoBehaviour {
     public MapLoader map;
     public bool isVanishing;
     public bool waitVanishing;
+    public int viewRange = 1;//視野の大きさ
 
     protected int range = 1;//大きさ
     public int Range { get { return range; } }
-    protected int viewRange;//視野の大きさ
-    public int ViewRange { get { return viewRange; } }
     #endregion
 
     void Awake()
@@ -29,7 +29,6 @@ public class MapObject : MonoBehaviour {
     protected void Start()
     {
         no = map.RecObj(this, range);
-        viewRange = 1;
     }
 
     // Update is called once per frame
@@ -39,9 +38,9 @@ public class MapObject : MonoBehaviour {
     }
 
     protected Vector3 DtoV(int direction)
-        {
+    {
         Vector2 pos = Vector2.zero;
-        switch(direction)
+        switch (direction)
         {
             case 0:
                 pos = Vector2.down;
@@ -58,7 +57,19 @@ public class MapObject : MonoBehaviour {
         }
         return pos;
     }
-    
+
+    protected int VtoD(Vector3 vector)
+    {
+        if (vector.x != 0)
+        {
+            return 0 < vector.x ? 1 : 3;
+        }
+        else
+        {
+            return 0 < vector.y ? 2 : 0;
+        }
+    }
+
     protected void Vanish()
     {
         transform.FindChild("mod").localScale *= 0.5f;
@@ -73,11 +84,13 @@ public class MapObject : MonoBehaviour {
     {
         Vector3 iniPos = -Vector2.one * (viewRange - viewRange % 2) / 2;
         Vector3 corPos;
+        CellData c;
         for (int i = 0; i < viewRange * viewRange; i++)
         {
             corPos = new Vector2(i % viewRange, i / viewRange);
-            map.GetMapData(floor,
-                transform.localPosition + iniPos + corPos).tile.SetActive(true);
+            c = map.GetMapData(floor,
+                transform.localPosition + iniPos + corPos);
+            if (c != null) { c.tile.SetActive(true); }
         }
         map.VisualizeRoom(floor, transform.localPosition);
     }

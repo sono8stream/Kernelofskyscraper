@@ -66,7 +66,7 @@ public class North : Command
         }
         else
         {
-            mod.transform.eulerAngles = (mod.transform.eulerAngles + Vector3.forward * ANGLE) / 2;
+            mod.eulerAngles = (mod.eulerAngles + Vector3.forward * ANGLE) / 2;
             return false;
         }
     }
@@ -99,6 +99,10 @@ public class South : Command
         if (initial)
         {
             mod = obj.transform.FindChild("mod");
+            if(mod.eulerAngles.z==270)
+            {
+                mod.eulerAngles = Vector3.back * 90;
+            }
             initial = false;
         }
         if (Mathf.Round(mod.eulerAngles.z) == ANGLE)
@@ -109,7 +113,7 @@ public class South : Command
         }
         else
         {
-            mod.transform.eulerAngles = (mod.transform.eulerAngles + Vector3.forward * ANGLE) / 2;
+            mod.eulerAngles = (mod.eulerAngles + Vector3.forward * ANGLE) / 2;
             return false;
         }
     }
@@ -152,7 +156,7 @@ public class East : Command
         }
         else
         {
-            mod.transform.eulerAngles = (mod.transform.eulerAngles + Vector3.forward * ANGLE) / 2;
+            mod.eulerAngles = (mod.eulerAngles + Vector3.forward * ANGLE) / 2;
             return false;
         }
     }
@@ -185,6 +189,10 @@ public class West : Command
         if(initial)
         {
             mod = obj.transform.FindChild("mod");
+            if (mod.eulerAngles.z == 0)
+            {
+                mod.eulerAngles = Vector3.forward * 360;
+            }
             initial = false;
         }
         if (Mathf.Round(mod.eulerAngles.z) == ANGLE)
@@ -196,7 +204,7 @@ public class West : Command
         }
         else
         {
-            mod.transform.eulerAngles = (mod.transform.eulerAngles + Vector3.forward * ANGLE) / 2;
+            mod.eulerAngles = (mod.eulerAngles + Vector3.forward * ANGLE) / 2;
             return false;
         }
     }
@@ -415,21 +423,6 @@ public class Go : Command
                 = new Vector3(Mathf.Round(obj.transform.localPosition.x), Mathf.Round(obj.transform.position.y), 0);
             obj.map.SetObjData(obj.floor, obj.transform.localPosition - mPos, (int)ObjType.can);
             CellData c = obj.map.GetMapData(obj.floor, obj.transform.localPosition);
-            /*if (c.partNo == (int)MapPart.stairD||c.partNo==(int)MapPart.stairU)//階段
-            {
-                Vector3 posTemp = obj.transform.localPosition;
-                int floorTemp= c.partNo == (int)MapPart.stairD ? obj.floor - 1 : obj.floor + 1;
-                if (obj.map.GetMapData(floorTemp, posTemp).objNo == (int)ObjType.can)
-                {
-                    obj.floor = floorTemp;
-                    obj.transform.SetParent(obj.map.FloorGOs[obj.floor].transform);
-                    obj.map.SetObjData(obj.floor, posTemp, obj.No);
-                    obj.transform.localPosition = posTemp;
-                    c.objNo = (int)ObjType.can;
-                    c.tile.SetActive(true);
-                    obj.map.flrCon.UpdateMapImage();
-                }
-            }*/
             count = 0;
             return true;
         }

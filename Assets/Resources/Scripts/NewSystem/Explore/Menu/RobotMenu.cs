@@ -8,6 +8,8 @@ public class RobotMenu : MonoBehaviour
     public GameObject robotOrigin;
 
     [SerializeField]
+    GameObject robotOriginE;
+    [SerializeField]
     Image selectImage;
     [SerializeField]
     float buttonPosX;
@@ -20,6 +22,7 @@ public class RobotMenu : MonoBehaviour
     int robotNo;
     public int RobotNo { get { return robotNo; } }
     RobotController roboRC;
+    public RobotController RoboRC { get { return roboRC; } }
 
     List<byte> commandCodes;//Command code on RobotController
     bool onFlag;
@@ -165,7 +168,7 @@ public class RobotMenu : MonoBehaviour
                 UpdateText();
             }
         }
-        else if(Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             codeIndex = 0 < codeIndex ? codeIndex - 1 : 0;
         }
@@ -185,7 +188,7 @@ public class RobotMenu : MonoBehaviour
             codeIndex++;
             UpdateText();
         }
-        else if(Input.GetKeyDown(KeyCode.Return))
+        else if (Input.GetKeyDown(KeyCode.Return))
         {
             roboRC.SetAction(commandCodes.ToArray());
             roboRC.canMove = true;
@@ -241,10 +244,10 @@ public class RobotMenu : MonoBehaviour
     {
         commandCodes.RemoveAt(codeIndex - 1);
         codeIndex--;
-        if(0 < codeIndex && (commandCodes[codeIndex - 1] == (int)CodeName.If
+        if (0 < codeIndex && (commandCodes[codeIndex - 1] == (int)CodeName.If
             || commandCodes[codeIndex - 1] == (int)CodeName.And))
         {
-            if(commandCodes[codeIndex-1] == (int)CodeName.If)
+            if (commandCodes[codeIndex - 1] == (int)CodeName.If)
             {
                 onFlag = false;
             }
@@ -263,14 +266,22 @@ public class RobotMenu : MonoBehaviour
         commandText.text = t;
     }
 
-    public void GenerateRobot(Transform cursorTransform)
+    public void GenerateRobot(Transform cursorTransform, bool enemy)
     {
-        GameObject g = Instantiate(robotOrigin);
+        GameObject g;
+        if(enemy)
+        {
+            g = Instantiate(robotOriginE);
+        }
+        else
+        {
+            g = Instantiate(robotOrigin);
+        }
         roboRC = g.GetComponent<RobotController>();
         roboRC.robot = (Robot)UserData.instance.robotRecipe[RobotNo].DeepCopy();
         roboRC.robot.Initiate();
         roboRC.floor = swiper.Floor;
-        
+
         g.transform.position = cursorTransform.position;
         g.transform.SetParent(cursorTransform.parent);
         g.transform.localScale = Vector3.one;

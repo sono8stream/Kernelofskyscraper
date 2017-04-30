@@ -481,7 +481,7 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    Block GetPosRoom(int floor, Vector2 pos)
+    public Block GetPosRoom(int floor, Vector2 pos)
     {
         Block b;
         int x = 0, y = 0;
