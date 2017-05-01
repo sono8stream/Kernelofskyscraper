@@ -479,6 +479,51 @@ public class CapacityRecover : Command
 }
 #endregion
 
+#region BattleType
+public class Slash:Command
+{
+    int power;
+    bool initial;
+    RobotController enemyRC;
+
+    public Slash() : base("Slash", null, Vector3.zero)
+    {
+        power = 10;
+        initial = true;
+    }
+
+    public override Command Copy()
+    {
+        return new Slash();
+    }
+
+    public override bool Run(MapObject obj)//敵を切る
+    {
+        Debug.Log("slash!");
+        if (initial)
+        {
+            enemyRC = GetEnemy(obj);
+            if (!enemyRC) { Debug.Log("null"); return true; }
+            initial = false;
+        }
+        else
+        {
+            enemyRC.Damaged(power);
+            return true;
+        }
+        return false;
+    }
+
+    RobotController GetEnemy(MapObject obj)
+    {
+        int no = obj.map.GetMapData(obj.floor, obj.transform.localPosition + obj.DtoV(obj.dire)).objNo;
+        Debug.Log(no);
+        return 0 <= no ? obj.map.Objs[no] as RobotController : null;
+    }
+}
+
+#endregion
+
 #region gimmickType
 public class DestroySwitch : Command
 {

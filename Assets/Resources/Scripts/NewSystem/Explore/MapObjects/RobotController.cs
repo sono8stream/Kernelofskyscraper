@@ -38,6 +38,7 @@ public class RobotController : MapObject
         Debug.Log("viewRange" + viewRange.ToString());
         InitiateCodeList();
         Debug.Log(codeList.Count);
+        comNo = -2;
         codeNo = -1;
     }
 
@@ -46,7 +47,11 @@ public class RobotController : MapObject
     {
         base.Update();
 
-        if (!canMove) { return; }
+        if (!canMove)
+        {
+            isVanishing = waitVanishing ? true : isVanishing;
+            return;
+        }
         if (waitCo == waitLim)
         {
             waitCo = 0;
@@ -111,6 +116,119 @@ public class RobotController : MapObject
         }
     }
 
+    #region Methods of Order
+    bool PartInFront(int no)
+    {
+        return map.GetMapData(floor, transform.localPosition + DtoV(dire)).partNo == no;
+    }
+
+    bool EnemyInFront()
+    {
+        return map.Objs[map.GetMapData(floor, transform.localPosition).objNo].campNo == (int)CampState.enemy;
+    }
+
+    bool TrapInFront()
+    {
+        return map.GetMapData(floor, transform.localPosition).panel.isTrap;
+    }
+
+    bool CheckFlags(List<Func<bool>> flags)
+    {
+        bool b = false;
+        if (0 < flag[orderNo].Count)
+        {
+            b = true;
+            for (int i = 0; i < flags.Count; i++)
+            {
+                b &= flags[i]();
+            }
+        }
+        codeNo = b ? 0 : -1;
+        return b;
+    }
+
+    public void SetAction(byte[] codes)//コマンドコードを読んで条件をセット
+    {
+        bool onFlag = false;
+
+        flag = new List<List<Func<bool>>>();
+        flag.Add(new List<Func<bool>>());
+
+        c = new List<List<Command>>();
+        c.Add(new List<Command>());
+
+        orderNo = 0;
+
+        for (int i = 0; i < codes.Length; i++)
+        {
+            Debug.Log("おかしくね？" + codes[i]);
+            if (codeList[codes[i]].value == 0xff)//Ifのばあい
+            {
+                Debug.Log("IF on");
+                onFlag = true;
+            }
+            else if (codeList[codes[i]].value == 0xfd)//;のばあい
+            {
+                orderNo++;
+            }
+            else
+            {
+                if (onFlag)
+                {
+                    switch (codeList[codes[i]].value)
+                    {
+                        case 0x01:
+                            flag[orderNo].Add(() => PartInFront((int)MapPart.wall));
+                            break;
+                        case 0x02:
+                            flag[orderNo].Add(() => EnemyInFront());
+                            break;
+                        case 0x03:
+                            flag[orderNo].Add(() => TrapInFront());
+                            break;
+                    }
+                    Debug.Log("Flag Setter");
+                }
+                else
+                {
+                    switch (codeList[codes[i]].value)
+                    {
+                        case 0x01:
+                            c[orderNo].Add(new Left());
+                            break;
+                        case 0x02:
+                            c[orderNo].Add(new Right());
+                            break;
+                        case 0x03:
+                            c[orderNo].Add(new Turn());
+                            break;
+                    }
+                }
+            }
+        }
+
+        Debug.Log(flag.Count);
+        Debug.Log(flag[0].Count);
+
+        orderNo = 0;
+    }
+
+    void InitiateCodeList()
+    {
+        codeList = new List<Code>();
+        codeList.Add(new Code(0xff, "If"));
+        codeList.Add(new Code(0xfe, "&"));
+        codeList.Add(new Code(0xfd, ";"));
+        codeList.Add(new Code(0x01, "Wall in front"));
+        codeList.Add(new Code(0x02, "Enemy in front"));
+        codeList.Add(new Code(0x03, "Trap in front"));
+        codeList.Add(new Code(0x01, "Left"));
+        codeList.Add(new Code(0x02, "Right"));
+        codeList.Add(new Code(0x03, "Turn"));
+
+    }
+    #endregion
+
     void RunAI()//AIの処理だよ
     {
         int no = (int)ObjType.can;
@@ -122,11 +240,12 @@ public class RobotController : MapObject
             if (i != (viewRange * viewRange - viewRange % 2) / 2)
             {
                 distance = transform.localPosition + iniPos + new Vector3(i % viewRange, i / viewRange);
-                c = map.GetMapData(floor,distance);
+                c = map.GetMapData(floor, distance);
                 no = c != null ? c.objNo : (int)ObjType.can;
-                if ((int)ObjType.can < no)
+                if ((int)ObjType.can < no && map.Objs[no].campNo != campNo
+                    && map.Objs[no].GetType().Equals(GetType()))//自分に対して敵ロボット
                 {
-                    Debug.Log(i%viewRange);
+                    //Debug.Log(i % viewRange);
                     comNo = ApproachEnemy(distance);
                     break;
                 }
@@ -135,10 +254,11 @@ public class RobotController : MapObject
         //if (no == (int)ObjType.can) { return; }
     }
 
+    #region Methods of AI
     int ApproachEnemy(Vector3 enemyPos)
     {
         Vector2 vec = enemyPos - transform.localPosition;
-        Debug.Log(vec);
+        //Debug.Log(vec);
         int[,] costArray = new int[viewRange, viewRange];
         int radius = (viewRange - viewRange % 2) / 2;
 
@@ -158,7 +278,14 @@ public class RobotController : MapObject
             switch ((dire - d + 4) % 4)
             {
                 case 0:
-                    commandNo = (int)CommandID.go;
+                    if (vec.magnitude <= 1)
+                    {
+                        commandNo = (int)CommandID.slash;
+                    }
+                    else
+                    {
+                        commandNo = (int)CommandID.go;
+                    }
                     break;
                 case 1:
                     commandNo = (int)CommandID.right;
@@ -213,6 +340,7 @@ public class RobotController : MapObject
             }
         }
     }
+    #endregion
 
     void ReadCommand(/*Predicate<Vector2> flag*/)
     {
@@ -298,115 +426,15 @@ public class RobotController : MapObject
         return new Vector2(comCX, comCY);
     }
 
-    bool PartInFront(int no)
+    public void Damaged(int value)
     {
-        return map.GetMapData(floor, transform.localPosition + DtoV(dire)).partNo == no;
-    }
-
-    bool EnemyInFront()
-    {
-        return map.Objs[map.GetMapData(floor, transform.localPosition).objNo].campNo == (int)CampState.enemy;
-    }
-
-    bool TrapInFront()
-    {
-        return map.GetMapData(floor, transform.localPosition).panel.isTrap;
-    }
-
-    bool CheckFlags(List<Func<bool>> flags)
-    {
-        bool b = false;
-        if (0<flag[orderNo].Count)
+        robot.HP -= value;
+        Debug.Log(robot.HP);
+        if(robot.HP<=0)
         {
-            b = true;
-            for (int i = 0; i < flags.Count; i++)
-            {
-                b &= flags[i]();
-            }
+            robot.HP = 0;
+            waitVanishing = true;
         }
-        codeNo = b ? 0 : -1;
-        return b;
-    }
-
-    public void SetAction(byte[] codes)//コマンドコードを読んで条件をセット
-    {
-        bool onFlag = false;
-
-        flag = new List<List<Func<bool>>>();
-        flag.Add(new List<Func<bool>>());
-
-        c = new List<List<Command>>();
-        c.Add(new List<Command>());
-
-        orderNo = 0;
-
-        for (int i = 0; i < codes.Length; i++)
-        {
-            Debug.Log("おかしくね？" + codes[i]);
-            if (codeList[codes[i]].value == 0xff)//Ifのばあい
-            {
-                Debug.Log("IF on");
-                onFlag = true;
-            }
-            else if (codeList[codes[i]].value == 0xfd)//;のばあい
-            {
-                orderNo++;
-            }
-            else
-            {
-                if (onFlag)
-                {
-                    switch (codeList[codes[i]].value)
-                    {
-                        case 0x01:
-                            flag[orderNo].Add(() => PartInFront((int)MapPart.wall));
-                            break;
-                        case 0x02:
-                            flag[orderNo].Add(() => EnemyInFront());
-                            break;
-                        case 0x03:
-                            flag[orderNo].Add(() => TrapInFront());
-                            break;
-                    }
-                    Debug.Log("Flag Setter");
-                }
-                else
-                {
-                    switch (codeList[codes[i]].value)
-                    {
-                        case 0x01:
-                            c[orderNo].Add(new Left());
-                            break;
-                        case 0x02:
-                            c[orderNo].Add(new Right());
-                            break;
-                        case 0x03:
-                            c[orderNo].Add(new Turn());
-                            break;
-                    }
-                }
-            }
-        }
-
-        Debug.Log(flag.Count);
-        Debug.Log(flag[0].Count);
-
-        orderNo = 0;
-    }
-
-    void InitiateCodeList()
-    {
-        codeList = new List<Code>();
-        codeList.Add(new Code(0xff,"If"));
-        codeList.Add(new Code(0xfe, "&"));
-        codeList.Add(new Code(0xfd, ";"));
-        codeList.Add(new Code(0x01, "Wall in front"));
-        codeList.Add(new Code(0x02, "Enemy in front"));
-        codeList.Add(new Code(0x03, "Trap in front"));
-        codeList.Add(new Code(0x01, "Left"));
-        codeList.Add(new Code(0x02, "Right"));
-        codeList.Add(new Code(0x03, "Turn"));
-
     }
 }
 

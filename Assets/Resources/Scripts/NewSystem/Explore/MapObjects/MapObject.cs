@@ -37,7 +37,7 @@ public class MapObject : MonoBehaviour
         if (isVanishing) { Vanish(); return; }
     }
 
-    protected Vector3 DtoV(int direction)
+    public Vector3 DtoV(int direction)
     {
         Vector2 pos = Vector2.zero;
         switch (direction)

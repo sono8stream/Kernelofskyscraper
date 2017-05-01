@@ -62,8 +62,8 @@ public class Robot :Recipe
 {
     public Head head;
     public Body body;
-    public Arm arm;
     public Leg leg;
+    public Arm arm;
     [NonSerialized]
     public Sprite icon;
 
@@ -85,13 +85,13 @@ public class Robot :Recipe
         base.Initiate();
         head.Initiate();
         body.Initiate();
-        arm.Initiate();
         leg.Initiate();
+        arm.Initiate();
         c.Add(new DefaultCommand());
         c.AddRange(head.Command);
         c.AddRange(body.Command);
-        c.AddRange(arm.Command);
         c.AddRange(leg.Command);
+        c.AddRange(arm.Command);
         icon = Data.roboSprites[0];
     }
 }
@@ -213,6 +213,12 @@ public class Arm : Recipe
         }
         Initiate();
     }
+
+    public override void Initiate()
+    {
+        base.Initiate();
+        c.Add(new Slash());
+    }
 }
 
 [Serializable]
@@ -244,6 +250,6 @@ public class Leg : Recipe
 
 public enum CommandID
 {
-    go = 1, left, right, turn
+    go = 1, left, right, turn,slash
 }
 
