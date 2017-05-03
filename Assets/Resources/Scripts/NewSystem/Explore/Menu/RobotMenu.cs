@@ -73,13 +73,6 @@ public class RobotMenu : MonoBehaviour
                 commandBs.Add(b);
             }
         }
-        /*StaticMethodsCollection.ForList(UserData.instance.commands,
-            (x) =>
-            {
-                Button b = Instantiate(panelGOrigin, transform).GetComponent<Button>();
-                b.GetComponent<RectTransform>().anchoredPosition=new Vector2(-100+200*(|1)
-                commandBs.Add(b);
-            });*/
     }
 
     public void SetPanelNo(int no)
@@ -122,8 +115,8 @@ public class RobotMenu : MonoBehaviour
             waitCo++;
             return;
         }
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftShift))//flag
-        {
+        /*if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftShift))//flag
+        {*/
             if (Input.GetKeyDown(KeyCode.Z))
             {
                 SetFlag();
@@ -167,7 +160,7 @@ public class RobotMenu : MonoBehaviour
                 codeIndex++;
                 UpdateText();
             }
-        }
+        /*}
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             codeIndex = 0 < codeIndex ? codeIndex - 1 : 0;
@@ -175,7 +168,7 @@ public class RobotMenu : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             codeIndex = codeIndex < commandCodes.Count ? codeIndex + 1 : commandCodes.Count;
-        }
+        }*/
         else if (Input.GetKey(KeyCode.Backspace) && 0 < codeIndex)
         {
             DelCode();
@@ -193,6 +186,7 @@ public class RobotMenu : MonoBehaviour
             roboRC.SetAction(commandCodes.ToArray());
             roboRC.canMove = true;
             roboRC = null;
+            onFlag = false;
             commandText.transform.parent.gameObject.SetActive(false);
             commandCodes = new List<byte>();
         }
@@ -242,6 +236,7 @@ public class RobotMenu : MonoBehaviour
 
     void DelCode()
     {
+        codeIndex = commandCodes.Count;
         commandCodes.RemoveAt(codeIndex - 1);
         codeIndex--;
         if (0 < codeIndex && (commandCodes[codeIndex - 1] == (int)CodeName.If
@@ -266,17 +261,9 @@ public class RobotMenu : MonoBehaviour
         commandText.text = t;
     }
 
-    public void GenerateRobot(Transform cursorTransform, bool enemy)
+    public void GenerateRobot(Transform cursorTransform)
     {
-        GameObject g;
-        if(enemy)
-        {
-            g = Instantiate(robotOriginE);
-        }
-        else
-        {
-            g = Instantiate(robotOrigin);
-        }
+        GameObject g = Instantiate(robotOrigin);
         roboRC = g.GetComponent<RobotController>();
         roboRC.robot = (Robot)UserData.instance.robotRecipe[RobotNo].DeepCopy();
         roboRC.robot.Initiate();

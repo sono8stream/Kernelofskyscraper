@@ -30,7 +30,8 @@ public class Panel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (command != null && command.isDestroyed)
+        if (command != null && command.isDestroyed
+            && !transform.FindChild("Particle").gameObject.activeSelf)
         {
             Destroy(gameObject);
         }
@@ -38,9 +39,13 @@ public class Panel : MonoBehaviour
 
     public bool Run(MapObject obj)
     {
-        if (command == null)
+        if (command == null || command.isDestroyed)
         {
             return true;
+        }
+        if(transform.FindChild("Particle"))
+        {
+            transform.FindChild("Particle").gameObject.SetActive(true);
         }
         return command.Run(obj);
     }

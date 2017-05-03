@@ -341,6 +341,7 @@ public class Warp : Command
             {
                 obj.transform.localScale = Vector3.one;
                 MoveFloor(obj);
+                co = coLim;
                 return true;
             }
         }
@@ -349,11 +350,11 @@ public class Warp : Command
 
     void MoveFloor(MapObject obj)
     {
-        obj.floor = (int)position.z;
         obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.can);
 
         obj.transform.SetParent(obj.map.FloorGOs[(int)position.z].transform);
         obj.transform.localPosition = (Vector2)position;
+        obj.floor = (int)position.z;
 
         obj.map.SetObjData(obj.floor, obj.transform.localPosition, obj.no);
         obj.FlashViewRange();
@@ -416,16 +417,16 @@ public class Go : Command
         }
         obj.transform.localPosition += mPos * sp;
 
-        count++;
         if (count == period)
         {
-            obj.transform.localPosition
-                = new Vector3(Mathf.Round(obj.transform.localPosition.x), Mathf.Round(obj.transform.position.y), 0);
+            obj.transform.localPosition = new Vector3(Mathf.Round(obj.transform.localPosition.x),
+                Mathf.Round(obj.transform.position.y), 0);
             obj.map.SetObjData(obj.floor, obj.transform.localPosition - mPos, (int)ObjType.can);
             CellData c = obj.map.GetMapData(obj.floor, obj.transform.localPosition);
             count = 0;
             return true;
         }
+        count++;
         return false;
     }
 }
@@ -533,7 +534,6 @@ public class DestroySwitch : Command
         : base("Switch", Data.panelSprites[(int)PanelSpritesName.switchPanel], Vector3.zero)
     {
         gimmick = g;
-        Debug.Log(g.transform.localPosition);
     }
 
     public override Command Copy()

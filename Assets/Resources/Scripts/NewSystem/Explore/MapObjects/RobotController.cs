@@ -18,6 +18,8 @@ public class RobotController : MapObject
     int comListNo;
     int waitCo;
     int waitLim;
+    int damageCo;
+    int damageLim;
 
     List<Code> codeList;
     public List<Code> CodeList { get { return codeList; } }
@@ -35,7 +37,6 @@ public class RobotController : MapObject
         waitCo = 0;
         waitLim = 1;
         viewRange = viewRange == 1 ? 3 : viewRange;
-        Debug.Log("viewRange" + viewRange.ToString());
         InitiateCodeList();
         Debug.Log(codeList.Count);
         comNo = -2;
@@ -52,6 +53,7 @@ public class RobotController : MapObject
             isVanishing = waitVanishing ? true : isVanishing;
             return;
         }
+        #region Command
         if (waitCo == waitLim)
         {
             waitCo = 0;
@@ -89,13 +91,19 @@ public class RobotController : MapObject
         {
             waitCo++;
         }
+        #endregion
+
+        if (damageCo < damageLim)
+        {
+            transform.FindChild("mod").FindChild("model");
+        }
+
     }
 
     void RunOrder()
     {
         if (0 < c[orderNo].Count && (0 <= codeNo || CheckFlags(flag[orderNo])))
         {
-            Debug.Log(codeNo);
             if (c[orderNo][codeNo].Run(this))
             {
                 codeNo++;
@@ -399,6 +407,8 @@ public class RobotController : MapObject
                 if (0 <= tX && tX < robot.head.Range
                     && 0 <= tY && tY < robot.head.Range
                     && 0 <= robot.head.ComList[comListNo][tY, tX]
+                    && map.GetMapData(floor, transform.localPosition
+                    + new Vector3(ttX, ttY, 0)) != null
                     && map.GetMapData(floor, transform.localPosition
                     + new Vector3(ttX, ttY, 0)).partNo == (int)MapPart.wall/*かべあるとき、条件子*/)
                 {

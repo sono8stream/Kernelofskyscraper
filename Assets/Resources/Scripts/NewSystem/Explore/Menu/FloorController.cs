@@ -19,13 +19,13 @@ public class FloorController : MonoBehaviour
     Camera camera;
     [SerializeField]
     Text floorText;
-    int floorNo;
-    public int FloorNo { get { return floorNo; } }
     float barDivision;
 
     int selSize;//1マス分のピクセルサイズ
     int texSize;//テクスチャサイズ
     int iniX, iniY;
+    int floorNo;
+    public int FloorNo { get { return floorNo; } }
     Texture2D texture;
     Color[] colors;
     float cCorrectionY = 12;
@@ -72,8 +72,14 @@ public class FloorController : MonoBehaviour
         StaticMethodsCollection.ForArray(ref colors, x => { return Color.white; });
     }
 
-    public void UpdateMapImage()
+    public void UpdateMapImage(int floor=-1)
     {
+        if (floor != -1)
+        {
+            floorNo = floor;
+            scrollBar.value = floor;
+        }
+
         for (int i = 0; i < map.MapWidth * map.MapHeight; i++)
         {
             if (map.MapData[floorNo][i % map.MapWidth, i / map.MapWidth].tile.activeSelf

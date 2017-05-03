@@ -7,6 +7,9 @@ using System.Collections.Generic;
 /// </summary>
 public class MapGenerator : MonoBehaviour
 {
+    public float[] enemyRates;
+    public List<Block>[] rooms;//完全に区分けられた部屋リスト
+
     SpriteRenderer sr;
     int[][,] mapData;
     public int[][,] MapData { get { return mapData; } }
@@ -15,7 +18,7 @@ public class MapGenerator : MonoBehaviour
     [SerializeField]
     GameObject wireH, wireV;
     [SerializeField]//ブロックサイズ最小値,実際部屋サイズは-2,最大部屋数基準+roomRan
-    int width, height, minRectSize = 5, roomLim = 15, floors = 3;
+    int width, height, minRectSize = 5, roomLim = 15, floors = 3, enemies = 10;
     [SerializeField]
     int[] eRecovLims, cRecovLims;
     int eRecovCo = 0, cRecovCo = 0;//回復パネルカウンタ
@@ -25,8 +28,8 @@ public class MapGenerator : MonoBehaviour
     int roomCo = 1;
     int lineSize = 1;
     int kRoomIndex;//カーネルのある部屋番号
+    public int KroomIndex { get { return kRoomIndex; } }
     List<Block>[] blocks;//区切りリスト
-    public List<Block>[] rooms;//完全に区分けられた部屋リスト
 
     // Use this for initialization
     void Start()
@@ -84,6 +87,7 @@ public class MapGenerator : MonoBehaviour
         MakeWalls();
         SetPanels();
         SetDoors();
+        //SetEnemies();
     }
 
     #region GenerateMapPart
@@ -443,7 +447,13 @@ public class MapGenerator : MonoBehaviour
         b2.sPos.Add(pos);
     }
 
-    bool CheckObject(Block b, Vector2 pos)//blockのroom内におけるオブジェクト存在チェック,room内にすべて含有しているか
+    /// <summary>
+    /// blockのroom内におけるオブジェクト存在チェック,room内にすべて含有しているか
+    /// </summary>
+    /// <param name="b"></param>
+    /// <param name="pos">座標指定(あれば)</param>
+    /// <returns></returns>
+    public bool CheckObject(Block b, Vector2 pos)
     {
         for (int i = 0; i < b.sPos.Count; i++)
         {
@@ -840,9 +850,6 @@ public class MapGenerator : MonoBehaviour
         int adjIndex = -1;
         List<Vector2> posList = new List<Vector2>();
         Vector2 pos;
-        /*Debug.Log(b.floorNo);
-        Debug.Log(b.x + "," + b.y);
-        Debug.Log(b.roomNo);*/
 
         while (i < (b.rW + 2) * (b.rH + 2))
         {
@@ -869,11 +876,6 @@ public class MapGenerator : MonoBehaviour
                 {
                     adjIndex = b.adjDire.IndexOf((int)Direction.Right);
                 }
-                
-                if (0 <= adjIndex)
-                {
-                    Debug.Log(b.adjBlocks[adjIndex].roomNo);
-                }
 
                 if (0 <= adjIndex && CheckRoute(b, b.adjBlocks[adjIndex],
                     adjIndex, b.adjBlocks[adjIndex].adjBlocks.IndexOf(b)))//ルートチェック
@@ -885,46 +887,37 @@ public class MapGenerator : MonoBehaviour
                     b.adjDire.RemoveAt(adjIndex);
 
                     posList.Add(pos);
-                    Debug.Log("OK");
                 }
             }
             i = i % (b.rW + 2) == 0 ? i + b.rW + 1 : i + 1;
-        }
-
-        /*int dire;
-        Block adjBlock;
-
-        for (int i = 0; i < b.adjBlocks.Count; i++)
-        {
-            if (b.adjDire[i] <= (int)Direction.Left)
-            {
-                adjBlock = b.adjBlocks[i];
-                dire = b.adjDire[i];
-                adjIndex = adjBlock.adjDire.IndexOf(dire);
-
-                b.adjBlocks.RemoveAt(i);
-                b.adjDire.RemoveAt(i);
-                adjBlock.adjBlocks.RemoveAt(adjIndex);
-                adjBlock.adjDire.RemoveAt(adjIndex);
-
-                if (CheckRoute())
-                {
-                    
-                }
-                else
-                { 
-                    b.adjBlocks.Add(adjBlock);
-                    b.adjDire.Add(dire);
-                    adjBlock.adjBlocks.Add(b);
-                    adjBlock.adjDire.Add((dire + 2) % 4);
-                }
-            }
-        }*/
-        
+        }        
         return posList.ToArray();
     }
 
+    void SetEnemies()
+    {
+        int enemyCount = 0;
+        Vector2 pos;
+        Block block;
 
+        for (int i = 0; i < floors; i++)
+        {
+            while (enemyCount < enemies)
+            {
+                block = rooms[i][Random.Range(0, rooms[i].Count)];
+                pos = new Vector2(block.rX + Random.Range(0, block.rW - 1),
+                 block.rY + Random.Range(0, block.rH - 1));
+                if (CheckObject(block, pos))
+                {
+                    mapGimmickData[i][(int)pos.x, (int)pos.y] = (int)GimmickType.enemy;
+                    block.sPos.Add(pos);
+                    enemyCount++;
+                }
+            }
+            enemyCount = 0;
+            enemies++;
+        }
+    }
     #endregion
 
     void DrawWire()

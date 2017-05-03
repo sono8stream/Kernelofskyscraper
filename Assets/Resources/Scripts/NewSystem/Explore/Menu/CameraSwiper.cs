@@ -21,11 +21,10 @@ public class CameraSwiper : MonoBehaviour
     GameObject panelOrigin;
     [SerializeField]
     GameObject cursorGO;
-    [SerializeField]
-    GameObject kernel;
     MapObject selectedObject;
     [SerializeField]
     StatusController status;
+    GameObject kernel;
     Vector3 keyDownPos;
     Vector3 touchingPos;
     Vector3 tappedMapPos;
@@ -50,12 +49,16 @@ public class CameraSwiper : MonoBehaviour
     void Start()
     {
         swipeMargin = 5;
-        mapCorrectionPos = Vector3.back * 0.01f - camera.transform.localPosition;
+        mapCorrectionPos = Vector3.back * 0.01f - camera.transform.position;
         period = 120;
         rangeX = map.MapWidth * 0.5f;
         rangeY = map.MapHeight * 0.5f + marginY;
         posZ = camera.transform.localPosition.z;
-        camera.transform.localPosition = kernel.transform.position - mapCorrectionPos;
+        kernel = GameObject.Find("Kernel_3d(Clone)");
+        camera.transform.localPosition = kernel.transform.localPosition - mapCorrectionPos;
+        LimitScroll(false);
+        Debug.Log(mapCorrectionPos);
+        Debug.Log(kernel.transform.localPosition);
     }
 
     // Update is called once per frame
@@ -70,11 +73,21 @@ public class CameraSwiper : MonoBehaviour
         if (velocity != Vector3.zero)//余韻スクロール
         {
             camera.transform.localPosition += velocity;
-            LimitScroll(map.MapWidth, map.MapHeight, false);
+            LimitScroll(false);
             velocity += accel;
         }
         MoveCamera();
         floorCon.MoveMapCursor();
+
+        if(Input.GetKeyDown(KeyCode.Space))//カメラ位置=カーネル位置に
+        {
+            camera.transform.localPosition = kernel.transform.localPosition - mapCorrectionPos;
+            LimitScroll(false);
+            floorCon.UpdateMapImage(0);
+            floorCon.MoveMapCursor();
+            velocity = Vector2.zero;
+            accel = Vector2.zero;
+        }
 
         cursorGO.transform.position = SetToMapPos();
     }
@@ -89,7 +102,7 @@ public class CameraSwiper : MonoBehaviour
     public void TouchingScreen()
     {
         camera.transform.localPosition += (touchingPos - Input.mousePosition) / period * 1.5f;
-        LimitScroll(map.MapWidth, map.MapHeight, false);
+        LimitScroll(false);
         touchingPos = Input.mousePosition;
     }
 
@@ -116,11 +129,11 @@ public class CameraSwiper : MonoBehaviour
                     c.panel = g.GetComponent<Panel>();
                 }
                 else if (!robotMenu.RoboRC && !onPanel && 0 <= robotMenu.RobotNo // Generate a robot
-                    && ((c != null && c.panel != null
+                    && c != null && ((c.panel != null
                     && c.objNo == -1 && c.panel.sanctuary && status.ChangeEnergy(-10))
                     || Input.GetKey(KeyCode.E)))
                 {
-                    robotMenu.GenerateRobot(cursorGO.transform, Input.GetKey(KeyCode.E));
+                    robotMenu.GenerateRobot(cursorGO.transform);
                 }
             }
             else if (Input.GetMouseButtonUp(1) && c.panel && !c.panel.cannotBreak)//右クリック、パネル削除
@@ -134,11 +147,11 @@ public class CameraSwiper : MonoBehaviour
             accel = -velocity / 10;
         }
         //SetStatus(selectedObject);
-        LimitScroll(map.MapWidth, map.MapHeight);
+        LimitScroll();
     }
 
     //カメラのスクロール限界
-    void LimitScroll(int sizeX, int sizeY, bool bound = true)
+    void LimitScroll(bool bound = true)
     {
         if (camera.transform.localPosition.x <  - rangeX)
         {

@@ -74,13 +74,13 @@ public class MapLoader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && generator != null)
+        /*if (Input.GetKeyDown(KeyCode.Space) && generator != null)
         {
             DelMap();
             generator.InitiateMap();
             UpdateMapData();
             DrawMap();
-        }
+        }*/
         DebugMapData();
     }
 
@@ -93,7 +93,7 @@ public class MapLoader : MonoBehaviour
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
                 //string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
-                sub += mapData[0][j, i].objNo.ToString();
+                sub += generator.MapGimmickData[0][j, i].ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -194,6 +194,8 @@ public class MapLoader : MonoBehaviour
             GameObject map = new GameObject("Floor" + (i + 1).ToString());
             map.transform.SetParent(transform);
             map.transform.position += Vector3.right * (floorMargin + mapWidth) * i;
+            flrGOs[i] = map;
+
             for (int y = 0; y < mapHeight; y++)
             {
                 for (int x = 0; x < mapWidth; x++)
@@ -202,7 +204,6 @@ public class MapLoader : MonoBehaviour
                     SetGimmick(map, i, x, y, iniX, iniY);
                 }
             }
-            flrGOs[i] = map;
         }
     }
 
@@ -232,13 +233,12 @@ public class MapLoader : MonoBehaviour
                 break;
             case (int)MapPart.kernel:
                 Debug.Log("DetectedKernel");
-                GameObject.Find("MainCamera").transform.position += g.transform.position;
                 break;
         }
         mapData[floor][x, y].tile = g;
     }
 
-    void SetGimmick(GameObject mapGO, int floor, int x, int y,float iniX,float iniY)
+    void SetGimmick(GameObject mapGO, int floor, int x, int y, float iniX, float iniY)
     {
         GameObject g = null;
         GameObject t = null;
@@ -266,6 +266,7 @@ public class MapLoader : MonoBehaviour
                 t = Instantiate(mapGimmicks[1], mapGO.transform);
                 t.transform.localPosition
                     = new Vector3(iniX + ((no & 0xff0000) >> 16), iniY - ((no & 0xff00) >> 8), -0.01f);
+                t.GetComponent<MapObject>().floor = floor;
                 p = g.GetComponent<Panel>();
                 p.command = new DestroySwitch(t.GetComponent<MapObject>());
                 p.cannotBreak = true;
@@ -275,12 +276,20 @@ public class MapLoader : MonoBehaviour
             case (int)GimmickType.door:
 
                 break;
+            /*case (int)GimmickType.enemy:
+                g = GenerateEnemy(mapGimmicks[2], x, y, floor);
+                Debug.Log(new Vector2(x, y));
+                break;*/
         }
 
         if (g != null)
         {
-            g.transform.localPosition = new Vector3(iniX + x, iniY - y, -0.01f);
-            mapData[floor][x, y].panel = g.GetComponent<Panel>();
+            g.transform.localPosition = new Vector3(iniX + x, iniY - y);
+            if (g.GetComponent<Panel>() != null)
+            {
+                g.transform.localPosition = new Vector3(iniX + x, iniY - y, -0.01f);
+                mapData[floor][x, y].panel = g.GetComponent<Panel>();
+            }
         }
     }
 
@@ -471,13 +480,34 @@ public class MapLoader : MonoBehaviour
     public void VisualizeRoom(int floor, Vector2 pos)//部屋を照らす
     {
         Block b = GetPosRoom(floor, pos);
-        if (b == null)
-        {
-            return;
-        }
+        if (b == null) { return; }
+        //Vector2[] rPos = GetRoomRobots(b);
+        float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
+        float iniY = (mapHeight - mapHeight % 2) * 0.5f;
+        int robots = (int)Random.Range(0, generator.enemyRates[floor]);
+
         for (int i = 0; i < (b.rW + 2) * (b.rH + 2); i++)
         {
             mapData[floor][b.rX - 1 + i % (b.rW + 2), b.rY - 1 + i / (b.rW + 2)].tile.SetActive(true);
+        }
+        /*for (int i = 0; i < rPos.Length; i++)
+        {
+            GameObject g = GenerateEnemy(mapGimmicks[2], floor);
+            g.transform.localPosition = new Vector3(iniX + rPos[i].x, iniY - rPos[i].y);
+            //robots[i].transform.FindChild("mod").gameObject.SetActive(true);
+        }*/
+        if (generator.rooms[floor].IndexOf(b) == generator.KroomIndex) { return; }
+
+        for (int i = 0; i < robots; i++)
+        {
+            pos = new Vector2(b.rX + Random.Range(0, b.rW - 1),
+                 b.rY + Random.Range(0, b.rH - 1));
+            if (generator.CheckObject(b, pos))
+            {
+                GameObject enemy = GenerateEnemy(mapGimmicks[2], floor);
+                enemy.transform.localPosition
+                    = new Vector3(iniX + pos.x, iniY - pos.y);
+            }
         }
     }
 
@@ -496,6 +526,37 @@ public class MapLoader : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public Vector2[] GetRoomRobots(Block b)
+    {
+        List<Vector2> rPos = new List<Vector2>();
+        int no;
+
+        for (int i = 0; i < b.sPos.Count; i++)
+        {
+            no = generator.MapGimmickData[b.floorNo][(int)b.sPos[i].x, (int)b.sPos[i].y];
+            if (no == (int)GimmickType.enemy)
+            {
+                rPos.Add(b.sPos[i]);
+            }
+        }
+        return rPos.ToArray();
+    }
+
+    public GameObject GenerateEnemy(GameObject robot, int floor)
+    {
+        GameObject g = Instantiate(robot);
+        RobotController rc = g.GetComponent<RobotController>();
+        rc.robot = (Robot)UserData.instance.robotRecipe[0].DeepCopy();
+        rc.robot.Initiate();
+        rc.floor = floor;
+        rc.canMove = true;
+
+        g.transform.SetParent(flrGOs[floor].transform);
+        g.transform.localScale = Vector3.one;
+
+        return g;
     }
 }
 
@@ -531,7 +592,7 @@ public enum MapPart
 
 public enum GimmickType
 {
-    none = 0, eRecovPanel, cRecovPanel, destroySwitch, door
+    none = 0, eRecovPanel, cRecovPanel, destroySwitch, door, enemy
 }
 
 public enum ObjType

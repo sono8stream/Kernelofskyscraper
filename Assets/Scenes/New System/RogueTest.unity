@@ -1037,11 +1037,6 @@ MonoBehaviour:
   engLim: 50
   capaLim: 100
   flashLim: 10
---- !u!1 &343926854 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1118709583780334, guid: 2f6f1b761c9beeb4ba26d54715ecf121,
-    type: 2}
-  m_PrefabInternal: {fileID: 1639231144}
 --- !u!1 &396794014
 GameObject:
   m_ObjectHideFlags: 0
@@ -2855,6 +2850,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   robotOrigin: {fileID: 1462362532201608, guid: e023033600ad2d044af9cf565f39ba18,
     type: 2}
+  robotOriginE: {fileID: 0}
   selectImage: {fileID: 68436796}
   buttonPosX: -27.5
   swiper: {fileID: 1943434475}
@@ -3578,6 +3574,56 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5022f8de9e2a0fb4f8823f48e6b6a31c, type: 2}
   m_IsPrefabParent: 0
+--- !u!1001 &1562518789
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4265350731572280, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_RootOrder
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1421548097515564, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &1563925838
 GameObject:
   m_ObjectHideFlags: 0
@@ -4147,6 +4193,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27609c40cd3de1344a9c6fcf1b106de9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyRates:
+  - 1.2
+  - 1.5
+  - 2
+  - 1.8
+  - 1.2
   wireH: {fileID: 1507766163606368, guid: ba972128fb3404b4ca374b2c984140f0, type: 2}
   wireV: {fileID: 1929113659564214, guid: b3b8b6c8d728c394cb9f0e09f17bbb79, type: 2}
   width: 30
@@ -4154,6 +4206,7 @@ MonoBehaviour:
   minRectSize: 8
   roomLim: 8
   floors: 5
+  enemies: 7
   eRecovLims: 0a0000000a0000000a0000000a0000000a000000
   cRecovLims: 0a0000000a0000000a0000000a0000000a000000
 --- !u!4 &1829307846
@@ -4197,6 +4250,7 @@ MonoBehaviour:
   mapGimmicks:
   - {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
   - {fileID: 1675509575679050, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+  - {fileID: 1462362532201608, guid: 31e7302f64cac9243ac5b23c8859b903, type: 2}
 --- !u!1 &1838412306
 GameObject:
   m_ObjectHideFlags: 0
@@ -4549,7 +4603,6 @@ MonoBehaviour:
   panelOrigin: {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400,
     type: 2}
   cursorGO: {fileID: 170687746}
-  kernel: {fileID: 343926854}
   status: {fileID: 241745258}
   onPanel: 0
 --- !u!114 &1943434476
