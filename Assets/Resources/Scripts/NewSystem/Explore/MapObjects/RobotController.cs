@@ -41,6 +41,7 @@ public class RobotController : MapObject
         Debug.Log(codeList.Count);
         comNo = -2;
         codeNo = -1;
+        damageCo = damageLim;
     }
 
     // Update is called once per frame
@@ -95,7 +96,9 @@ public class RobotController : MapObject
 
         if (damageCo < damageLim)
         {
-            transform.FindChild("mod").FindChild("model");
+            transform.FindChild("mod").FindChild("model").GetComponent<Renderer>().material.color
+                = Color.red - new Color(0, 0, 0, Mathf.Cos(damageCo * 4 * Mathf.PI / damageLim));
+            damageCo++;
         }
 
     }
@@ -250,6 +253,7 @@ public class RobotController : MapObject
                 distance = transform.localPosition + iniPos + new Vector3(i % viewRange, i / viewRange);
                 c = map.GetMapData(floor, distance);
                 no = c != null ? c.objNo : (int)ObjType.can;
+                Debug.Log(no);
                 if ((int)ObjType.can < no && map.Objs[no].campNo != campNo
                     && map.Objs[no].GetType().Equals(GetType()))//自分に対して敵ロボット
                 {
@@ -438,9 +442,10 @@ public class RobotController : MapObject
 
     public void Damaged(int value)
     {
+        damageCo = 0;
         robot.HP -= value;
         Debug.Log(robot.HP);
-        if(robot.HP<=0)
+        if (robot.HP <= 0)
         {
             robot.HP = 0;
             waitVanishing = true;
