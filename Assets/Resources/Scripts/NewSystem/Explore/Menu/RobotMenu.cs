@@ -117,49 +117,49 @@ public class RobotMenu : MonoBehaviour
         }
         /*if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftShift))//flag
         {*/
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-                SetFlag();
-                commandCodes.Insert(codeIndex, (int)CodeName.Wall);
-                codeIndex++;
-                UpdateText();
-            }
-            else if (Input.GetKeyDown(KeyCode.X))
-            {
-                SetFlag();
-                commandCodes.Insert(codeIndex, (int)CodeName.Enemy);
-                codeIndex++;
-                UpdateText();
-            }
-            else if (Input.GetKeyDown(KeyCode.C))
-            {
-                SetFlag();
-                commandCodes.Insert(codeIndex, (int)CodeName.Trap);
-                codeIndex++;
-                UpdateText();
-            }
-            else if (Input.GetKeyDown(KeyCode.V))
-            {
-                SetCommand();
-                commandCodes.Insert(codeIndex, (int)CodeName.Left);
-                codeIndex++;
-                UpdateText();
-            }
-            else if (Input.GetKeyDown(KeyCode.B))
-            {
-                Debug.Log("?");
-                SetCommand();
-                commandCodes.Insert(codeIndex, (int)CodeName.Right);
-                codeIndex++;
-                UpdateText();
-            }
-            else if (Input.GetKeyDown(KeyCode.N))
-            {
-                SetCommand();
-                commandCodes.Insert(codeIndex, (int)CodeName.Turn);
-                codeIndex++;
-                UpdateText();
-            }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            SetFlag();
+            commandCodes.Insert(codeIndex, (int)CodeName.Wall);
+            codeIndex++;
+            UpdateText();
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            SetFlag();
+            commandCodes.Insert(codeIndex, (int)CodeName.Enemy);
+            codeIndex++;
+            UpdateText();
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            SetFlag();
+            commandCodes.Insert(codeIndex, (int)CodeName.Trap);
+            codeIndex++;
+            UpdateText();
+        }
+        else if (Input.GetKeyDown(KeyCode.V))
+        {
+            SetCommand();
+            commandCodes.Insert(codeIndex, (int)CodeName.Left);
+            codeIndex++;
+            UpdateText();
+        }
+        else if (Input.GetKeyDown(KeyCode.B))
+        {
+            Debug.Log("?");
+            SetCommand();
+            commandCodes.Insert(codeIndex, (int)CodeName.Right);
+            codeIndex++;
+            UpdateText();
+        }
+        else if (Input.GetKeyDown(KeyCode.N))
+        {
+            SetCommand();
+            commandCodes.Insert(codeIndex, (int)CodeName.Turn);
+            codeIndex++;
+            UpdateText();
+        }
         /*}
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
@@ -256,18 +256,27 @@ public class RobotMenu : MonoBehaviour
         string t = "";
         for (int i = 0; i < commandCodes.Count; i++)
         {
-            t += roboRC.CodeList[commandCodes[i]].text + " ";
+            t += roboRC.codeList[commandCodes[i]].text + " ";
         }
         commandText.text = t;
     }
 
-    public void GenerateRobot(Transform cursorTransform)
+    public void GenerateRobot(Transform cursorTransform, GameObject robotGO = null)
     {
-        GameObject g = Instantiate(robotOrigin);
+        GameObject g;
+        if (robotGO)
+        {
+            g = Instantiate(robotGO);
+        }
+        else
+        {
+            g = Instantiate(robotOrigin);
+        }
         roboRC = g.GetComponent<RobotController>();
         roboRC.robot = (Robot)UserData.instance.robotRecipe[RobotNo].DeepCopy();
         roboRC.robot.Initiate();
         roboRC.floor = swiper.Floor;
+        roboRC.specialCom = new Slash();
 
         g.transform.position = cursorTransform.position;
         g.transform.SetParent(cursorTransform.parent);

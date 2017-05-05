@@ -12,6 +12,14 @@ public class Panel : MonoBehaviour
     public int campNo;//誰にはたらくパネルか
     public bool isTrap;
 
+    bool onGenerate;
+    bool onDestroy;
+    int co;
+    int lim;
+
+    [SerializeField]
+    GameObject genEffect, delEffect;
+
     // Use this for initialization
     void Start()
     {
@@ -25,15 +33,34 @@ public class Panel : MonoBehaviour
                 iconT.eulerAngles = command.angle;
             }
         }
+
+        lim = 10;
+        onGenerate = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (onGenerate && genEffect)
+        {
+            GameObject g = Instantiate(genEffect);
+            g.transform.position = transform.position;
+            g.transform.localScale = Vector3.one;
+            onGenerate = false;
+        }
+
+        if (onDestroy && delEffect)
+        {
+            GameObject g = Instantiate(delEffect);
+            g.transform.position = transform.position;
+            g.transform.localScale = Vector3.one;
+            Destroy(gameObject);
+        }
+
         if (command != null && command.isDestroyed
             && !transform.FindChild("Particle").gameObject.activeSelf)
         {
-            Destroy(gameObject);
+            onDestroy = true;
         }
     }
 

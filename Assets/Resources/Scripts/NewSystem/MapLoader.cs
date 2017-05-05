@@ -93,7 +93,7 @@ public class MapLoader : MonoBehaviour
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
                 //string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
-                sub += generator.MapGimmickData[0][j, i].ToString();
+                sub += mapData[0][j, i].objNo.ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -552,6 +552,7 @@ public class MapLoader : MonoBehaviour
         rc.robot.Initiate();
         rc.floor = floor;
         rc.canMove = true;
+        rc.specialCom = new Slash();
 
         g.transform.SetParent(flrGOs[floor].transform);
         g.transform.localScale = Vector3.one;

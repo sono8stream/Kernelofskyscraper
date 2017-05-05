@@ -180,6 +180,8 @@ MonoBehaviour:
   cannotBreak: 0
   campNo: 0
   isTrap: 0
+  genEffect: {fileID: 100010, guid: 214bf6b1f924e43108a92f13c4db31a2, type: 2}
+  delEffect: {fileID: 100010, guid: 214bf6b1f924e43108a92f13c4db31a2, type: 2}
 --- !u!114 &114821263015915758
 MonoBehaviour:
   m_ObjectHideFlags: 1

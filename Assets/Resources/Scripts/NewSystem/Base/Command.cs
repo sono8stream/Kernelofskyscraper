@@ -404,14 +404,19 @@ public class Go : Command
             {
                 c.objNo = obj.no;
                 obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.cannot);
-                obj.FlashViewRange();
-                obj.map.VisualizeRoom(obj.floor, obj.transform.localPosition);
-                obj.map.flrCon.UpdateMapImage();
+                if (obj.campNo == (int)CampState.ally)
+                {
+                    obj.FlashViewRange();
+                    obj.map.VisualizeRoom(obj.floor, obj.transform.localPosition);
+                    obj.map.flrCon.UpdateMapImage();
+                }
             }
             else//移動不可
             {
-                Debug.Log("OK?");
-                obj.isVanishing = true;
+                if (c.partNo == (int)MapPart.wall)
+                {
+                    obj.waitVanishing = true;
+                }
                 return true;
             }
         }
@@ -484,13 +489,14 @@ public class CapacityRecover : Command
 public class Slash:Command
 {
     int power;
-    bool initial;
+    int co, lim;
     RobotController enemyRC;
+    Transform effectT;
 
     public Slash() : base("Slash", null, Vector3.zero)
     {
-        power = 10;
-        initial = true;
+        lim = 10;
+        power = 50;
     }
 
     public override Command Copy()
@@ -501,15 +507,22 @@ public class Slash:Command
     public override bool Run(MapObject obj)//敵を切る
     {
         Debug.Log("slash!");
-        if (initial)
+        if (co==0)
         {
+            effectT = obj.transform.FindChild("mod").FindChild("SlashEffect").FindChild("par1");
             enemyRC = GetEnemy(obj);
             if (!enemyRC) { Debug.Log("null"); return true; }
-            initial = false;
+            co++;
+        }
+        else if(co<lim)
+        {
+            co++;
         }
         else
         {
             enemyRC.Damaged(power);
+            effectT.GetComponent<ParticleSystem>().Play();
+            co = 0;
             return true;
         }
         return false;

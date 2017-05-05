@@ -9,7 +9,10 @@ public class RobotController : MapObject
     #region Property
     //public
     public Robot robot;
+    public int robotType;
     public bool canMove;
+    public List<Code> codeList { get; private set; }
+    public Command specialCom;
 
     //private
     [SerializeField]
@@ -21,8 +24,6 @@ public class RobotController : MapObject
     int damageCo;
     int damageLim;
 
-    List<Code> codeList;
-    public List<Code> CodeList { get { return codeList; } }
     List<List<Func<bool>>> flag;
     List<List<Command>> c;
     int orderNo, codeNo;
@@ -39,8 +40,9 @@ public class RobotController : MapObject
         viewRange = viewRange == 1 ? 3 : viewRange;
         InitiateCodeList();
         Debug.Log(codeList.Count);
-        comNo = -2;
+        comNo = -3;
         codeNo = -1;
+        damageLim = 10;
         damageCo = damageLim;
     }
 
@@ -48,6 +50,18 @@ public class RobotController : MapObject
     new void Update()
     {
         base.Update();
+
+        if (damageCo < damageLim)
+        {
+            transform.FindChild("mod").FindChild("model").GetComponent<Renderer>().material.color
+                = Color.red * Mathf.Cos(damageCo * 4 * Mathf.PI / damageLim);
+            damageCo++;
+            if (damageCo == damageLim)
+            {
+                transform.FindChild("mod").FindChild("model").GetComponent<Renderer>().material.color
+                    = Color.white;
+            }
+        }
 
         if (!canMove)
         {
@@ -58,7 +72,7 @@ public class RobotController : MapObject
         if (waitCo == waitLim)
         {
             waitCo = 0;
-            if (comNo == -2)//パネル読み込み
+            if (comNo == -3)//パネル読み込み
             {
                 Panel p = map.GetMapData(floor, transform.localPosition).panel;
                 if (p != null && p.campNo != (int)CampState.neutral && p.campNo != campNo)
@@ -67,12 +81,18 @@ public class RobotController : MapObject
                 }
                 if (p == null || p.Run(this))//足元見るよ
                 {
-                    comNo = -1;
+                    comNo = -2;
                 }
+            }
+            else if (comNo == -2 &&
+                (specialCom == null || specialCom.Run(this)))//ロボタイプ専用コマンドを実行
+            {
+                Debug.Log(specialCom);
+                comNo = -1;
             }
             else if (comNo == -1)//コマンド読み込み
             {
-                switch(campNo)
+                switch (campNo)
                 {
                     case (int)CampState.ally:
                         RunOrder();
@@ -84,8 +104,17 @@ public class RobotController : MapObject
             }
             else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
             {
-                isVanishing = waitVanishing ? true : isVanishing;
-                comNo = -2;
+                if (waitVanishing)
+                {
+                    isVanishing = true;
+                    if (breakEffect)
+                    {
+                        GameObject g = Instantiate(breakEffect, gameObject.transform.parent);
+                        g.transform.position = transform.position;
+                        g.transform.localScale = Vector3.one;
+                    }
+                }
+                comNo = -3;
             }
         }
         else
@@ -93,14 +122,6 @@ public class RobotController : MapObject
             waitCo++;
         }
         #endregion
-
-        if (damageCo < damageLim)
-        {
-            transform.FindChild("mod").FindChild("model").GetComponent<Renderer>().material.color
-                = Color.red - new Color(0, 0, 0, Mathf.Cos(damageCo * 4 * Mathf.PI / damageLim));
-            damageCo++;
-        }
-
     }
 
     void RunOrder()
@@ -253,7 +274,6 @@ public class RobotController : MapObject
                 distance = transform.localPosition + iniPos + new Vector3(i % viewRange, i / viewRange);
                 c = map.GetMapData(floor, distance);
                 no = c != null ? c.objNo : (int)ObjType.can;
-                Debug.Log(no);
                 if ((int)ObjType.can < no && map.Objs[no].campNo != campNo
                     && map.Objs[no].GetType().Equals(GetType()))//自分に対して敵ロボット
                 {
@@ -290,14 +310,7 @@ public class RobotController : MapObject
             switch ((dire - d + 4) % 4)
             {
                 case 0:
-                    if (vec.magnitude <= 1)
-                    {
-                        commandNo = (int)CommandID.slash;
-                    }
-                    else
-                    {
-                        commandNo = (int)CommandID.go;
-                    }
+                    commandNo = (int)CommandID.go;
                     break;
                 case 1:
                     commandNo = (int)CommandID.right;

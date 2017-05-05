@@ -7,6 +7,8 @@ public class CameraSwiper : MonoBehaviour
 {
     #region Property
     [SerializeField]
+    GameObject robotEgo;
+    [SerializeField]
     Camera camera;
     [SerializeField]
     MapLoader map;
@@ -122,18 +124,26 @@ public class CameraSwiper : MonoBehaviour
                     && status.ChangeCapacity(-10))//Generate a panel
                 {
                     GameObject g = Instantiate(panelOrigin);
-                    g.GetComponent<Panel>().command = Data.commands[panelMenu.PanelNo].CreateInstance();
+                    Panel p = g.GetComponent<Panel>();
+                    p.command = Data.commands[panelMenu.PanelNo].CreateInstance();
                     g.transform.position = cursorGO.transform.position + Vector3.back * 0.05f;
                     g.transform.SetParent(cursorGO.transform.parent);
                     g.transform.localScale = Vector3.one;
-                    c.panel = g.GetComponent<Panel>();
+                    c.panel = p;
                 }
                 else if (!robotMenu.RoboRC && !onPanel && 0 <= robotMenu.RobotNo // Generate a robot
                     && c != null && ((c.panel != null
                     && c.objNo == -1 && c.panel.sanctuary && status.ChangeEnergy(-10))
                     || Input.GetKey(KeyCode.E)))
                 {
-                    robotMenu.GenerateRobot(cursorGO.transform);
+                    if (Input.GetKey(KeyCode.E))
+                    {
+                        robotMenu.GenerateRobot(cursorGO.transform, robotEgo);
+                    }
+                    else
+                    {
+                        robotMenu.GenerateRobot(cursorGO.transform);
+                    }
                 }
             }
             else if (Input.GetMouseButtonUp(1) && c.panel && !c.panel.cannotBreak)//右クリック、パネル削除

@@ -16,6 +16,9 @@ public class MapObject : MonoBehaviour
     public bool waitVanishing;
     public int viewRange = 1;//視野の大きさ
 
+    [SerializeField]
+    protected GameObject breakEffect;
+
     protected int range = 1;//大きさ
     public int Range { get { return range; } }
     #endregion
