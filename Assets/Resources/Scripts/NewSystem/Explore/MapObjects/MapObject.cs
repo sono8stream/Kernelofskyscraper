@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class MapObject : MonoBehaviour
 {
 
@@ -16,8 +17,12 @@ public class MapObject : MonoBehaviour
     public bool waitVanishing;
     public int viewRange = 1;//視野の大きさ
 
+    //Effect / Sound
     [SerializeField]
     protected GameObject breakEffect;
+    [SerializeField]
+    protected AudioClip generateSE, breakSE;
+    protected AudioSource audioSource;
 
     protected int range = 1;//大きさ
     public int Range { get { return range; } }
@@ -26,6 +31,7 @@ public class MapObject : MonoBehaviour
     void Awake()
     {
         map = GameObject.Find("Map").GetComponent<MapLoader>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Use this for initialization
@@ -37,7 +43,7 @@ public class MapObject : MonoBehaviour
     // Update is called once per frame
     protected void Update()
     {
-        if (isVanishing) { Vanish(); return; }
+        if (isVanishing) { Vanish();}
     }
 
     public Vector3 DtoV(int direction)
@@ -81,6 +87,26 @@ public class MapObject : MonoBehaviour
             map.DelObjNo(no);
             Destroy(gameObject);
         }
+    }
+
+    protected void Break()
+    {
+        Debug.Log("Called");
+        GameObject g = new GameObject();
+        g.transform.position = transform.position;
+        g.AddComponent(typeof(AudioSource));
+        audioSource = g.GetComponent<AudioSource>();
+        audioSource.maxDistance = 30;
+        audioSource.PlayOneShot(breakSE);
+        Destroy(g, breakSE.length);
+        Effect(breakEffect);
+    }
+
+    protected void Effect(GameObject effect)
+    {
+        GameObject g = Instantiate(effect);
+        g.transform.position = transform.position;
+        g.transform.localScale = Vector3.one;
     }
 
     public void FlashViewRange()

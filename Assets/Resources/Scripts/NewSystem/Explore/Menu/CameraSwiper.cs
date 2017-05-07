@@ -148,7 +148,7 @@ public class CameraSwiper : MonoBehaviour
             }
             else if (Input.GetMouseButtonUp(1) && c.panel && !c.panel.cannotBreak)//右クリック、パネル削除
             {
-                Destroy(c.panel.gameObject);
+                c.panel.onDestroy = true;
             }
         }
         else

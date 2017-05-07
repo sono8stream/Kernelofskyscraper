@@ -8,7 +8,7 @@ public class RobotMenu : MonoBehaviour
     public GameObject robotOrigin;
 
     [SerializeField]
-    GameObject robotOriginE;
+    GameObject comSetEffect;
     [SerializeField]
     Image selectImage;
     [SerializeField]
@@ -171,6 +171,7 @@ public class RobotMenu : MonoBehaviour
         }*/
         else if (Input.GetKey(KeyCode.Backspace) && 0 < codeIndex)
         {
+            waitCo = 0;
             DelCode();
             UpdateText();
         }
@@ -183,8 +184,12 @@ public class RobotMenu : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Return))
         {
+            GameObject g = Instantiate(comSetEffect);
+            g.transform.position = roboRC.transform.position;
+            g.transform.localScale = Vector3.one;
+
             roboRC.SetAction(commandCodes.ToArray());
-            roboRC.canMove = true;
+            roboRC.ChangeMovable(true);
             roboRC = null;
             onFlag = false;
             commandText.transform.parent.gameObject.SetActive(false);

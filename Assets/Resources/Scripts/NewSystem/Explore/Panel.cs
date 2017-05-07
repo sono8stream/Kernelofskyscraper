@@ -9,16 +9,19 @@ public class Panel : MonoBehaviour
     public bool once;//一度しか作動しない
     public bool sanctuary;//ロボ配置可能位置かどうか
     public bool cannotBreak;//破壊可能
-    public int campNo;//誰にはたらくパネルか
     public bool isTrap;
-
-    bool onGenerate;
-    bool onDestroy;
+    public bool onDestroy;
+    public int campNo;//誰にはたらくパネルか
+    
     int co;
     int lim;
+    GameObject particle;
 
     [SerializeField]
     GameObject genEffect, delEffect;
+    [SerializeField]
+    AudioClip generateSE, breakSE, runSE;
+    AudioSource audioSource;
 
     // Use this for initialization
     void Start()
@@ -35,30 +38,25 @@ public class Panel : MonoBehaviour
         }
 
         lim = 10;
-        onGenerate = true;
+        particle = transform.FindChild("Particle") ? transform.FindChild("Particle").gameObject : null;
+
+        audioSource = GetComponent<AudioSource>();
+        Effect(genEffect);
+        audioSource.PlayOneShot(generateSE);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (onGenerate && genEffect)
-        {
-            GameObject g = Instantiate(genEffect);
-            g.transform.position = transform.position;
-            g.transform.localScale = Vector3.one;
-            onGenerate = false;
-        }
-
         if (onDestroy && delEffect)
         {
-            GameObject g = Instantiate(delEffect);
-            g.transform.position = transform.position;
-            g.transform.localScale = Vector3.one;
+            Effect(delEffect);
+            Break();
             Destroy(gameObject);
         }
 
         if (command != null && command.isDestroyed
-            && !transform.FindChild("Particle").gameObject.activeSelf)
+            && !particle.activeSelf)
         {
             onDestroy = true;
         }
@@ -70,11 +68,33 @@ public class Panel : MonoBehaviour
         {
             return true;
         }
-        if(transform.FindChild("Particle"))
+        if (particle&&!particle.activeSelf)
         {
             transform.FindChild("Particle").gameObject.SetActive(true);
+            audioSource.PlayOneShot(runSE);
         }
         return command.Run(obj);
+    }
+
+    void Effect(GameObject effect)
+    {
+        if (!effect) { return; }
+        GameObject g = Instantiate(effect);
+        g.transform.position = transform.position;
+        g.transform.localScale = Vector3.one;
+    }
+
+    public void Break()
+    {
+        Debug.Log("Called");
+        GameObject g = new GameObject();
+        g.transform.position = transform.position;
+        g.AddComponent(typeof(AudioSource));
+        audioSource = g.GetComponent<AudioSource>();
+        audioSource.maxDistance = 30;
+        audioSource.PlayOneShot(breakSE);
+        Destroy(g, breakSE.length);
+        Effect(delEffect);
     }
 }
 

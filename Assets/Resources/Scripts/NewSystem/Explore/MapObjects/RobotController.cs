@@ -24,6 +24,12 @@ public class RobotController : MapObject
     int damageCo;
     int damageLim;
 
+    //Effect / Sound
+    [SerializeField]
+    GameObject genEffect;
+    [SerializeField]
+    AudioClip damageSE, attackSE, moveSE;
+
     List<List<Func<bool>>> flag;
     List<List<Command>> c;
     int orderNo, codeNo;
@@ -35,21 +41,25 @@ public class RobotController : MapObject
         base.Start();
         GetComCPos();
         ReadCommand();
+
         waitCo = 0;
         waitLim = 1;
         viewRange = viewRange == 1 ? 3 : viewRange;
         InitiateCodeList();
-        Debug.Log(codeList.Count);
         comNo = -3;
         codeNo = -1;
         damageLim = 10;
         damageCo = damageLim;
+        
+        audioSource.PlayOneShot(generateSE);
+        Effect(genEffect);
     }
 
     // Update is called once per frame
     new void Update()
     {
         base.Update();
+        if (isVanishing) { return; }
 
         if (damageCo < damageLim)
         {
@@ -65,7 +75,11 @@ public class RobotController : MapObject
 
         if (!canMove)
         {
-            isVanishing = waitVanishing ? true : isVanishing;
+            if(waitVanishing)
+            {
+                isVanishing = true;
+                Break();
+            }
             return;
         }
         #region Command
@@ -107,12 +121,7 @@ public class RobotController : MapObject
                 if (waitVanishing)
                 {
                     isVanishing = true;
-                    if (breakEffect)
-                    {
-                        GameObject g = Instantiate(breakEffect, gameObject.transform.parent);
-                        g.transform.position = transform.position;
-                        g.transform.localScale = Vector3.one;
-                    }
+                    Break();
                 }
                 comNo = -3;
             }
@@ -458,11 +467,18 @@ public class RobotController : MapObject
         damageCo = 0;
         robot.HP -= value;
         Debug.Log(robot.HP);
+        audioSource.PlayOneShot(damageSE);
         if (robot.HP <= 0)
         {
             robot.HP = 0;
             waitVanishing = true;
         }
+    }
+
+    public void ChangeMovable(bool movable)
+    {
+        canMove = movable;
+        audioSource.PlayOneShot(moveSE);
     }
 }
 

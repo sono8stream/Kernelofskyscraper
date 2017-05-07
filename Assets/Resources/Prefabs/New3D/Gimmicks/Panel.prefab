@@ -70,6 +70,7 @@ GameObject:
   - component: {fileID: 4265350731572280}
   - component: {fileID: 212854606395306692}
   - component: {fileID: 114008538602519620}
+  - component: {fileID: 82929701482292642}
   m_Layer: 0
   m_Name: Panel
   m_TagString: Untagged
@@ -163,6 +164,86 @@ Transform:
   m_Father: {fileID: 4794750498844888}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
+--- !u!82 &82929701482292642
+AudioSource:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1476779013795976}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 25
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!114 &114008538602519620
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -178,10 +259,14 @@ MonoBehaviour:
   once: 0
   sanctuary: 0
   cannotBreak: 0
-  campNo: 0
   isTrap: 0
+  onDestroy: 0
+  campNo: 0
   genEffect: {fileID: 100010, guid: 214bf6b1f924e43108a92f13c4db31a2, type: 2}
   delEffect: {fileID: 100010, guid: 214bf6b1f924e43108a92f13c4db31a2, type: 2}
+  generateSE: {fileID: 8300000, guid: 6efb3c9a1e19b2847bfe01dec4707413, type: 3}
+  breakSE: {fileID: 8300000, guid: 150c62b97ee08ea4bb383e105fd7e170, type: 3}
+  runSE: {fileID: 8300000, guid: 401f662d19c04214da596c6b7567fde8, type: 3}
 --- !u!114 &114821263015915758
 MonoBehaviour:
   m_ObjectHideFlags: 1
