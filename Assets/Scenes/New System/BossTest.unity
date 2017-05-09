@@ -3465,7 +3465,6 @@ GameObject:
   - component: {fileID: 1483094951}
   - component: {fileID: 1483094950}
   - component: {fileID: 1483094949}
-  - component: {fileID: 1483094948}
   m_Layer: 0
   m_Name: SkyCamera
   m_TagString: Untagged
@@ -3473,13 +3472,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1483094948
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1483094947}
-  m_Enabled: 1
 --- !u!92 &1483094949
 Behaviour:
   m_ObjectHideFlags: 0
@@ -3518,7 +3510,7 @@ Camera:
   m_Depth: -2
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0

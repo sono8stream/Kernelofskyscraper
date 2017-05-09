@@ -400,6 +400,8 @@ public class Go : Command
                     break;
             }
             CellData c = obj.map.GetMapData(obj.floor, obj.transform.localPosition + mPos);
+            obj.map.VisualizeRoom(obj.floor, obj.transform.localPosition);
+
             if (c.partNo != (int)MapPart.wall && c.objNo == (int)ObjType.can)
             {
                 c.objNo = obj.no;
@@ -407,13 +409,14 @@ public class Go : Command
                 if (obj.campNo == (int)CampState.ally)
                 {
                     obj.FlashViewRange();
-                    obj.map.VisualizeRoom(obj.floor, obj.transform.localPosition);
                     obj.map.flrCon.UpdateMapImage();
                 }
             }
             else//移動不可
             {
-                if (c.partNo == (int)MapPart.wall)
+                if (c.partNo == (int)MapPart.wall
+                    || ((int)ObjType.can < c.objNo && c.objNo < obj.map.Objs.Count
+                    && obj.map.Objs[c.objNo].campNo == obj.campNo))
                 {
                     obj.waitVanishing = true;
                 }

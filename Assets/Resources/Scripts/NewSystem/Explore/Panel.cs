@@ -39,10 +39,7 @@ public class Panel : MonoBehaviour
 
         lim = 10;
         particle = transform.FindChild("Particle") ? transform.FindChild("Particle").gameObject : null;
-
-        audioSource = GetComponent<AudioSource>();
-        Effect(genEffect);
-        audioSource.PlayOneShot(generateSE);
+        if (audioSource == null) {audioSource = transform.parent.GetComponent<AudioSource>(); }
     }
 
     // Update is called once per frame
@@ -87,14 +84,15 @@ public class Panel : MonoBehaviour
     public void Break()
     {
         Debug.Log("Called");
-        GameObject g = new GameObject();
-        g.transform.position = transform.position;
-        g.AddComponent(typeof(AudioSource));
-        audioSource = g.GetComponent<AudioSource>();
-        audioSource.maxDistance = 30;
         audioSource.PlayOneShot(breakSE);
-        Destroy(g, breakSE.length);
         Effect(delEffect);
+    }
+
+    public void OnGenerate()
+    {
+        audioSource = transform.parent.GetComponent<AudioSource>();
+        audioSource.PlayOneShot(generateSE);
+        Effect(genEffect);
     }
 }
 

@@ -134,6 +134,7 @@ public class CameraSwiper : MonoBehaviour
                     g.transform.SetParent(cursorGO.transform.parent);
                     g.transform.localScale = Vector3.one;
                     c.panel = p;
+                    p.OnGenerate();
                 }
                 else if (!robotMenu.RoboRC && !onPanel && 0 <= robotMenu.RobotNo // Generate a robot
                     && c != null && ((c.panel != null

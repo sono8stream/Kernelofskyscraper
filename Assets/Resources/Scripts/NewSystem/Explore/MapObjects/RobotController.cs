@@ -283,7 +283,7 @@ public class RobotController : MapObject
                 distance = transform.localPosition + iniPos + new Vector3(i % viewRange, i / viewRange);
                 c = map.GetMapData(floor, distance);
                 no = c != null ? c.objNo : (int)ObjType.can;
-                if ((int)ObjType.can < no && map.Objs[no].campNo != campNo
+                if ((int)ObjType.can < no && c.objNo < map.Objs.Count && map.Objs[no].campNo != campNo
                     && map.Objs[no].GetType().Equals(GetType()))//自分に対して敵ロボット
                 {
                     //Debug.Log(i % viewRange);

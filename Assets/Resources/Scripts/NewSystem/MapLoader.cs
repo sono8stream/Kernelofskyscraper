@@ -210,6 +210,8 @@ public class MapLoader : MonoBehaviour
             GameObject map = new GameObject("Floor" + (i + 1).ToString());
             map.transform.SetParent(transform);
             map.transform.position += Vector3.right * (floorMargin + mapWidth) * i;
+            map.AddComponent<AudioSource>();
+            map.GetComponent<AudioSource>().maxDistance = 30;
             Debug.Log("floorMargin" + floorMargin);
 
             flrGOs[i] = map;
@@ -507,6 +509,7 @@ public class MapLoader : MonoBehaviour
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
         int robots
             = (int)Random.Range(Mathf.Round(generator.enemyRates[floor]), generator.enemyRates[floor]);
+        generator.rooms[floor].Remove(b);
 
         for (int i = 0; i < (b.rW + 2) * (b.rH + 2); i++)
         {
@@ -520,7 +523,7 @@ public class MapLoader : MonoBehaviour
         }*/
         Debug.Log("this index is " + generator.rooms[floor].IndexOf(b));
         Debug.Log("kRoom is " + generator.KroomIndex);
-        if (floor==0&&generator.rooms[floor].IndexOf(b) == generator.KroomIndex) { return; }
+        if (floor == 0 && generator.rooms[floor].IndexOf(b) == generator.KroomIndex) { return; }
 
         for (int i = 0; i < robots; i++)
         {
