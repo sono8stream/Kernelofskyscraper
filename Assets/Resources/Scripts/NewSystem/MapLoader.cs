@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class MapLoader : MonoBehaviour
 {
-    public TextAsset mp_layout;//マップ情報を記述したテキスト
+    public TextAsset[] mp_layout, gimmickLayout;//マップ情報を記述したテキスト
     public MapGenerator generator;
     public FloorController flrCon;
     public string[] mapdataDebug;
@@ -41,8 +41,14 @@ public class MapLoader : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        //ReadMap();
-        if (generator != null)
+        floorMargin = 20;
+        objs = new List<MapObject>();
+
+        if (generator == null)
+        {
+            ReadMap();
+        }
+        else
         {
             generator.InitiateMap();
             mapWidth = generator.MapData[0].GetLength(0);
@@ -53,14 +59,8 @@ public class MapLoader : MonoBehaviour
                 Block b = generator.rooms[0][i];
                 Debug.Log(new Rect(b.x, b.y, b.w, b.h));
             }*/
+            DrawMap(generator.MapGimmickData);
         }
-        else
-        {
-            ReadMap();
-        }
-        floorMargin = 20;
-        DrawMap();
-        objs = new List<MapObject>();
     }
 
     void Start()
@@ -107,27 +107,43 @@ public class MapLoader : MonoBehaviour
     public Vector2 ReadMap()
     {
         char[] kugiri = { '\r' };
-        string[] layoutInfo = mp_layout.text.Split(kugiri);
-        mapHeight = layoutInfo.GetLength(0);
+        string[] layoutInfo, gimLayoutInfo;
+        string[] eachInfo, gimInfo;
+        int[][,] gimmickData = new int[gimmickLayout.Length][,];
+        mapData = new CellData[mp_layout.Length][,];
 
-        string[] eachInfo;
-        for (int i = 0; i < layoutInfo.Length; i++)
+        for (int h = 0; h < mp_layout.Length; h++)
         {
-            eachInfo = layoutInfo[i].Split(',');
-            if (i == 0)//mapdata初期化
+            layoutInfo = mp_layout[h].text.Split(kugiri);
+            gimLayoutInfo = gimmickLayout[h].text.Split(kugiri);
+            mapHeight = layoutInfo.GetLength(0);
+
+            for (int i = 0; i < layoutInfo.Length; i++)
             {
-                mapWidth = eachInfo.Length;
-                mapData = new CellData[1][,] { new CellData[eachInfo.Length, layoutInfo.Length] };
-            }
-            for (int j = 0; j < eachInfo.Length; j++)
-            {
-                if (eachInfo[j] != "")
+                eachInfo = layoutInfo[i].Split(',');
+                gimInfo = gimLayoutInfo[i].Split(',');
+
+                if (i == 0)//mapdata初期化
                 {
-                    mapData[0][j, i] = new CellData(int.Parse(eachInfo[j]));
+                    mapWidth = eachInfo.Length;
+                    mapData[h] = new CellData[eachInfo.Length, layoutInfo.Length];
+                    gimmickData[h]=new int[eachInfo.Length, layoutInfo.Length];
+                }
+                for (int j = 0; j < eachInfo.Length; j++)
+                {
+                    if (eachInfo[j] != "")
+                    {
+                        mapData[h][j, i] = new CellData(int.Parse(eachInfo[j]));
+                        gimmickData[h][j, i] = int.Parse(gimInfo[j]);
+                    }
                 }
             }
+
+            //AdjustMapData(mapData[h]);
+            DrawMap(gimmickData);
         }
-        AdjustMapData(mapData[0]);
+        
+        
         return new Vector2(mapData[0].GetLength(0), mapData[0].GetLength(1));
     }
 
@@ -181,7 +197,7 @@ public class MapLoader : MonoBehaviour
         }
     }
 
-    void DrawMap()
+    void DrawMap(int[][,] gimmickData)
     {
         Texture2D[] ceilingTextures = GetCeilingTexture(Resources.Load<Sprite>("Sprites/Textures/ceiling"));
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
@@ -194,6 +210,8 @@ public class MapLoader : MonoBehaviour
             GameObject map = new GameObject("Floor" + (i + 1).ToString());
             map.transform.SetParent(transform);
             map.transform.position += Vector3.right * (floorMargin + mapWidth) * i;
+            Debug.Log("floorMargin" + floorMargin);
+
             flrGOs[i] = map;
 
             for (int y = 0; y < mapHeight; y++)
@@ -201,7 +219,7 @@ public class MapLoader : MonoBehaviour
                 for (int x = 0; x < mapWidth; x++)
                 {
                     SetMapPart(map, i, x, y, iniX, iniY);
-                    SetGimmick(map, i, x, y, iniX, iniY);
+                    SetGimmick(map, i, x, y, iniX, iniY, gimmickData);
                 }
             }
         }
@@ -238,12 +256,12 @@ public class MapLoader : MonoBehaviour
         mapData[floor][x, y].tile = g;
     }
 
-    void SetGimmick(GameObject mapGO, int floor, int x, int y, float iniX, float iniY)
+    void SetGimmick(GameObject mapGO, int floor, int x, int y, float iniX, float iniY,int[][,] gimmickData)
     {
         GameObject g = null;
         GameObject t = null;
         Panel p;
-        int no = generator.MapGimmickData[floor][x, y];
+        int no = gimmickData[floor][x, y];
 
         switch (no & 0xff)//下位ビット
         {
@@ -276,10 +294,10 @@ public class MapLoader : MonoBehaviour
             case (int)GimmickType.door:
 
                 break;
-            /*case (int)GimmickType.enemy:
-                g = GenerateEnemy(mapGimmicks[2], x, y, floor);
+            case (int)GimmickType.enemy:
+                g = GenerateEnemy(mapGimmicks[2], floor);
                 Debug.Log(new Vector2(x, y));
-                break;*/
+                break;
         }
 
         if (g != null)
@@ -451,6 +469,9 @@ public class MapLoader : MonoBehaviour
         objs.Add(obj);
         Vector3 iniPos = -Vector2.one * (range - range % 2) / 2;
         Vector3 corPos;
+        obj.floor = obj.transform.parent.name[5] - '1';
+        Debug.Log(obj.floor);
+
         for (int i = 0; i < range * range; i++)
         {
             corPos = new Vector3(i % range, i / range);
@@ -484,7 +505,8 @@ public class MapLoader : MonoBehaviour
         //Vector2[] rPos = GetRoomRobots(b);
         float iniX = -(mapWidth - mapWidth % 2) * 0.5f;
         float iniY = (mapHeight - mapHeight % 2) * 0.5f;
-        int robots = (int)Random.Range(0, generator.enemyRates[floor]);
+        int robots
+            = (int)Random.Range(Mathf.Round(generator.enemyRates[floor]), generator.enemyRates[floor]);
 
         for (int i = 0; i < (b.rW + 2) * (b.rH + 2); i++)
         {
@@ -496,7 +518,9 @@ public class MapLoader : MonoBehaviour
             g.transform.localPosition = new Vector3(iniX + rPos[i].x, iniY - rPos[i].y);
             //robots[i].transform.FindChild("mod").gameObject.SetActive(true);
         }*/
-        if (generator.rooms[floor].IndexOf(b) == generator.KroomIndex) { return; }
+        Debug.Log("this index is " + generator.rooms[floor].IndexOf(b));
+        Debug.Log("kRoom is " + generator.KroomIndex);
+        if (floor==0&&generator.rooms[floor].IndexOf(b) == generator.KroomIndex) { return; }
 
         for (int i = 0; i < robots; i++)
         {
@@ -513,6 +537,7 @@ public class MapLoader : MonoBehaviour
 
     public Block GetPosRoom(int floor, Vector2 pos)
     {
+        if (generator == null) { return null; }
         Block b;
         int x = 0, y = 0;
         PosToMapIndex(pos, ref x, ref y);
@@ -521,7 +546,7 @@ public class MapLoader : MonoBehaviour
             b = generator.rooms[floor][i];
             if (b.rX <= x && x <= b.rX + b.rW - 1 && b.rY <= y && y <= b.rY + b.rH - 1)
             {
-                generator.rooms[floor].RemoveAt(i);
+                //generator.rooms[floor].RemoveAt(i);
                 return b;
             }
         }
