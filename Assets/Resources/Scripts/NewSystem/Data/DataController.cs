@@ -29,7 +29,6 @@ public class DataController : MonoBehaviour
     public static void InitiateData()
     {
         Data.Initiate();
-        Debug.Log(Data.items.Count);
         UserData.instance = new UserData();
         saveManager = new SaveManager();
         saveManager.load();

@@ -88,6 +88,7 @@ public class RobotController : MapObject
             waitCo = 0;
             if (comNo == -3)//パネル読み込み
             {
+                Debug.Log(map.GetMapData(floor, transform.localPosition));
                 Panel p = map.GetMapData(floor, transform.localPosition).panel;
                 if (p != null && p.campNo != (int)CampState.neutral && p.campNo != campNo)
                 {
@@ -95,14 +96,13 @@ public class RobotController : MapObject
                 }
                 if (p == null || p.Run(this))//足元見るよ
                 {
-                    comNo = -2;
+                    ProceedComNo();
                 }
             }
             else if (comNo == -2 &&
                 (specialCom == null || specialCom.Run(this)))//ロボタイプ専用コマンドを実行
             {
-                Debug.Log(specialCom);
-                comNo = -1;
+                ProceedComNo();
             }
             else if (comNo == -1)//コマンド読み込み
             {
@@ -118,12 +118,7 @@ public class RobotController : MapObject
             }
             else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
             {
-                if (waitVanishing)
-                {
-                    isVanishing = true;
-                    Break();
-                }
-                comNo = -3;
+                ProceedComNo();
             }
         }
         else
@@ -142,7 +137,7 @@ public class RobotController : MapObject
                 codeNo++;
                 if (c.Count <= codeNo)
                 {
-                    codeNo = -1;
+                    ProceedComNo();
                 }
             }
         }
@@ -309,7 +304,12 @@ public class RobotController : MapObject
 
         if (costArray[x, y] == 0)
         {
-            return -1;
+            if (waitVanishing)
+            {
+                isVanishing = true;
+                Break();
+            }
+            return -3;
         }
         else
         {
@@ -375,6 +375,21 @@ public class RobotController : MapObject
         }
     }
     #endregion
+
+    void ProceedComNo()
+    {
+        comNo++;
+        if (0 <= comNo)
+        {
+            comNo = -3;
+        }
+
+        if (waitVanishing)
+        {
+            isVanishing = true;
+            Break();
+        }
+    }
 
     void ReadCommand(/*Predicate<Vector2> flag*/)
     {

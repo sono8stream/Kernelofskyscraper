@@ -31,6 +31,7 @@ public class MapLoader : MonoBehaviour
     CellData[][,] mapData;//サイズは縦横いずれも奇数推奨
     public CellData[][,] MapData { get { return mapData; } }
 
+    [SerializeField]
     List<MapObject> objs;
     public List<MapObject> Objs { get { return objs; } }
 
@@ -93,7 +94,7 @@ public class MapLoader : MonoBehaviour
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
                 //string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
-                sub += mapData[0][j, i].objNo.ToString();
+                sub += mapData[1][j, i].objNo.ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -126,9 +127,10 @@ public class MapLoader : MonoBehaviour
                 if (i == 0)//mapdata初期化
                 {
                     mapWidth = eachInfo.Length;
-                    mapData[h] = new CellData[eachInfo.Length, layoutInfo.Length];
-                    gimmickData[h]=new int[eachInfo.Length, layoutInfo.Length];
+                    mapData[h] = new CellData[gimInfo.Length, mapHeight];
+                    gimmickData[h] = new int[eachInfo.Length, mapHeight];
                 }
+
                 for (int j = 0; j < eachInfo.Length; j++)
                 {
                     if (eachInfo[j] != "")
@@ -140,10 +142,9 @@ public class MapLoader : MonoBehaviour
             }
 
             //AdjustMapData(mapData[h]);
-            DrawMap(gimmickData);
         }
-        
-        
+
+        DrawMap(gimmickData);
         return new Vector2(mapData[0].GetLength(0), mapData[0].GetLength(1));
     }
 
@@ -211,8 +212,7 @@ public class MapLoader : MonoBehaviour
             map.transform.SetParent(transform);
             map.transform.position += Vector3.right * (floorMargin + mapWidth) * i;
             map.AddComponent<AudioSource>();
-            map.GetComponent<AudioSource>().maxDistance = 30;
-            Debug.Log("floorMargin" + floorMargin);
+            map.GetComponent<AudioSource>().maxDistance = 20;
 
             flrGOs[i] = map;
 
@@ -229,6 +229,7 @@ public class MapLoader : MonoBehaviour
 
     void SetMapPart(GameObject mapGO, int floor, int x, int y, float iniX, float iniY)
     {
+        //Debug.Log("x:"+x+"y:"+y);
         if (mapData[floor][x, y].partNo < 0 || mapParts.Length <= mapData[floor][x, y].partNo)
         {
             return;
@@ -253,6 +254,11 @@ public class MapLoader : MonoBehaviour
                 break;
             case (int)MapPart.kernel:
                 Debug.Log("DetectedKernel");
+                break;
+            case (int)MapPart.fall:
+                g.GetComponent<Panel>().command
+                    = new Warp(g.transform.localPosition + Vector3.forward * (floor - 1));
+                SetPanelData(floor, g.transform.localPosition, g.GetComponent<Panel>());
                 break;
         }
         mapData[floor][x, y].tile = g;
@@ -458,7 +464,7 @@ public class MapLoader : MonoBehaviour
     void PosToMapIndex(Vector2 pos, ref int x, ref int y)
     {
         x = Mathf.RoundToInt(pos.x) + (mapWidth - mapWidth % 2) / 2;
-        y = -Mathf.RoundToInt(pos.y) + (mapWidth - mapWidth % 2) / 2;
+        y = -Mathf.RoundToInt(pos.y) + (mapHeight - mapHeight % 2) / 2;
     }
 
     bool InMap(int x, int y)
@@ -486,17 +492,11 @@ public class MapLoader : MonoBehaviour
     {
         for (int i = no + 1; i < objs.Count; i++)
         {
-            if (GetMapData(objs[i].floor, objs[i].transform.localPosition).objNo == i)
-            {
-                SetObjData(objs[i].floor, objs[i].transform.position, i - 1);
-            }
+            SetObjData(objs[i].floor, objs[i].transform.localPosition, i - 1);
             objs[i].no--;
         }
 
-        if (GetMapData(objs[no].floor, objs[no].transform.localPosition).objNo == no)
-        {
-            SetObjData(objs[no].floor, objs[no].transform.position, (int)ObjType.can);
-        }
+        SetObjData(objs[no].floor, objs[no].transform.localPosition, (int)ObjType.can);
         objs.RemoveAt(no);
     }
 

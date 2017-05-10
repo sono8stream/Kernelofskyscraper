@@ -38,6 +38,8 @@ public class MapObject : MonoBehaviour
     protected void Start()
     {
         no = map.RecObj(this, range);
+        Debug.Log("Position" + transform.localPosition);
+        Debug.Log("No" + no);
     }
 
     // Update is called once per frame
@@ -77,6 +79,12 @@ public class MapObject : MonoBehaviour
         {
             return 0 < vector.y ? 2 : 0;
         }
+    }
+
+    public bool CheckEnemyOrNot(MapObject target)
+    {
+        return (campNo < (int)CampState.enemy && target.campNo == (int)CampState.enemy)
+            || (campNo == (int)CampState.enemy && target.campNo < (int)CampState.enemy);
     }
 
     protected void Vanish()

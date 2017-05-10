@@ -29,7 +29,6 @@ public class UserData
         robots = new List<Robot>();
         gotComs = new bool[Data.commands.Count];
         StaticMethodsCollection.ForArray(ref gotComs,x=> { return true; });
-        Debug.Log(gotComs[0]);
         heads.Add(new Head(3, 0, Data.items[0]));
         bodies.Add(new Body(Data.items[0]));
         arms.Add(new Arm(Data.items[0]));

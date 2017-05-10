@@ -39,7 +39,7 @@ public class Panel : MonoBehaviour
 
         lim = 10;
         particle = transform.FindChild("Particle") ? transform.FindChild("Particle").gameObject : null;
-        if (audioSource == null) {audioSource = transform.parent.GetComponent<AudioSource>(); }
+        if (audioSource == null) { audioSource = transform.parent.GetComponent<AudioSource>(); }
     }
 
     // Update is called once per frame
@@ -65,7 +65,7 @@ public class Panel : MonoBehaviour
         {
             return true;
         }
-        if (particle&&!particle.activeSelf)
+        if (particle && !particle.activeSelf)
         {
             transform.FindChild("Particle").gameObject.SetActive(true);
             audioSource.PlayOneShot(runSE);

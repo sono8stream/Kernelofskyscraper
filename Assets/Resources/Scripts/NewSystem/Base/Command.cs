@@ -489,7 +489,7 @@ public class CapacityRecover : Command
 #endregion
 
 #region BattleType
-public class Slash:Command
+public class Slash : Command
 {
     int power;
     int co, lim;
@@ -510,14 +510,14 @@ public class Slash:Command
     public override bool Run(MapObject obj)//敵を切る
     {
         Debug.Log("slash!");
-        if (co==0)
+        if (co == 0)
         {
             effectT = obj.transform.FindChild("mod").FindChild("SlashEffect").FindChild("par1");
             enemyRC = GetEnemy(obj);
             if (!enemyRC) { Debug.Log("null"); return true; }
             co++;
         }
-        else if(co<lim)
+        else if (co < lim)
         {
             co++;
         }
@@ -535,7 +535,8 @@ public class Slash:Command
     {
         int no = obj.map.GetMapData(obj.floor, obj.transform.localPosition + obj.DtoV(obj.dire)).objNo;
         Debug.Log(no);
-        return 0 <= no ? obj.map.Objs[no] as RobotController : null;
+        return 0 <= no && no < obj.map.Objs.Count && obj.CheckEnemyOrNot(obj.map.Objs[no])
+            ? obj.map.Objs[no] as RobotController : null;
     }
 }
 

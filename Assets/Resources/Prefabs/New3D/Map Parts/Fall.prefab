@@ -28,20 +28,20 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4605735936541764
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1044907302260608}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: 0, z: 0}
+  m_LocalRotation: {x: -0.5, y: 0, z: 0, w: 0.8660254}
+  m_LocalPosition: {x: -1, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -60, y: 0, z: 0}
 --- !u!23 &23302066925953322
 MeshRenderer:
   m_ObjectHideFlags: 1
@@ -95,5 +95,11 @@ MonoBehaviour:
   once: 0
   sanctuary: 0
   cannotBreak: 1
-  campNo: 2
   isTrap: 1
+  onDestroy: 0
+  campNo: 2
+  genEffect: {fileID: 0}
+  delEffect: {fileID: 0}
+  generateSE: {fileID: 0}
+  breakSE: {fileID: 0}
+  runSE: {fileID: 0}

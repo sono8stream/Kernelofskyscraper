@@ -60,7 +60,6 @@ public class CameraSwiper : MonoBehaviour
         camera.transform.localPosition = kernel.transform.localPosition - mapCorrectionPos;
         LimitScroll(false);
         Debug.Log(mapCorrectionPos);
-        Debug.Log(kernel.transform.localPosition);
         if (RenderSettings.skybox)
         {
             RenderSettings.skybox.SetFloat("Under", 90);
