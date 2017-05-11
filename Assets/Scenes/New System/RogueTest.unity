@@ -3975,11 +3975,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 6f22e7e845fb89e468b9155421b61de9, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -4374,11 +4374,11 @@ MonoBehaviour:
   - 1.2
   wireH: {fileID: 1507766163606368, guid: ba972128fb3404b4ca374b2c984140f0, type: 2}
   wireV: {fileID: 1929113659564214, guid: b3b8b6c8d728c394cb9f0e09f17bbb79, type: 2}
-  width: 30
-  height: 30
+  width: 25
+  height: 25
   minRectSize: 8
   roomLim: 8
-  floors: 5
+  floors: 3
   enemies: 7
   eRecovLims: 0a0000000a0000000a0000000a0000000a000000
   cRecovLims: 0a0000000a0000000a0000000a0000000a000000
@@ -4406,7 +4406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b85e5c3b59e9ca4da5cbafefdeb2b40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mp_layout: {fileID: 0}
+  mp_layout:
+  - {fileID: 0}
+  gimmickLayout: []
   generator: {fileID: 1829307845}
   flrCon: {fileID: 772549106}
   mapdataDebug: []
@@ -4424,6 +4426,7 @@ MonoBehaviour:
   - {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
   - {fileID: 1675509575679050, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
   - {fileID: 1462362532201608, guid: 31e7302f64cac9243ac5b23c8859b903, type: 2}
+  objs: []
 --- !u!1 &1838412306
 GameObject:
   m_ObjectHideFlags: 0

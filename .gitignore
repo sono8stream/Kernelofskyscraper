@@ -31,3 +31,5 @@ Thumbs.db
 # -------------[ Build ]------------------------ #
 *.html
 *.unity3d
+Assets/Resources/Sound/BGM/boss.wav.meta
+*.wav

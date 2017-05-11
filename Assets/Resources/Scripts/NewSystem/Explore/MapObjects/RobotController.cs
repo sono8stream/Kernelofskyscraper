@@ -137,7 +137,7 @@ public class RobotController : MapObject
                 codeNo++;
                 if (c.Count <= codeNo)
                 {
-                    ProceedComNo();
+                    codeNo = -1;
                 }
             }
         }

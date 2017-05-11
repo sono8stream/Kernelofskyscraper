@@ -4003,11 +4003,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: fded430fe9bebe7469df952a6e780549, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -4441,7 +4441,7 @@ MonoBehaviour:
   generator: {fileID: 0}
   flrCon: {fileID: 772549106}
   mapdataDebug: []
-  onTest: 1
+  onTest: 0
   kernel: {fileID: 1639231145}
   cursorGO: {fileID: 170687746}
   mapParts:
@@ -4455,6 +4455,7 @@ MonoBehaviour:
   - {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
   - {fileID: 1675509575679050, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
   - {fileID: 1462362532201608, guid: 31e7302f64cac9243ac5b23c8859b903, type: 2}
+  objs: []
 --- !u!1 &1838412306
 GameObject:
   m_ObjectHideFlags: 0

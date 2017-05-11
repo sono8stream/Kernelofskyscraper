@@ -382,7 +382,8 @@ public class MapGenerator : MonoBehaviour
         {
             kRoomIndex = Random.Range(0, rooms[0].Count);
             room = rooms[0][kRoomIndex];
-            if (room.adjDire.IndexOf((int)Direction.Fdown) == -1
+            if (/*7 <= room.x && 7 <= room.y&& */
+                room.adjDire.IndexOf((int)Direction.Fdown) == -1
                 && room.adjDire.IndexOf((int)Direction.Fup) == -1)//階段のない部屋を選択
             {
                 Vector2 pos
@@ -393,10 +394,6 @@ public class MapGenerator : MonoBehaviour
                 {
                     room.sPos.Add(iniPos + Mathf.Round(j / 5) * Vector2.up + j % 5 * Vector2.right);
                 }
-                room.sPos.Add(pos - Vector2.one);
-                room.sPos.Add(pos + Vector2.one);
-                room.sPos.Add(pos + Vector2.right + Vector2.down);
-                room.sPos.Add(pos + Vector2.left + Vector2.up);
                 Debug.Log("Set Kernel");
                 return true;
             }
