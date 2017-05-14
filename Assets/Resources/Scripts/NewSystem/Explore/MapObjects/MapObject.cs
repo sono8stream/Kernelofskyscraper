@@ -16,6 +16,8 @@ public class MapObject : MonoBehaviour
     public bool isVanishing;
     public bool waitVanishing;
     public int viewRange = 1;//視野の大きさ
+    public int range = 1;
+    public float speed = 0.01f;
 
     //Effect / Sound
     [SerializeField]
@@ -23,9 +25,6 @@ public class MapObject : MonoBehaviour
     [SerializeField]
     protected AudioClip generateSE, breakSE;
     protected AudioSource audioSource;
-
-    protected int range = 1;//大きさ
-    public int Range { get { return range; } }
     #endregion
 
     void Awake()

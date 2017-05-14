@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 114563872249813034}
   - component: {fileID: 82673045798656564}
   m_Layer: 0
-  m_Name: Robo_E
+  m_Name: Robo_Boss
   m_TagString: Robot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -358,7 +358,7 @@ Transform:
   m_GameObject: {fileID: 1652842272266624}
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.2, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_Children: []
   m_Father: {fileID: 4456044979366270}
   m_RootOrder: 0
@@ -540,7 +540,7 @@ MonoBehaviour:
   isVanishing: 0
   waitVanishing: 0
   viewRange: 7
-  range: 1
+  range: 3
   speed: 0.01
   breakEffect: {fileID: 100010, guid: db19ec2b7abd8405f9c7323400d53c1b, type: 2}
   generateSE: {fileID: 8300000, guid: 852fc9efc9f2c5a42b6aec0a6df09e4a, type: 3}
@@ -548,7 +548,6 @@ MonoBehaviour:
   robot: {}
   robotType: 0
   canMove: 0
-  hp: 50
   comNo: 0
   genEffect: {fileID: 100012, guid: 51407985cd92c4641b6d8bec557ddb71, type: 2}
   damageSE: {fileID: 8300000, guid: c84e20a87c003a1488de41e0b561999f, type: 3}

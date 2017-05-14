@@ -33,6 +33,8 @@ public class Data//基幹データ部
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/eneRecover"));
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/capaRecover"));
         panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/switch"));
+        panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/warpGo"));
+        panelSprites.Add(Resources.Load<Sprite>("Sprites/Battle/Panel/warpCome"));
 
         commands = new List<Command>();
         commands.Add(new North());
@@ -42,6 +44,7 @@ public class Data//基幹データ部
         commands.Add(new Left());
         commands.Add(new Right());
         commands.Add(new Turn());
+        commands.Add(new Warp());//index is 7
 
         roboSprites = new List<Sprite>();
         roboSprites.Add(Resources.Load<Sprite>("Sprites/Battle/robo_b10_icon"));
@@ -50,7 +53,7 @@ public class Data//基幹データ部
 
 public enum PanelSpritesName
 {
-    def = 0, left, turn, go,eRecover,cRecover,switchPanel
+    def = 0, left, turn, go, eRecover, cRecover, switchPanel, warpGo, warpCome
 }
 
 public enum CommandType

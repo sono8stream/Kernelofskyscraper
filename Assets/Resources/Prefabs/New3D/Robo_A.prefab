@@ -540,12 +540,16 @@ MonoBehaviour:
   isVanishing: 0
   waitVanishing: 0
   viewRange: 1
+  range: 1
+  speed: 0.01
   breakEffect: {fileID: 100010, guid: db19ec2b7abd8405f9c7323400d53c1b, type: 2}
   generateSE: {fileID: 8300000, guid: 852fc9efc9f2c5a42b6aec0a6df09e4a, type: 3}
   breakSE: {fileID: 8300000, guid: 5d8b67986f8c3c74383f7c0df5002c59, type: 3}
   robot: {}
   robotType: 0
   canMove: 0
+  cost: 10
+  hp: 0
   comNo: 0
   genEffect: {fileID: 100012, guid: 51407985cd92c4641b6d8bec557ddb71, type: 2}
   damageSE: {fileID: 8300000, guid: c84e20a87c003a1488de41e0b561999f, type: 3}

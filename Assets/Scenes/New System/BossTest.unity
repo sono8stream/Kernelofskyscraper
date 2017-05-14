@@ -1939,6 +1939,52 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ba972128fb3404b4ca374b2c984140f0, type: 2}
   m_IsPrefabParent: 0
+--- !u!1001 &740933407
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906784681318716, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_RootOrder
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1675509575679050, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &749059258
 GameObject:
   m_ObjectHideFlags: 0
@@ -4441,7 +4487,7 @@ MonoBehaviour:
   generator: {fileID: 0}
   flrCon: {fileID: 772549106}
   mapdataDebug: []
-  onTest: 0
+  onTest: 1
   kernel: {fileID: 1639231145}
   cursorGO: {fileID: 170687746}
   mapParts:
@@ -4454,7 +4500,7 @@ MonoBehaviour:
   mapGimmicks:
   - {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
   - {fileID: 1675509575679050, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
-  - {fileID: 1462362532201608, guid: 31e7302f64cac9243ac5b23c8859b903, type: 2}
+  - {fileID: 1462362532201608, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
   objs: []
 --- !u!1 &1838412306
 GameObject:

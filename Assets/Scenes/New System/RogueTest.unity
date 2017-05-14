@@ -1641,6 +1641,52 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 630833006}
+--- !u!1001 &634317576
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738616795041360, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_RootOrder
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1462362532201608, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: 61b1418cc3fcf574dbb1beee9029e637, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &664651466
 GameObject:
   m_ObjectHideFlags: 0
@@ -4424,7 +4470,7 @@ MonoBehaviour:
   - {fileID: 1044907302260608, guid: 5b624d2db75445648a85413cb446920d, type: 2}
   mapGimmicks:
   - {fileID: 1476779013795976, guid: fab9fb7bf79e28f44aae6267f3f30400, type: 2}
-  - {fileID: 1675509575679050, guid: fb75cdf76c35a4f48b758346517ea6d9, type: 2}
+  - {fileID: 1030209486910608, guid: 6d41af6092e81af41bce772d19f2546d, type: 2}
   - {fileID: 1462362532201608, guid: 31e7302f64cac9243ac5b23c8859b903, type: 2}
   objs: []
 --- !u!1 &1838412306

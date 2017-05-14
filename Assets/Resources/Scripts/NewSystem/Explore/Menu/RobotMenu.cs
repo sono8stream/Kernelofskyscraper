@@ -29,6 +29,7 @@ public class RobotMenu : MonoBehaviour
     int codeIndex;
     int waitLim = 5;
     int waitCo;
+    int rbDire;
 
     void Awake()
     {
@@ -42,6 +43,7 @@ public class RobotMenu : MonoBehaviour
         InitiateCommandBs();
         robotNo = -1;
         roboRC = null;
+        rbDire = 0;
     }
 
     // Update is called once per frame
@@ -66,7 +68,8 @@ public class RobotMenu : MonoBehaviour
                 b.onClick.AddListener(() => SetPanelNo(x));
                 Transform iconT = b.transform.FindChild("Icon");
                 iconT.GetComponent<Image>().sprite = UserData.instance.robotRecipe[i].icon;
-                iconT.eulerAngles = Data.commands[i].angle;
+                b.transform.FindChild("Count").GetComponent<Text>().text 
+                    = robotOrigin.GetComponent<RobotController>().cost.ToString();
                 RectTransform rt = b.GetComponent<RectTransform>();
                 rt.anchoredPosition = new Vector2(buttonPosX + i * 120, -82 - i * 120);
                 rt.localScale = Vector3.one;
@@ -86,25 +89,27 @@ public class RobotMenu : MonoBehaviour
 
     void SetRobotDirection()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A)
+            || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D))
         {
-            roboRC.dire = 2;
-            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 180;
-        }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            roboRC.dire = 3;
-            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 270;
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            roboRC.dire = 0;
-            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 0;
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            roboRC.dire = 1;
-            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 90;
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                rbDire = 2;
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                rbDire = 3;
+            }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                rbDire = 0;
+            }
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                rbDire = 1;
+            }
+            roboRC.dire = rbDire;
+            roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 90 * rbDire;
         }
     }
 
@@ -191,9 +196,9 @@ public class RobotMenu : MonoBehaviour
             roboRC.SetAction(commandCodes.ToArray());
             roboRC.ChangeMovable(true);
             roboRC = null;
-            onFlag = false;
+            //onFlag = false;
             commandText.transform.parent.gameObject.SetActive(false);
-            commandCodes = new List<byte>();
+            //commandCodes = new List<byte>();
         }
     }
 
@@ -282,12 +287,14 @@ public class RobotMenu : MonoBehaviour
         roboRC.robot.Initiate();
         roboRC.floor = swiper.Floor;
         roboRC.specialCom = new Slash();
+        roboRC.dire = rbDire;
+        roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 90 * rbDire;
 
         g.transform.position = cursorTransform.position;
         g.transform.SetParent(cursorTransform.parent);
         g.transform.localScale = Vector3.one;
 
         commandText.transform.parent.gameObject.SetActive(true);
-        UpdateText();
+        //UpdateText();
     }
 }

@@ -38,7 +38,7 @@ public class PanelMenu : MonoBehaviour {
 
     }
 
-    void InitiateCommandBs()
+    public void InitiateCommandBs()
     {
         commandBs = new List<Button>();
         for (int i = 0; i < UserData.instance.gotComs.Length; i++)
@@ -51,6 +51,7 @@ public class PanelMenu : MonoBehaviour {
                 Transform iconT = b.transform.FindChild("Icon");
                 iconT.GetComponent<Image>().sprite = Data.commands[i].sprite;
                 iconT.eulerAngles = Data.commands[i].angle;
+                b.transform.FindChild("Count").GetComponent<Text>().text = Data.commands[i].cost.ToString();
                 RectTransform rt = b.GetComponent<RectTransform>();
                 rt.anchoredPosition = new Vector2(panelX1 + i % 2 * panelSpace, -82 - i / 2 * 120);
                 rt.localScale = Vector3.one;

@@ -27,14 +27,18 @@ public class CameraSwiper : MonoBehaviour
     [SerializeField]
     StatusController status;
     GameObject kernel;
+
     Vector3 keyDownPos;
     Vector3 touchingPos;
     Vector3 tappedMapPos;
     Vector3 mapCorrectionPos;//カメラ→マップ座標系変化時の補正
     Vector3 velocity;
     Vector3 accel;
+
     bool cameraIsFixing;//カメラ固定状態
     public bool onPanel;
+
+    Panel panelTemp;
     #region for Scroll
     float swipeMargin;
     float period;//スクロール時間
@@ -94,6 +98,12 @@ public class CameraSwiper : MonoBehaviour
             accel = Vector2.zero;
         }
 
+        if((Input.GetKey(KeyCode.LeftShift)|| Input.GetKey(KeyCode.LeftShift) )
+            && Input.GetKeyDown(KeyCode.E))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
         cursorGO.transform.position = SetToMapPos();
     }
 
@@ -124,7 +134,7 @@ public class CameraSwiper : MonoBehaviour
             {
                 if (onPanel && 0 <= panelMenu.PanelNo && c != null && c.panel == null
                     && c.partNo == (int)MapPart.floor
-                    && status.ChangeCapacity(-10))//Generate a panel
+                    && status.ChangeCapacity(-Data.commands[panelMenu.PanelNo].cost))//Generate a panel
                 {
                     GameObject g = Instantiate(panelOrigin);
                     Panel p = g.GetComponent<Panel>();
@@ -134,10 +144,25 @@ public class CameraSwiper : MonoBehaviour
                     g.transform.localScale = Vector3.one;
                     c.panel = p;
                     p.OnGenerate();
+                    if (panelMenu.PanelNo == 7)//ワープパネルの時
+                    {
+                        if (Data.commands[7].GetType().Name == "Warp")
+                        {
+                            Data.commands[7] = new WarpDestination();
+                            panelTemp = p;
+                        }
+                        else
+                        {
+                            Data.commands[7] = new Warp();
+                            Warp warp = panelTemp.command as Warp;
+                            warp.UpdatePos(p.transform.localPosition + Vector3.forward * floorCon.FloorNo);
+                        }
+                        panelMenu.InitiateCommandBs();
+                    }
                 }
                 else if (!robotMenu.RoboRC && !onPanel && 0 <= robotMenu.RobotNo // Generate a robot
-                    && c != null && ((c.panel != null
-                    && c.objNo == -1 && c.panel.sanctuary && status.ChangeEnergy(-10))
+                    && c != null && ((c.panel != null && c.objNo == -1 && c.panel.sanctuary
+                    && status.ChangeEnergy(-robotMenu.robotOrigin.GetComponent<RobotController>().cost))
                     || Input.GetKey(KeyCode.E)))
                 {
                     if (Input.GetKey(KeyCode.E))

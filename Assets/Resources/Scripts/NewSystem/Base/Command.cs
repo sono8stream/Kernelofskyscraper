@@ -9,12 +9,14 @@ public abstract class Command
     public string name;//名前
     public Sprite sprite;//アイコン
     public Vector3 angle;
+    public int cost;//生成コスト
 
-    public Command(string name, Sprite sprite, Vector3 angle)
+    public Command(string name, Sprite sprite, Vector3 angle,int cost= 10)
     {
         this.name = name;
         this.sprite = sprite;
         this.angle = angle;
+        this.cost = cost;
     }
 
     public Command CreateInstance()
@@ -314,7 +316,7 @@ public class Turn : Command
 
 public class Warp : Command
 {
-    const int coLim = 10;
+    int coLim = 10;
 
     Vector3 position;//z座標は階層を表す
     int co;
@@ -325,6 +327,12 @@ public class Warp : Command
         position = pos;
     }
 
+    public Warp() : base("Warp", Data.panelSprites[(int)PanelSpritesName.warpGo], Vector3.zero, 15)
+    {
+        position = -Vector2.one * 101;
+        co = coLim;
+    }
+
     public override Command Copy()
     {
         return new Warp(position);
@@ -332,6 +340,8 @@ public class Warp : Command
 
     public override bool Run(MapObject obj)
     {
+        if (position.x < -100) { return true; }
+
         if (obj.map.GetMapData((int)position.z, position).objNo == (int)ObjType.can)
         {
             co--;
@@ -352,26 +362,53 @@ public class Warp : Command
     {
         obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.can);
 
-        obj.transform.SetParent(obj.map.FloorGOs[(int)position.z].transform);
+        if(obj.floor!=(int)position.z)
+        {
+            obj.transform.SetParent(obj.map.FloorGOs[(int)position.z].transform);
+            obj.floor = (int)position.z;
+        }
         obj.transform.localPosition = (Vector2)position;
-        obj.floor = (int)position.z;
 
         obj.map.SetObjData(obj.floor, obj.transform.localPosition, obj.no);
         obj.FlashViewRange();
+    }
+
+    public void UpdatePos(Vector3 pos)
+    {
+        position = pos;
+    }
+}
+
+public class WarpDestination : Command
+{
+    const int coLim = 10;
+
+    Vector3 position;//z座標は階層を表す
+
+    public WarpDestination()
+        : base("Warp", Data.panelSprites[(int)PanelSpritesName.warpCome], Vector3.zero, 15)
+    {
+    }
+
+    public override Command Copy()
+    {
+        return new Warp(position);
+    }
+
+    public override bool Run(MapObject obj)
+    {
+        return true;
     }
 }
 
 public class Go : Command
 {
-    float sp;
     int period;
     int count;
     Vector3 mPos = Vector3.zero;
 
     public Go() : base("Go", Data.panelSprites[(int)PanelSpritesName.go], Vector3.zero)
     {
-        sp = 0.1f;
-        period = (int)(1f / sp);
         count = 0;
     }
 
@@ -384,46 +421,17 @@ public class Go : Command
     {
         if (count == 0)
         {
-            switch (obj.dire)
-            {
-                case 0:
-                    mPos = Vector3.down;
-                    break;
-                case 1:
-                    mPos = Vector3.right;
-                    break;
-                case 2:
-                    mPos = Vector3.up;
-                    break;
-                case 3:
-                    mPos = Vector3.left;
-                    break;
-            }
-            CellData c = obj.map.GetMapData(obj.floor, obj.transform.localPosition + mPos);
+            period = (int)(1f / obj.speed);
+
+            mPos = obj.DtoV(obj.dire);
             obj.map.VisualizeRoom(obj.floor, obj.transform.localPosition);
 
-            if (c.partNo != (int)MapPart.wall && c.objNo == (int)ObjType.can)
+            if (!CheckAllFront(obj))
             {
-                c.objNo = obj.no;
-                obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.cannot);
-                if (obj.campNo == (int)CampState.ally)
-                {
-                    obj.FlashViewRange();
-                    obj.map.flrCon.UpdateMapImage();
-                }
-            }
-            else//移動不可
-            {
-                if (c.partNo == (int)MapPart.wall
-                    || ((int)ObjType.can < c.objNo && c.objNo < obj.map.Objs.Count
-                    && obj.map.Objs[c.objNo].campNo == obj.campNo))
-                {
-                    obj.waitVanishing = true;
-                }
                 return true;
             }
         }
-        obj.transform.localPosition += mPos * sp;
+        obj.transform.localPosition += mPos * obj.speed;
 
         if (count == period)
         {
@@ -436,6 +444,51 @@ public class Go : Command
         }
         count++;
         return false;
+    }
+
+    bool CheckAllFront(MapObject obj)
+    {
+        Vector3 verVec = new Vector3(obj.DtoV(obj.dire).y, obj.DtoV(obj.dire).x);
+        Vector3 iniPos = (obj.DtoV(obj.dire) + verVec) * (obj.range - obj.range % 2) * 0.5f
+            + obj.DtoV(obj.dire);
+        CellData[] cArray = new CellData[obj.range];
+        bool ok = true;
+
+        for (int i = 0; i < obj.range; i++)
+        {
+            cArray[i] = obj.map.GetMapData(obj.floor, obj.transform.localPosition + iniPos - verVec * i);
+            ok &= cArray[i].partNo != (int)MapPart.wall && cArray[i].objNo == (int)ObjType.can;
+        }
+
+        if (ok)
+        {
+            for (int i = 0; i < cArray.Length; i++)
+            {
+                cArray[i].objNo = obj.no;
+            }
+            obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.cannot);
+            if (obj.campNo == (int)CampState.ally)
+            {
+                obj.FlashViewRange();
+                obj.map.flrCon.UpdateMapImage();
+            }
+        }
+        else//移動不可
+        {
+            bool vanish = true;
+            for (int i = 0; i < cArray.Length; i++)
+            {
+                vanish &= !(cArray[i].objNo == (int)ObjType.cannot
+                    || ((int)ObjType.can < cArray[i].objNo && cArray[i].objNo < obj.map.Objs.Count
+                && obj.GetComponent<RobotController>().robotType == (int)RobotType.fighter
+                && obj.CheckEnemyOrNot(obj.map.Objs[cArray[i].objNo])));
+            }
+            if (vanish)
+            {
+                obj.waitVanishing = true;
+            }
+        }
+        return ok;
     }
 }
 #endregion
@@ -498,8 +551,8 @@ public class Slash : Command
 
     public Slash() : base("Slash", null, Vector3.zero)
     {
-        lim = 10;
-        power = 50;
+        lim = 30;
+        power = 30;
     }
 
     public override Command Copy()
@@ -514,7 +567,7 @@ public class Slash : Command
         {
             effectT = obj.transform.FindChild("mod").FindChild("SlashEffect").FindChild("par1");
             enemyRC = GetEnemy(obj);
-            if (!enemyRC) { Debug.Log("null"); return true; }
+            if (!enemyRC || enemyRC.waitVanishing) { Debug.Log("null"); return true; }
             co++;
         }
         else if (co < lim)
@@ -560,7 +613,7 @@ public class DestroySwitch : Command
 
     public override bool Run(MapObject obj)
     {
-        UnityEngine.Object.Destroy(gimmick.gameObject);
+        gimmick.isVanishing = true;
         isDestroyed = true;
         return true;
     }
@@ -569,10 +622,13 @@ public class DestroySwitch : Command
 public class StopSwitch : Command
 {
     MapObject gimmick;
+    int co, lim;
 
     public StopSwitch(MapObject g) : base("Switch", null, Vector3.zero)
     {
         gimmick = g;
+        co = 0;
+        lim = 10;
     }
 
     public override Command Copy()
@@ -582,7 +638,16 @@ public class StopSwitch : Command
 
     public override bool Run(MapObject obj)
     {
-
+        if (co == 0)
+        {
+            gimmick.gameObject.SetActive(false);
+        }
+        co++;
+        if (co == lim)
+        {
+            co = 0;
+            gimmick.gameObject.SetActive(true);
+        }
         return true;
     }
 }

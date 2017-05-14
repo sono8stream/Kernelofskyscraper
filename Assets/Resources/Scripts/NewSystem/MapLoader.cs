@@ -94,7 +94,7 @@ public class MapLoader : MonoBehaviour
             for (int j = 0; j < mapWidth; j++)//よこループ
             {
                 //string c = mapData[1][j, i].objNo == (int)MapPart.floor ? " " : "■";
-                sub += mapData[1][j, i].objNo.ToString();
+                sub += mapData[0][j, i].objNo.ToString();
             }
             mapdataDebug[i] = sub;
         }
@@ -578,6 +578,7 @@ public class MapLoader : MonoBehaviour
         RobotController rc = g.GetComponent<RobotController>();
         rc.robot = (Robot)UserData.instance.robotRecipe[0].DeepCopy();
         rc.robot.Initiate();
+        rc.robot.HP -= 50;
         rc.floor = floor;
         rc.canMove = true;
         rc.specialCom = new Slash();

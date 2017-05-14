@@ -13,8 +13,11 @@ public class RobotController : MapObject
     public bool canMove;
     public List<Code> codeList { get; private set; }
     public Command specialCom;
+    public int cost = 10;//生成コスト
 
     //private
+    [SerializeField]
+    int hp = 0;
     [SerializeField]
     int comNo;//実行中のコマンド番号
     int comCX, comCY;//コマンドリストの中心
@@ -43,13 +46,15 @@ public class RobotController : MapObject
         ReadCommand();
 
         waitCo = 0;
-        waitLim = 1;
+        waitLim = 0;
         viewRange = viewRange == 1 ? 3 : viewRange;
         InitiateCodeList();
         comNo = -3;
         codeNo = -1;
         damageLim = 10;
         damageCo = damageLim;
+        speed = robotType == (int)RobotType.fighter ? 0.025f : 0.05f;
+        if (hp != 0) { robot.HP = hp; }
         
         audioSource.PlayOneShot(generateSE);
         Effect(genEffect);
@@ -75,7 +80,7 @@ public class RobotController : MapObject
 
         if (!canMove)
         {
-            if(waitVanishing)
+            if (waitVanishing)
             {
                 isVanishing = true;
                 Break();
@@ -99,12 +104,12 @@ public class RobotController : MapObject
                     ProceedComNo();
                 }
             }
-            else if (comNo == -2 &&
+            if (comNo == -2 &&
                 (specialCom == null || specialCom.Run(this)))//ロボタイプ専用コマンドを実行
             {
                 ProceedComNo();
             }
-            else if (comNo == -1)//コマンド読み込み
+            if (comNo == -1)//コマンド読み込み
             {
                 switch (campNo)
                 {
@@ -116,7 +121,7 @@ public class RobotController : MapObject
                         break;
                 }
             }
-            else if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
+            if (0 <= comNo && robot.Command[comNo].Run(this))//自分のコマンド見るよ
             {
                 ProceedComNo();
             }
@@ -486,6 +491,8 @@ public class RobotController : MapObject
         if (robot.HP <= 0)
         {
             robot.HP = 0;
+            //isVanishing = true;
+            //Break();
             waitVanishing = true;
         }
     }
@@ -512,4 +519,9 @@ public class Code
 public enum CodeName
 {
     If = 0, And, End, Wall, Enemy, Trap, Left, Right, Turn
+}
+
+public enum RobotType
+{
+    fighter = 0, pioneer
 }
