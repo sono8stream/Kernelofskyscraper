@@ -2666,6 +2666,9 @@ MonoBehaviour:
     type: 2}
   defaultButton: {fileID: 1747272240}
   modeButton: {fileID: 1442909665}
+  returnButton: {fileID: 0}
+  margin: {fileID: 0}
+  comModeGO: {fileID: 0}
   lWindowRT: {fileID: 0}
   rWindowRT: {fileID: 0}
   roboC: {fileID: 0}
@@ -2990,11 +2993,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b85e5c3b59e9ca4da5cbafefdeb2b40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mp_layout: {fileID: 4900000, guid: 97163c694c5729b4c8f5481e4645d2b3, type: 3}
+  mp_layout:
+  - {fileID: 4900000, guid: 4a99a07f8a2c96b40afb4acd30c24a3c, type: 3}
+  gimmickLayout: []
   generator: {fileID: 0}
+  flrCon: {fileID: 0}
   mapdataDebug: []
-  mapchips: {fileID: 0}
   onTest: 1
+  kernel: {fileID: 0}
+  cursorGO: {fileID: 0}
+  mapParts: []
+  mapGimmicks: []
+  objs: []
 --- !u!212 &1860016044
 SpriteRenderer:
   m_ObjectHideFlags: 0

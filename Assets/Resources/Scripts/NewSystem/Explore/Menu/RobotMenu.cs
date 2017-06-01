@@ -44,6 +44,14 @@ public class RobotMenu : MonoBehaviour
         robotNo = -1;
         roboRC = null;
         rbDire = 0;
+        
+        SetFlag();//初期コマンドセット
+        commandCodes.Insert(codeIndex, (int)CodeName.Wall);
+        codeIndex++;
+        SetCommand();
+        commandCodes.Insert(codeIndex, (int)CodeName.Left);
+        codeIndex++;
+        commandText.text = "Left If Wall in front";//デフォルト
     }
 
     // Update is called once per frame
@@ -200,6 +208,19 @@ public class RobotMenu : MonoBehaviour
             commandText.transform.parent.gameObject.SetActive(false);
             //commandCodes = new List<byte>();
         }
+    }
+
+    public void OperateRobot()
+    {
+        GameObject g = Instantiate(comSetEffect);
+        g.transform.position = roboRC.transform.position;
+        g.transform.localScale = Vector3.one;
+
+        roboRC.SetAction(commandCodes.ToArray());
+        roboRC.ChangeMovable(true);
+        roboRC = null;
+        //onFlag = false;
+        commandText.transform.parent.gameObject.SetActive(false);
     }
 
     void SetFlag()

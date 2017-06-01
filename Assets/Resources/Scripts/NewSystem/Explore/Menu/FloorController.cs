@@ -7,8 +7,8 @@ public class FloorController : MonoBehaviour
 {
     [SerializeField]
     GameObject cursorGO;
-        [SerializeField]
-        RectTransform mapCursorRT;
+    [SerializeField]
+    RectTransform mapCursorRT;
     [SerializeField]
     MapLoader map;
     [SerializeField]
@@ -44,7 +44,10 @@ public class FloorController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (0 < map.FloorGOs.Length)
+        {
+            scrollBar.value += Input.mouseScrollDelta.y / map.FloorGOs.Length;
+        }
     }
 
     void InitiateMapImage()
@@ -72,7 +75,7 @@ public class FloorController : MonoBehaviour
         StaticMethodsCollection.ForArray(ref colors, x => { return Color.white; });
     }
 
-    public void UpdateMapImage(int floor=-1)
+    public void UpdateMapImage(int floor = -1)
     {
         if (floor != -1)
         {
@@ -102,7 +105,7 @@ public class FloorController : MonoBehaviour
 
     public void MoveMapCursor()//マップ上のカーソルを動かす,ヨコ17マス、タテ12マス 16:12でよいよ
     {
-        mapCursorRT.anchoredPosition 
+        mapCursorRT.anchoredPosition
             = (camera.transform.localPosition + Vector3.up * cCorrectionY) * selSize;
     }
 
@@ -118,10 +121,12 @@ public class FloorController : MonoBehaviour
     {
         float val = scrollBar.value + barDivision;
         int no = Mathf.FloorToInt(val / barDivision / 2);
+
+
         if (floorNo != no)
         {
             floorNo = no;
-            floorText.text = (floorNo + 1).ToString() + "F";
+            floorText.text = map.FloorGOs[floorNo].name;
             UpdateMapImage();
         }
     }
