@@ -548,6 +548,8 @@ MonoBehaviour:
   robot: {}
   robotType: 0
   canMove: 0
+  cost: 10
+  hp: 1000
   comNo: 0
   genEffect: {fileID: 100012, guid: 51407985cd92c4641b6d8bec557ddb71, type: 2}
   damageSE: {fileID: 8300000, guid: c84e20a87c003a1488de41e0b561999f, type: 3}

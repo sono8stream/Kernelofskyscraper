@@ -244,12 +244,12 @@ public class MapLoader : MonoBehaviour
         {
             case (int)MapPart.stairD:
                 g.GetComponent<Panel>().command
-                    = new Warp(g.transform.localPosition + Vector3.forward * (floor - 1));
+                    = new Warp(g.transform.localPosition + Vector3.forward * (floor - 0.9f));
                 SetPanelData(floor, g.transform.localPosition, g.GetComponent<Panel>());
                 break;
             case (int)MapPart.stairU:
                 g.GetComponent<Panel>().command
-                    = new Warp(g.transform.localPosition + Vector3.forward * (floor + 1));
+                    = new Warp(g.transform.localPosition + Vector3.forward * (floor + 1.1f));
                 SetPanelData(floor, g.transform.localPosition, g.GetComponent<Panel>());
                 break;
             case (int)MapPart.kernel:
@@ -304,6 +304,10 @@ public class MapLoader : MonoBehaviour
                 break;
             case (int)GimmickType.enemy:
                 g = GenerateEnemy(mapGimmicks[2], floor);
+                Debug.Log(new Vector2(x, y));
+                break;
+            case (int)GimmickType.boss:
+                g = GenerateEnemy(mapGimmicks[3], floor);
                 Debug.Log(new Vector2(x, y));
                 break;
         }
@@ -617,12 +621,12 @@ public class CellData
 
 public enum MapPart
 {
-    none = -1, floor, wall, stairD, stairU, kernel, fall
+    none = -1, floor, wall, stairD, stairU, kernel, fall, lastStair
 }
 
 public enum GimmickType
 {
-    none = 0, eRecovPanel, cRecovPanel, destroySwitch, door, enemy
+    none = 0, eRecovPanel, cRecovPanel, destroySwitch, door, enemy, boss
 }
 
 public enum ObjType

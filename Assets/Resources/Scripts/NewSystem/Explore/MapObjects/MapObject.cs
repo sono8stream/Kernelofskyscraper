@@ -37,8 +37,6 @@ public class MapObject : MonoBehaviour
     protected void Start()
     {
         no = map.RecObj(this, range);
-        Debug.Log("Position" + transform.localPosition);
-        Debug.Log("No" + no);
     }
 
     // Update is called once per frame

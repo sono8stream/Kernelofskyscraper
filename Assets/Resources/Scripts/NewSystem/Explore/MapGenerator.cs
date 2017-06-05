@@ -83,6 +83,7 @@ public class MapGenerator : MonoBehaviour
         Debug.Log(CheckRoute());
         MakeAllStairs();
         MakeAllRooms();
+        SetLastStair();
         MakeAllAisles();
         MakeWalls();
         SetPanels();
@@ -297,7 +298,8 @@ public class MapGenerator : MonoBehaviour
         {
             if (0 <= b.adjDire[i] && (b.adjBlocks[i].roomNo == -1 || no + 1 < b.adjBlocks[i].roomNo))
             {
-                SetNo(b.adjBlocks[i], no + 1);
+                no += 1;
+                SetNo(b.adjBlocks[i], no);
             }
         }
     }
@@ -913,6 +915,36 @@ public class MapGenerator : MonoBehaviour
             }
             enemyCount = 0;
             enemies++;
+        }
+    }
+
+    void SetLastStair()//ボスへつながる階段
+    {
+        int lastRoomNo = 0, lastRoomIndex = 0;
+        Block lastBlock;
+        int x, y;
+
+        for (int i = 0; i < rooms[floors - 1].Count; i++)
+        {
+            if (lastRoomNo < rooms[floors - 1][i].roomNo)
+            {
+                lastRoomNo = rooms[floors - 1][i].roomNo;
+                lastRoomIndex = i;
+            }
+        }
+        lastBlock = rooms[floors - 1][lastRoomIndex];
+
+        for (int i = 0; i < 200; i++)
+        {
+            x = Random.Range(1, lastBlock.rW - 1);
+            y = Random.Range(1, lastBlock.rH - 1);
+            Vector2 p = new Vector2(x + lastBlock.rX, y + lastBlock.rY);
+            if (CheckObject(lastBlock, p))
+            {
+                mapData[lastBlock.floorNo][(int)p.x, (int)p.y] = (int)MapPart.stairU;
+                lastBlock.sPos.Add(p);
+                break;
+            }
         }
     }
     #endregion

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public abstract class Command
 {
@@ -342,6 +343,13 @@ public class Warp : Command
     {
         if (position.x < -100) { return true; }
 
+        Debug.Log("pos=" + position.z);
+        if (obj.map.FloorGOs.Length <= position.z)
+        {
+            SceneManager.LoadScene(2);
+            return true;
+        }
+
         if (obj.map.GetMapData((int)position.z, position).objNo == (int)ObjType.can)
         {
             co--;
@@ -362,7 +370,7 @@ public class Warp : Command
     {
         obj.map.SetObjData(obj.floor, obj.transform.localPosition, (int)ObjType.can);
 
-        if(obj.floor!=(int)position.z)
+        if (obj.floor != (int)position.z)
         {
             obj.transform.SetParent(obj.map.FloorGOs[(int)position.z].transform);
             obj.floor = (int)position.z;
@@ -511,7 +519,7 @@ public class EnergyRecover : Command
 
     public override bool Run(MapObject obj)
     {
-        status.ChangeEnergy(10);
+        status.ChangeEnergy(30);
         isDestroyed = true;
         return true;
     }
@@ -534,7 +542,7 @@ public class CapacityRecover : Command
 
     public override bool Run(MapObject obj)
     {
-        status.ChangeCapacity(10);
+        status.ChangeCapacity(30);
         isDestroyed = true;
         return true;
     }
@@ -562,12 +570,11 @@ public class Slash : Command
 
     public override bool Run(MapObject obj)//敵を切る
     {
-        Debug.Log("slash!");
         if (co == 0)
         {
             effectT = obj.transform.FindChild("mod").FindChild("SlashEffect").FindChild("par1");
             enemyRC = GetEnemy(obj);
-            if (!enemyRC || enemyRC.waitVanishing) { Debug.Log("null"); return true; }
+            if (!enemyRC || enemyRC.waitVanishing) { return true; }
             co++;
         }
         else if (co < lim)
@@ -587,7 +594,6 @@ public class Slash : Command
     RobotController GetEnemy(MapObject obj)
     {
         int no = obj.map.GetMapData(obj.floor, obj.transform.localPosition + obj.DtoV(obj.dire)).objNo;
-        Debug.Log(no);
         return 0 <= no && no < obj.map.Objs.Count && obj.CheckEnemyOrNot(obj.map.Objs[no])
             ? obj.map.Objs[no] as RobotController : null;
     }

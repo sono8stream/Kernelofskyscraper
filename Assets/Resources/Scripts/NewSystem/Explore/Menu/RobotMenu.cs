@@ -10,13 +10,13 @@ public class RobotMenu : MonoBehaviour
     [SerializeField]
     GameObject comSetEffect;
     [SerializeField]
-    Image selectImage;
+    Image selectImage, direImage;
     [SerializeField]
     float buttonPosX;
     [SerializeField]
     CameraSwiper swiper;
     [SerializeField]
-    Text commandText;
+    Text actText, flagText;
     GameObject panelGOrigin;
     List<Button> commandBs;
     int robotNo;
@@ -51,7 +51,6 @@ public class RobotMenu : MonoBehaviour
         SetCommand();
         commandCodes.Insert(codeIndex, (int)CodeName.Left);
         codeIndex++;
-        commandText.text = "Left If Wall in front";//デフォルト
     }
 
     // Update is called once per frame
@@ -59,8 +58,8 @@ public class RobotMenu : MonoBehaviour
     {
         if (roboRC != null)
         {
-            SetRobotDirection();
-            SetCommandCode();
+            //SetRobotDirection();
+            //SetCommandCode();
         }
     }
 
@@ -121,15 +120,13 @@ public class RobotMenu : MonoBehaviour
         }
     }
 
-    void SetCommandCode()
+    /*void SetCommandCode()
     {
         if (waitCo < waitLim)
         {
             waitCo++;
             return;
         }
-        /*if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftShift))//flag
-        {*/
         if (Input.GetKeyDown(KeyCode.Z))
         {
             SetFlag();
@@ -173,15 +170,6 @@ public class RobotMenu : MonoBehaviour
             codeIndex++;
             UpdateText();
         }
-        /*}
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            codeIndex = 0 < codeIndex ? codeIndex - 1 : 0;
-        }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            codeIndex = codeIndex < commandCodes.Count ? codeIndex + 1 : commandCodes.Count;
-        }*/
         else if (Input.GetKey(KeyCode.Backspace) && 0 < codeIndex)
         {
             waitCo = 0;
@@ -209,6 +197,7 @@ public class RobotMenu : MonoBehaviour
             //commandCodes = new List<byte>();
         }
     }
+    */
 
     public void OperateRobot()
     {
@@ -220,7 +209,7 @@ public class RobotMenu : MonoBehaviour
         roboRC.ChangeMovable(true);
         roboRC = null;
         //onFlag = false;
-        commandText.transform.parent.gameObject.SetActive(false);
+        actText.transform.parent.parent.gameObject.SetActive(false);
     }
 
     void SetFlag()
@@ -253,7 +242,6 @@ public class RobotMenu : MonoBehaviour
                 codeIndex--;
                 if (commandCodes[codeIndex] == (int)CodeName.If)
                 {
-
                     break;
                 }
             }
@@ -289,7 +277,7 @@ public class RobotMenu : MonoBehaviour
         {
             t += roboRC.codeList[commandCodes[i]].text + " ";
         }
-        commandText.text = t;
+        //commandText.text = t;
     }
 
     public void GenerateRobot(Transform cursorTransform, GameObject robotGO = null)
@@ -314,8 +302,29 @@ public class RobotMenu : MonoBehaviour
         g.transform.position = cursorTransform.position;
         g.transform.SetParent(cursorTransform.parent);
         g.transform.localScale = Vector3.one;
-
-        commandText.transform.parent.gameObject.SetActive(true);
         //UpdateText();
+        actText.transform.parent.parent.gameObject.SetActive(true);
+        direImage.transform.eulerAngles = Vector3.forward * 180;
+    }
+
+    public void ChangeCodeNo()
+    {
+        commandCodes[0] =
+            commandCodes[0] == (int)CodeName.Turn ? (byte)CodeName.Left : (byte)(commandCodes[0] + 1);
+        actText.text = roboRC.codeList[commandCodes[0]].text;
+    }
+
+    public void ChangeFlagNo()
+    {
+        commandCodes[2] =
+            commandCodes[2] == (int)CodeName.Trap ? (byte)CodeName.Wall : (byte)(commandCodes[2] + 1);
+        flagText.text = roboRC.codeList[commandCodes[2]].text;
+    }
+
+    public void ChangeDire()
+    {
+        roboRC.dire = roboRC.dire == 3 ? 0 : roboRC.dire + 1;
+        roboRC.transform.FindChild("mod").eulerAngles = Vector3.forward * 90 * roboRC.dire;
+        direImage.transform.eulerAngles = Vector3.forward * 90 * ((roboRC.dire + 2) % 4);
     }
 }

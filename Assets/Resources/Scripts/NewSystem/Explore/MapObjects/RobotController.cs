@@ -93,7 +93,6 @@ public class RobotController : MapObject
             waitCo = 0;
             if (comNo == -3)//パネル読み込み
             {
-                Debug.Log(map.GetMapData(floor, transform.localPosition));
                 Panel p = map.GetMapData(floor, transform.localPosition).panel;
                 if (p != null && p.campNo != (int)CampState.neutral && p.campNo != campNo)
                 {
@@ -170,7 +169,15 @@ public class RobotController : MapObject
 
     bool TrapInFront()
     {
-        return map.GetMapData(floor, transform.localPosition).panel.isTrap;
+        CellData c = map.GetMapData(floor, transform.localPosition);
+        if (c == null)
+        {
+            return false;
+        }
+        else
+        {
+            return c.panel && c.panel.isTrap;
+        }
     }
 
     bool CheckFlags(List<Func<bool>> flags)
@@ -202,10 +209,8 @@ public class RobotController : MapObject
 
         for (int i = 0; i < codes.Length; i++)
         {
-            Debug.Log("おかしくね？" + codes[i]);
             if (codeList[codes[i]].value == 0xff)//Ifのばあい
             {
-                Debug.Log("IF on");
                 onFlag = true;
             }
             else if (codeList[codes[i]].value == 0xfd)//;のばあい
@@ -228,7 +233,6 @@ public class RobotController : MapObject
                             flag[orderNo].Add(() => TrapInFront());
                             break;
                     }
-                    Debug.Log("Flag Setter");
                 }
                 else
                 {
@@ -247,10 +251,6 @@ public class RobotController : MapObject
                 }
             }
         }
-
-        Debug.Log(flag.Count);
-        Debug.Log(flag[0].Count);
-
         orderNo = 0;
     }
 
@@ -263,9 +263,9 @@ public class RobotController : MapObject
         codeList.Add(new Code(0x01, "Wall in front"));
         codeList.Add(new Code(0x02, "Enemy in front"));
         codeList.Add(new Code(0x03, "Trap in front"));
-        codeList.Add(new Code(0x01, "Left"));
-        codeList.Add(new Code(0x02, "Right"));
-        codeList.Add(new Code(0x03, "Turn"));
+        codeList.Add(new Code(0x01, "Turn Left"));
+        codeList.Add(new Code(0x02, "Turn Right"));
+        codeList.Add(new Code(0x03, "Turn Back"));
 
     }
     #endregion

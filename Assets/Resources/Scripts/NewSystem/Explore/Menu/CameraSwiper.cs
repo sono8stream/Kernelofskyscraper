@@ -85,7 +85,7 @@ public class CameraSwiper : MonoBehaviour
             LimitScroll(false);
             velocity += accel;
         }
-        MoveCamera();
+        //MoveCamera();
         floorCon.MoveMapCursor();
 
         if(Input.GetKeyDown(KeyCode.Space))//カメラ位置=カーネル位置に
@@ -132,7 +132,7 @@ public class CameraSwiper : MonoBehaviour
             CellData c = map.GetMapData(floorCon.FloorNo, cursorGO.transform.localPosition);
             if (Input.GetMouseButtonUp(0))
             {
-                if (onPanel && 0 <= panelMenu.PanelNo && c != null && c.panel == null
+                if (onPanel && 0 <= panelMenu.PanelNo && c != null && c.tile.activeSelf && c.panel == null
                     && c.partNo == (int)MapPart.floor
                     && status.ChangeCapacity(-Data.commands[panelMenu.PanelNo].cost))//Generate a panel
                 {
@@ -155,7 +155,8 @@ public class CameraSwiper : MonoBehaviour
                         {
                             Data.commands[7] = new Warp();
                             Warp warp = panelTemp.command as Warp;
-                            warp.UpdatePos(p.transform.localPosition + Vector3.forward * floorCon.FloorNo);
+                            warp.UpdatePos(p.transform.localPosition + Vector3.forward * (floorCon.FloorNo + 0.06f));
+                            Debug.Log(p.transform.localPosition.z + floorCon.FloorNo + 0.06f);
                         }
                         panelMenu.InitiateCommandBs();
                     }
@@ -177,6 +178,7 @@ public class CameraSwiper : MonoBehaviour
             }
             else if (Input.GetMouseButtonUp(1) && c.panel && !c.panel.cannotBreak)//右クリック、パネル削除
             {
+                status.ChangeCapacity(Data.commands[panelMenu.PanelNo].cost / 2);
                 c.panel.onDestroy = true;
             }
         }
